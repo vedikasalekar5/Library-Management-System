@@ -1,0 +1,25 @@
+# Add fine column to an existing database
+columns = connection.execute(
+).fetchall()
+
+column_names = [column["name"] for column in columns]
+
+if "fine" not in column_names:
+    connection.execute(
+        """
+        ADD COLUMN fine INTEGER NOT NULL DEFAULT 0
+        """
+    )
+
+
+# Add ₹10 fine to previous late returns
+connection.execute(
+    """
+    SET fine = ?
+    WHERE status = 'Returned'
+    AND return_date IS NOT NULL
+    AND date(return_date) > date(due_date)
+    AND fine = 0
+    """,
+    (FINE_AMOUNT,),
+)

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Incident Approval | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="incident-detail-page">
+
+        <header class="incident-detail-header">
+
+            <div>
+                <p class="small-title">
+                    Student Incident Record
+                </p>
+
+                <h1>{{ incident.member_name }}</h1>
+
+                <p>
+                    Review this Lost or Damaged book report.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('incidents') }}"
+                class="secondary-button"
+            >
+                Back to All Records
+            </a>
+
+        </header>
+
+
+        {% with messages =
+            get_flashed_messages(with_categories=true)
+        %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <section class="incident-detail-card">
+
+            <div class="incident-detail-top">
+
+                <div>
+
+                    <span
+                        class="
+                            incident-type-chip
+                            type-{{
+                                incident.incident_type
+                                | lower
+                            }}
+                        "
+                    >
+                        {{ incident.incident_type }}
+                    </span>
+
+                    <h2>{{ incident.title }}</h2>
+
+                    <p>
+                        By {{ incident.author or '-' }}
+                    </p>
+
+                </div>
+
+                <span
+                    class="
+                        incident-status-chip
+                        status-{{
+                            incident.incident_status
+                            | lower
+                        }}
+                    "
+                >
+                    {{ incident.incident_status }}
+                </span>
+
+            </div>
+
+
+            <div class="incident-detail-grid">
+
+                <div>
+                    <span>Student Name</span>
+                    <strong>{{ incident.member_name }}</strong>
+                </div>
+
+                <div>
+                    <span>Enrollment Number</span>
+                    <strong>
+                        {{ incident.enrollment_no or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Membership ID</span>
+                    <strong>
+                        {{ incident.membership_id or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Department</span>
+                    <strong>
+                        {{ incident.department or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Study Year</span>
+                    <strong>
+                        {{ incident.study_year or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Issue Date</span>
+                    <strong>
+                        {{ incident.issue_date or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Due Date</span>
+                    <strong>
+                        {{ incident.due_date or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Reported Date</span>
+                    <strong>
+                        {{ incident.reported_at or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Date Noticed</span>
+                    <strong>
+                        {{ incident.noticed_date or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Charge</span>
+                    <strong class="incident-charge-value">
+                        ₹{{ incident.charge or 0 }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Payment Method</span>
+                    <strong>
+                        {{ incident.payment_method or '-' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Payment Status</span>
+                    <strong>
+                        {{
+                            incident.payment_status
+                            or 'Not Started'
+                        }}
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <div class="incident-detail-description">
+
+                <span>Student Description</span>
+
+                <p>
+                    {{
+                        incident.description
+                        or 'No description provided.'
+                    }}
+                </p>
+
+            </div>
+
+
+            {% if incident.admin_note %}
+
+                <div class="incident-detail-note">
+
+                    <span>Librarian Note</span>
+
+                    <p>{{ incident.admin_note }}</p>
+
+                </div>
+
+            {% endif %}
+
+
+            {% if incident.incident_status == 'Pending' %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'review_incident',
+                        incident_id=incident.incident_id
+                    ) }}"
+                    class="incident-detail-review-form"
+                >
+
+                    <h3>Approve or Reject Report</h3>
+
+                    <label>
+                        Lost / Damaged Charge
+
+                        <input
+                            type="number"
+                            name="charge"
+                            min="0"
+                            step="1"
+                            placeholder="Enter charge amount"
+                            required
+                        >
+                    </label>
+
+                    <label>
+                        Librarian Note
+
+                        <textarea
+                            name="admin_note"
+                            rows="4"
+                            placeholder="Enter approval or rejection note"
+                        ></textarea>
+                    </label>
+
+                    <div class="incident-detail-actions">
+
+                        <button
+                            type="submit"
+                            name="action"
+                            value="approve"
+                            class="primary-button"
+                        >
+                            Approve and Add Charge
+                        </button>
+
+                        <button
+                            type="submit"
+                            name="action"
+                            value="reject"
+                            class="delete-button"
+                            formnovalidate
+                        >
+                            Reject Report
+                        </button>
+
+                    </div>
+
+                </form>
+
+            {% elif
+                incident.payment_status
+                == 'Awaiting Cash Confirmation'
+            %}
+
+                <section class="incident-cash-approval">
+
+                    <div>
+                        <h3>Cash Payment Awaiting Confirmation</h3>
+
+                        <p>
+                            Requested on:
+                            {{
+                                incident.cash_requested_at
+                                or '-'
+                            }}
+                        </p>
+
+                        <p>
+                            Amount to receive:
+                            <strong>
+                                ₹{{ incident.charge }}
+                            </strong>
+                        </p>
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'confirm_incident_cash',
+                            payment_id=incident.payment_id
+                        ) }}"
+                    >
+
+                        <button
+                            type="submit"
+                            class="primary-button"
+                            onclick="
+                                return confirm(
+                                    'Have you received the cash payment?'
+                                );
+                            "
+                        >
+                            Confirm Cash Received
+                        </button>
+
+                    </form>
+
+                </section>
+
+            {% elif incident.payment_status == 'Paid' %}
+
+                <section class="incident-paid-box">
+
+                    <h3>Payment Completed</h3>
+
+                    <p>
+                        Paid on:
+                        {{ incident.paid_at or '-' }}
+                    </p>
+
+                    <p>
+                        Method:
+                        {{ incident.payment_method or '-' }}
+                    </p>
+
+                    <p>
+                        Receipt:
+                        {{ incident.receipt_no or '-' }}
+                    </p>
+
+                </section>
+
+            {% elif incident.incident_status == 'Approved' %}
+
+                <section class="incident-approved-box">
+
+                    <h3>Report Approved</h3>
+
+                    <p>
+                        The member can now pay
+                        ₹{{ incident.charge }}
+                        after scanning the Digital Card QR.
+                    </p>
+
+                </section>
+
+            {% elif incident.incident_status == 'Rejected' %}
+
+                <section class="incident-rejected-box">
+
+                    <h3>Report Rejected</h3>
+
+                    <p>
+                        No payment is required.
+                    </p>
+
+                </section>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

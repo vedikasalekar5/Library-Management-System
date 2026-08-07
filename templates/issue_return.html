@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Issue & Return | Aureon Library</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+        /* Only affects the Issue & Return page */
+
+        .circulation-page {
+            min-width: 0;
+        }
+
+        .circulation-intro {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .circulation-intro h1 {
+            margin: 3px 0 6px;
+        }
+
+        .circulation-intro-text {
+            margin: 0;
+            color: #71869a;
+        }
+
+        .circulation-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 16px;
+            border: 1px solid #d9e8f4;
+            border-radius: 12px;
+            background: #edf6fd;
+            color: #2b79b1;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .circulation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            margin-bottom: 26px;
+        }
+
+        .circulation-panel {
+            min-width: 0;
+            padding: 26px;
+        }
+
+        .circulation-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .circulation-panel-header h2 {
+            margin: 3px 0 0;
+            color: #1e3c59;
+            font-size: 24px;
+        }
+
+        .circulation-icon {
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 13px;
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .issue-icon {
+            background: #e7f2ff;
+            color: #277fc2;
+        }
+
+        .return-icon {
+            background: #e5f7ee;
+            color: #2f805e;
+        }
+
+        .circulation-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .circulation-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 0;
+            color: #2b4055;
+            font-weight: 700;
+        }
+
+        .circulation-field select,
+        .circulation-field input {
+            width: 100%;
+            min-height: 52px;
+            padding: 12px 14px;
+            border: 1px solid #d7e4ee;
+            border-radius: 11px;
+            background: #ffffff;
+            box-sizing: border-box;
+            color: #263b50;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .circulation-field select:focus,
+        .circulation-field input:focus {
+            border-color: #68a7d5;
+            box-shadow: 0 0 0 3px rgba(80, 150, 203, 0.12);
+        }
+
+        .circulation-help {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 0;
+            padding: 13px 14px;
+            border-radius: 11px;
+            background: #f4f8fb;
+            color: #70869a;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .circulation-help strong {
+            color: #2e4c65;
+        }
+
+        .circulation-submit {
+            width: 100%;
+            min-height: 50px;
+            margin-top: 2px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .return-submit {
+            background: linear-gradient(135deg, #2e8b69, #49aa82);
+            color: #ffffff;
+        }
+
+        .return-submit:hover {
+            filter: brightness(0.97);
+        }
+
+        .transaction-history-card {
+            min-width: 0;
+            margin-top: 4px;
+        }
+
+        .transaction-history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .refresh-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 42px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            background: #e8f3fc;
+            color: #287bb6;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .transaction-table {
+            min-width: 1050px;
+        }
+
+        .transaction-table th,
+        .transaction-table td {
+            vertical-align: middle;
+        }
+
+        .book-cell strong {
+            display: block;
+            color: #193752;
+        }
+
+        .fine-late,
+        .fine-zero {
+            display: inline-block;
+            min-width: 50px;
+            padding: 7px 10px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .fine-late {
+            background: #fff0f1;
+            color: #c5545e;
+        }
+
+        .fine-zero {
+            background: #e8f7ef;
+            color: #2d805d;
+        }
+
+        @media (max-width: 950px) {
+            .circulation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .circulation-intro {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .circulation-panel {
+                padding: 21px;
+            }
+
+            .transaction-history-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library Logo"
+                    class="brand-logo"
+                >
+
+                <div>
+                    <h2 class="brand-name">
+                         Aureon<span class="tm-symbol">™</span>
+                    </h2>
+                    <p>Library Management System</p>
+                </div>
+
+            </div>
+
+
+            <!-- Navigation -->
+            <nav class="navigation">
+
+    <a
+        href="{{ url_for('dashboard') }}"
+        class="{% if request.endpoint == 'dashboard' %}active{% endif %}"
+    >
+        <span>⌂</span>
+        Dashboard
+    </a>
+
+    <a
+        href="{{ url_for('books') }}"
+        class="{% if request.endpoint == 'books' %}active{% endif %}"
+    >
+        <span>▤</span>
+        Books
+    </a>
+
+    <a
+        href="{{ url_for('members') }}"
+        class="{% if request.endpoint == 'members' %}active{% endif %}"
+    >
+        <span>◎</span>
+        Members
+    </a>
+
+    <a
+        href="{{ url_for('member_history') }}"
+        class="{% if request.endpoint == 'member_history' %}active{% endif %}"
+    >
+        <span>◷</span>
+        Member History
+    </a>
+
+    <a
+        href="{{ url_for('issue_return') }}"
+        class="{% if request.endpoint == 'issue_return' %}active{% endif %}"
+    >
+        <span>⇄</span>
+        Issue & Return
+    </a>
+
+    <a
+        href="{{ url_for('overdue') }}"
+        class="{% if request.endpoint == 'overdue' %}active{% endif %}"
+    >
+        <span>!</span>
+        Overdue Books
+    </a>
+
+    <a
+        href="{{ url_for('incidents') }}"
+        class="{% if request.endpoint == 'incidents' %}active{% endif %}"
+    >
+        <span>⚠</span>
+        Lost & Damaged
+        </a>
+
+        <a
+         href="{{ url_for('librarian_notifications') }}"
+        class="{%
+        if request.endpoint == 'librarian_notifications'
+        %}active{% endif %}"
+         >
+          <span class="nav-icon">◉</span>
+          Notifications
+        </a>
+
+         </nav>
+               
+
+
+               <!-- Librarian Profile -->
+            <div class="sidebar-footer">
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout-button"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content circulation-page">
+
+            <!-- Page Header -->
+            <header class="page-header circulation-intro">
+
+                <div>
+
+                    <p class="small-title">
+                        Book Transactions
+                    </p>
+
+                    <h1>Issue & Return Books</h1>
+
+                    <p class="circulation-intro-text">
+                        Issue books to members and complete active returns.
+                    </p>
+
+                </div>
+
+                <div class="circulation-badge">
+                    Admin
+                </div>
+
+            </header>
+
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- Issue and Return Forms -->
+            <section class="circulation-grid">
+
+                <!-- Issue Book -->
+                <article class="content-card circulation-panel">
+
+                    <div class="circulation-panel-header">
+
+                        <div class="circulation-icon issue-icon">
+                            ↗
+                        </div>
+
+                        <div>
+
+                            <p class="small-title">
+                                New Transaction
+                            </p>
+
+                            <h2>Issue Book</h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('issue_return') }}"
+                        class="circulation-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="action"
+                            value="issue"
+                        >
+
+
+                        <label class="circulation-field">
+
+                            Select Member
+
+                            <select
+                                name="member_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Choose a member
+                                </option>
+
+                                {% for member in members %}
+
+                                    <option value="{{ member.id }}">
+                                        {{ member.name }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </label>
+
+
+                        <label class="circulation-field">
+
+                            Select Book
+
+                            <select
+                                name="book_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Choose a book
+                                </option>
+
+                                {% for book in books %}
+
+                                    <option value="{{ book.id }}">
+
+                                        {{ book.title }}
+                                        —
+                                        {{ book.available_copies }}
+                                        available
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </label>
+
+
+                        <p class="circulation-help">
+                            <span>ⓘ</span>
+
+                            <span>
+                                The issue date is recorded automatically and the
+                                due date is set for <strong>7 days</strong>.
+                            </span>
+                        </p>
+
+
+                        <button
+                            type="submit"
+                            class="primary-button circulation-submit"
+                        >
+                            Issue Book for 7 Days
+                        </button>
+
+                    </form>
+
+                </article>
+
+
+                <!-- Return Book -->
+                <article class="content-card circulation-panel">
+
+                    <div class="circulation-panel-header">
+
+                        <div class="circulation-icon return-icon">
+                            ↙
+                        </div>
+
+                        <div>
+
+                            <p class="small-title">
+                                Complete Transaction
+                            </p>
+
+                            <h2>Return Book</h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('issue_return') }}"
+                        class="circulation-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="action"
+                            value="return"
+                        >
+
+
+                        <label class="circulation-field">
+
+                            Active Issue Record
+
+                            <select
+                                name="transaction_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Choose an issued book
+                                </option>
+
+                                {% for item in active_transactions %}
+
+                                    <option value="{{ item.id }}">
+
+                                        {{ item.title }}
+                                        —
+                                        {{ item.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </label>
+
+
+                        <p class="circulation-help">
+                            <span>ⓘ</span>
+
+                            <span>
+                                Select the active issue record. The system will
+                                restore the available copy and apply the fixed
+                                late fine when required.
+                            </span>
+                        </p>
+
+
+                        <button
+                            type="submit"
+                            class="secondary-button circulation-submit return-submit"
+                        >
+                            Mark Book as Returned
+                        </button>
+
+                    </form>
+
+                </article>
+
+            </section>
+
+
+            <!-- Transaction History -->
+            <section class="content-card transaction-history-card">
+
+                <div class="card-header transaction-history-header">
+
+                    <div>
+
+                        <p class="small-title">
+                            Complete Record
+                        </p>
+
+                        <h2>
+                            Transaction History
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="refresh-button"
+                        onclick="window.location.reload()"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table class="transaction-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Book</th>
+                                <th>Member</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Return Date</th>
+                                <th>Fine</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for item in history %}
+
+                                <tr>
+
+                                    <td class="book-cell">
+
+                                        <strong>
+                                            {{ item.title }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ item.name }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ item.issue_date }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ item.due_date }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ item.return_date or '-' }}
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if item.fine > 0 %}
+
+                                            <span class="fine-late">
+                                                ₹{{ item.fine }}
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="fine-zero">
+                                                ₹0
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="status {{ item.status|lower }}">
+                                            {{ item.status }}
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            {% else %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="7"
+                                        class="empty-message"
+                                    >
+                                        No transaction history available.
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>
+

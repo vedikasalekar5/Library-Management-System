@@ -1,0 +1,3050 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ member.name }} | Aureon Digital Library Card
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+        :root {
+            --qr-bg: #f5f7ff;
+            --qr-surface: #ffffff;
+            --qr-surface-soft: #faf9ff;
+            --qr-border: #e3def5;
+            --qr-text: #292451;
+            --qr-muted: #77729b;
+            --qr-primary: #4f46e5;
+            --qr-primary-dark: #3730a3;
+            --qr-secondary: #7c3aed;
+            --qr-success: #237454;
+            --qr-warning: #9a6217;
+            --qr-danger: #b42318;
+            --qr-shadow: 0 14px 34px rgba(49, 46, 129, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body.member-qr-portal-page {
+            margin: 0;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(124, 58, 237, 0.11),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    135deg,
+                    #f7f7ff,
+                    #eef3ff
+                );
+            color: var(--qr-text);
+            font-family:
+                Inter,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+        }
+
+        body.member-qr-portal-page button,
+        body.member-qr-portal-page input,
+        body.member-qr-portal-page select,
+        body.member-qr-portal-page textarea {
+            font: inherit;
+        }
+
+        body.member-qr-portal-page button,
+        body.member-qr-portal-page a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        .member-qr-shell {
+            min-height: 100vh;
+        }
+
+        .member-qr-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            min-height: 76px;
+            padding: 12px 24px;
+            border-bottom: 1px solid rgba(227, 222, 245, 0.9);
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 24px rgba(49, 46, 129, 0.06);
+        }
+
+        .member-qr-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--qr-text);
+            text-decoration: none;
+        }
+
+        .member-qr-brand img {
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            object-fit: cover;
+        }
+
+        .member-qr-brand strong,
+        .member-qr-brand span {
+            display: block;
+        }
+
+        .member-qr-brand strong {
+            color: var(--qr-primary-dark);
+            font-size: 20px;
+        }
+
+        .member-qr-brand span {
+            margin-top: 2px;
+            color: var(--qr-muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .member-qr-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .member-qr-top-member {
+            text-align: right;
+        }
+
+        .member-qr-top-member span,
+        .member-qr-top-member strong {
+            display: block;
+        }
+
+        .member-qr-top-member span {
+            color: var(--qr-muted);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .member-qr-top-member strong {
+            margin-top: 3px;
+            color: var(--qr-primary-dark);
+            font-size: 14px;
+        }
+
+        .member-qr-logout {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 9px 14px;
+            border-radius: 10px;
+            background: #fff0f1;
+            color: var(--qr-danger);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .member-qr-layout {
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            min-height: calc(100vh - 76px);
+        }
+
+        .member-qr-sidebar {
+            position: sticky;
+            top: 76px;
+            align-self: start;
+            height: calc(100vh - 76px);
+            padding: 20px 16px;
+            border-right: 1px solid var(--qr-border);
+            background: rgba(255, 255, 255, 0.78);
+            overflow-y: auto;
+        }
+
+        .member-qr-mini-card {
+            padding: 18px;
+            border-radius: 18px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #312e81,
+                    #4f46e5 52%,
+                    #7c3aed
+                );
+            color: #ffffff;
+            box-shadow: 0 16px 32px rgba(49, 46, 129, 0.18);
+        }
+
+        .member-qr-avatar {
+            display: grid;
+            width: 52px;
+            height: 52px;
+            place-items: center;
+            margin-bottom: 13px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+        .member-qr-mini-card span,
+        .member-qr-mini-card h2,
+        .member-qr-mini-card p {
+            margin: 0;
+        }
+
+        .member-qr-mini-card span {
+            color: rgba(255, 255, 255, 0.73);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .member-qr-mini-card h2 {
+            margin-top: 5px;
+            font-size: 19px;
+        }
+
+        .member-qr-mini-card p {
+            margin-top: 5px;
+            color: #e6e4ff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .member-qr-active {
+            display: inline-flex;
+            margin-top: 12px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff !important;
+        }
+
+        .member-qr-navigation {
+            display: grid;
+            gap: 7px;
+            margin-top: 18px;
+        }
+
+        .member-qr-navigation button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 11px;
+            background: transparent;
+            color: #5d587b;
+            cursor: pointer;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 800;
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .member-qr-navigation button:hover,
+        .member-qr-navigation button.active {
+            transform: translateX(2px);
+            background: #eeeafe;
+            color: var(--qr-primary-dark);
+        }
+
+        .member-qr-navigation button span {
+            display: grid;
+            width: 27px;
+            height: 27px;
+            place-items: center;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 4px 10px rgba(49, 46, 129, 0.08);
+        }
+
+        .member-qr-nav-count {
+            display: grid !important;
+            width: 22px !important;
+            height: 22px !important;
+            margin-left: auto;
+            place-items: center;
+            border-radius: 999px !important;
+            background: var(--qr-danger) !important;
+            color: #ffffff;
+            font-size: 10px;
+        }
+
+        .member-qr-main {
+            min-width: 0;
+            padding: 28px;
+        }
+
+        .member-qr-alerts {
+            margin-bottom: 18px;
+        }
+
+        .member-qr-alerts .alert {
+            margin-bottom: 10px;
+            padding: 13px 15px;
+            border-radius: 11px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .member-qr-alerts .alert.success {
+            border: 1px solid #a7e6c8;
+            background: #e9f9f1;
+            color: var(--qr-success);
+        }
+
+        .member-qr-alerts .alert.warning {
+            border: 1px solid #f4d49b;
+            background: #fff7e8;
+            color: var(--qr-warning);
+        }
+
+        .member-qr-alerts .alert.danger {
+            border: 1px solid #f2b5b5;
+            background: #fff0f0;
+            color: var(--qr-danger);
+        }
+
+        .member-qr-section {
+            animation: memberQrFade 0.2s ease;
+        }
+
+        @keyframes memberQrFade {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .member-qr-page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 22px;
+            padding: 26px;
+            border-radius: 22px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #312e81,
+                    #4f46e5 52%,
+                    #7c3aed
+                );
+            color: #ffffff;
+            box-shadow: 0 20px 45px rgba(49, 46, 129, 0.2);
+        }
+
+        .member-qr-page-header h1,
+        .member-qr-page-header p {
+            margin: 0;
+        }
+
+        .member-qr-page-header h1 {
+            margin-top: 5px;
+            font-size: clamp(27px, 5vw, 38px);
+            line-height: 1.15;
+        }
+
+        .member-qr-page-header > div > p:last-child {
+            max-width: 700px;
+            margin-top: 9px;
+            color: rgba(255, 255, 255, 0.78);
+            line-height: 1.55;
+        }
+
+        .member-qr-small-title {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+        }
+
+        .member-qr-secure-badge {
+            display: inline-flex;
+            min-height: 38px;
+            align-items: center;
+            padding: 9px 13px;
+            border: 1px solid rgba(255, 255, 255, 0.27);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .member-qr-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(145px, 1fr));
+            gap: 13px;
+            margin-bottom: 22px;
+        }
+
+        .member-qr-summary-card,
+        .member-qr-card,
+        .member-qr-record {
+            border: 1px solid var(--qr-border);
+            background: rgba(255, 255, 255, 0.97);
+            box-shadow: var(--qr-shadow);
+        }
+
+        .member-qr-summary-card {
+            padding: 18px;
+            border-radius: 16px;
+        }
+
+        .member-qr-summary-card span,
+        .member-qr-summary-card strong {
+            display: block;
+        }
+
+        .member-qr-summary-card span {
+            color: var(--qr-muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .member-qr-summary-card strong {
+            margin-top: 7px;
+            color: var(--qr-primary-dark);
+            font-size: 26px;
+        }
+
+        .member-qr-card {
+            margin-top: 20px;
+            padding: 22px;
+            border-radius: 19px;
+        }
+
+        .member-qr-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .member-qr-card-header h2,
+        .member-qr-card-header p {
+            margin: 0;
+        }
+
+        .member-qr-card-header h2 {
+            margin-top: 4px;
+            color: var(--qr-primary-dark);
+            font-size: 22px;
+        }
+
+        .member-qr-card-header p:last-child {
+            margin-top: 7px;
+            color: var(--qr-muted);
+            line-height: 1.5;
+        }
+
+        .member-qr-card-title {
+            color: var(--qr-secondary);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .member-qr-due-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 22px;
+            padding: 20px;
+            border: 1px solid #d8d2f3;
+            border-radius: 18px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #f4f1ff
+                );
+            box-shadow: var(--qr-shadow);
+        }
+
+        .member-qr-due-card h2,
+        .member-qr-due-card p {
+            margin: 0;
+        }
+
+        .member-qr-due-card h2 {
+            margin-top: 5px;
+            color: var(--qr-primary-dark);
+        }
+
+        .member-qr-due-card p:last-child {
+            margin-top: 7px;
+            color: var(--qr-muted);
+        }
+
+        .member-qr-due-number {
+            min-width: 120px;
+            padding: 14px;
+            border-radius: 14px;
+            background: #eeeafe;
+            color: var(--qr-primary-dark);
+            text-align: center;
+        }
+
+        .member-qr-due-number span,
+        .member-qr-due-number strong {
+            display: block;
+        }
+
+        .member-qr-due-number span {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .member-qr-due-number strong {
+            margin-top: 5px;
+            font-size: 22px;
+        }
+
+        .member-qr-action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .member-qr-action-card {
+            padding: 19px;
+            border: 1px solid var(--qr-border);
+            border-radius: 15px;
+            background: var(--qr-surface-soft);
+        }
+
+        .member-qr-action-card h3,
+        .member-qr-action-card p {
+            margin: 0;
+        }
+
+        .member-qr-action-card h3 {
+            color: var(--qr-primary-dark);
+        }
+
+        .member-qr-action-card p {
+            margin-top: 8px;
+            color: var(--qr-muted);
+            line-height: 1.5;
+        }
+
+        .member-qr-action-card button {
+            margin-top: 14px;
+        }
+
+        .member-qr-book-grid,
+        .member-qr-record-list,
+        .member-qr-notification-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .member-qr-book-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .member-qr-record {
+            padding: 19px;
+            border-radius: 15px;
+        }
+
+        .member-qr-record-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .member-qr-record h3,
+        .member-qr-record p {
+            margin: 0;
+        }
+
+        .member-qr-record h3 {
+            color: var(--qr-primary-dark);
+            font-size: 18px;
+        }
+
+        .member-qr-record p {
+            margin-top: 6px;
+            color: var(--qr-muted);
+            line-height: 1.5;
+        }
+
+        .member-qr-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 30px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .member-qr-status.issued,
+        .member-qr-status.pending,
+        .member-qr-status.awaiting-cash-confirmation {
+            background: #fff1db;
+            color: #9f6218;
+        }
+
+        .member-qr-status.returned,
+        .member-qr-status.paid,
+        .member-qr-status.approved {
+            background: #e4f7ed;
+            color: #287d5c;
+        }
+
+        .member-qr-status.overdue,
+        .member-qr-status.rejected,
+        .member-qr-status.lost,
+        .member-qr-status.damaged {
+            background: #fff0f1;
+            color: var(--qr-danger);
+        }
+
+        .member-qr-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .member-qr-detail {
+            padding: 11px;
+            border: 1px solid #ece8f8;
+            border-radius: 10px;
+            background: #ffffff;
+        }
+
+        .member-qr-detail span,
+        .member-qr-detail strong {
+            display: block;
+        }
+
+        .member-qr-detail span {
+            margin-bottom: 5px;
+            color: #8983a5;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .member-qr-detail strong {
+            color: #37305f;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .member-qr-primary-button,
+        .member-qr-secondary-button,
+        .member-qr-danger-button,
+        .member-qr-receipt-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 14px;
+            border: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+        .member-qr-primary-button {
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--qr-primary),
+                    var(--qr-secondary)
+                );
+            color: #ffffff;
+        }
+
+        .member-qr-secondary-button {
+            background: #eeeafe;
+            color: var(--qr-primary-dark);
+        }
+
+        .member-qr-danger-button {
+            background: #fff0f1;
+            color: var(--qr-danger);
+        }
+
+        .member-qr-receipt-link {
+            background: var(--qr-primary);
+            color: #ffffff;
+        }
+
+        .member-qr-primary-button:hover,
+        .member-qr-secondary-button:hover,
+        .member-qr-danger-button:hover,
+        .member-qr-receipt-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.16);
+        }
+
+        .member-qr-primary-button:disabled,
+        .member-qr-secondary-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.62;
+            transform: none;
+        }
+
+        .member-qr-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .member-qr-actions form {
+            margin: 0;
+        }
+
+        .member-qr-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .member-qr-form label {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            color: #37305f;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .member-qr-form .full-field {
+            grid-column: 1 / -1;
+        }
+
+        .member-qr-form input,
+        .member-qr-form select,
+        .member-qr-form textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d8d2f3;
+            border-radius: 10px;
+            outline: none;
+            background: #ffffff;
+            color: var(--qr-text);
+        }
+
+        .member-qr-form textarea {
+            min-height: 105px;
+            resize: vertical;
+        }
+
+        .member-qr-form input:focus,
+        .member-qr-form select:focus,
+        .member-qr-form textarea:focus {
+            border-color: var(--qr-secondary);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        .member-qr-form-submit {
+            grid-column: 1 / -1;
+        }
+
+        .member-qr-note,
+        .member-qr-description {
+            margin-top: 13px;
+            padding: 13px;
+            border-radius: 11px;
+            background: #ffffff;
+            color: #4a4569;
+            line-height: 1.55;
+        }
+
+        .member-qr-note span,
+        .member-qr-description span {
+            display: block;
+            margin-bottom: 5px;
+            color: #8983a5;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .member-qr-note p,
+        .member-qr-description p {
+            margin: 0;
+        }
+
+        .member-qr-payment-message {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .member-qr-payment-message.warning {
+            background: #fff7e8;
+            color: var(--qr-warning);
+        }
+
+        .member-qr-payment-message.success {
+            background: #e9f9f1;
+            color: var(--qr-success);
+        }
+
+        .member-qr-payment-message.danger {
+            background: #fff0f0;
+            color: var(--qr-danger);
+        }
+
+        .member-qr-payment-total {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 18px;
+            padding: 18px;
+            border-radius: 15px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #312e81,
+                    #4f46e5
+                );
+            color: #ffffff;
+        }
+
+        .member-qr-payment-total span,
+        .member-qr-payment-total strong {
+            display: block;
+        }
+
+        .member-qr-payment-total span {
+            color: rgba(255, 255, 255, 0.74);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .member-qr-payment-total strong {
+            font-size: 28px;
+        }
+
+        .member-qr-notification {
+            display: flex;
+            gap: 13px;
+            padding: 17px;
+            border: 1px solid var(--qr-border);
+            border-radius: 14px;
+            background: #ffffff;
+        }
+
+        .member-qr-notification.unread {
+            border-left: 4px solid var(--qr-secondary);
+            background: #faf9ff;
+        }
+
+        .member-qr-notification-icon {
+            display: grid;
+            flex: 0 0 40px;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            border-radius: 12px;
+            background: #eeeafe;
+            color: var(--qr-primary-dark);
+            font-weight: 900;
+        }
+
+        .member-qr-notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .member-qr-notification-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .member-qr-notification-heading h3,
+        .member-qr-notification-heading p {
+            margin: 0;
+        }
+
+        .member-qr-notification-heading h3 {
+            margin-top: 3px;
+            color: var(--qr-primary-dark);
+        }
+
+        .member-qr-notification-category {
+            color: var(--qr-secondary);
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .member-qr-notification time {
+            color: var(--qr-muted);
+            white-space: nowrap;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .member-qr-notification-content > p {
+            margin: 8px 0 0;
+            color: var(--qr-muted);
+            line-height: 1.55;
+        }
+
+        .member-qr-profile-card {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .member-qr-profile-avatar {
+            display: grid;
+            width: 94px;
+            height: 94px;
+            place-items: center;
+            border-radius: 24px;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--qr-primary),
+                    var(--qr-secondary)
+                );
+            color: #ffffff;
+            font-size: 34px;
+            font-weight: 900;
+        }
+
+        .member-qr-profile-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(140px, 1fr));
+            gap: 11px;
+            margin-top: 16px;
+        }
+
+        .member-qr-empty {
+            padding: 38px 20px;
+            border: 1px dashed #d7d1ee;
+            border-radius: 15px;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .member-qr-empty div {
+            margin-bottom: 10px;
+            font-size: 40px;
+        }
+
+        .member-qr-empty h3,
+        .member-qr-empty p {
+            margin: 0;
+        }
+
+        .member-qr-empty h3 {
+            color: var(--qr-primary-dark);
+        }
+
+        .member-qr-empty p {
+            margin-top: 7px;
+            color: var(--qr-muted);
+            line-height: 1.5;
+        }
+
+        .member-qr-mobile-nav {
+            display: none;
+        }
+
+        @media (max-width: 1050px) {
+            .member-qr-summary-grid {
+                grid-template-columns: repeat(2, minmax(145px, 1fr));
+            }
+
+            .member-qr-book-grid,
+            .member-qr-action-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .member-qr-detail-grid {
+                grid-template-columns: repeat(2, minmax(120px, 1fr));
+            }
+        }
+
+        @media (max-width: 800px) {
+            .member-qr-topbar {
+                padding: 10px 14px;
+            }
+
+            .member-qr-top-member {
+                display: none;
+            }
+
+            .member-qr-layout {
+                display: block;
+            }
+
+            .member-qr-sidebar {
+                display: none;
+            }
+
+            .member-qr-main {
+                padding: 16px 12px 92px;
+            }
+
+            .member-qr-page-header,
+            .member-qr-card-header,
+            .member-qr-due-card,
+            .member-qr-record-top,
+            .member-qr-notification-heading {
+                flex-direction: column;
+            }
+
+            .member-qr-page-header {
+                padding: 22px 18px;
+            }
+
+            .member-qr-summary-grid,
+            .member-qr-detail-grid,
+            .member-qr-profile-grid,
+            .member-qr-form {
+                grid-template-columns: 1fr;
+            }
+
+            .member-qr-form .full-field,
+            .member-qr-form-submit {
+                grid-column: auto;
+            }
+
+            .member-qr-profile-card {
+                grid-template-columns: 1fr;
+            }
+
+            .member-qr-mobile-nav {
+                position: fixed;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 60;
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                min-height: 67px;
+                border-top: 1px solid var(--qr-border);
+                background: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(14px);
+                box-shadow: 0 -8px 24px rgba(49, 46, 129, 0.08);
+            }
+
+            .member-qr-mobile-nav button {
+                display: grid;
+                place-items: center;
+                gap: 3px;
+                border: 0;
+                background: transparent;
+                color: #787293;
+                font-size: 10px;
+                font-weight: 800;
+            }
+
+            .member-qr-mobile-nav button span {
+                font-size: 18px;
+            }
+
+            .member-qr-mobile-nav button.active {
+                color: var(--qr-primary);
+            }
+        }
+
+        @media (max-width: 520px) {
+            .member-qr-brand span {
+                display: none;
+            }
+
+            .member-qr-summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .member-qr-summary-card {
+                padding: 15px;
+            }
+
+            .member-qr-actions,
+            .member-qr-actions form,
+            .member-qr-actions button,
+            .member-qr-actions a {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="member-qr-portal-page">
+
+    {% set issued_list =
+        issued_books
+        if issued_books is defined
+        else []
+    %}
+
+    {% set returned_list =
+        return_records
+        if return_records is defined
+        else []
+    %}
+
+    {% set old_history =
+        history
+        if history is defined
+        else []
+    %}
+
+    {% set incident_list =
+        incident_records
+        if incident_records is defined
+        else []
+    %}
+
+    {% set fine_list =
+        fine_records
+        if fine_records is defined
+        else []
+    %}
+
+    {% set notice_list =
+        notifications
+        if notifications is defined
+        else []
+    %}
+
+    {% set active_qr_token =
+        qr_token
+        if qr_token is defined and qr_token
+        else session.get('member_qr_token')
+    %}
+
+    {% set issued_count =
+        portal_summary.issued_count
+        if portal_summary is defined
+        else (
+            member_summary.active_books
+            if member_summary is defined
+            else issued_list|length
+        )
+    %}
+
+    {% set pending_amount =
+        portal_summary.pending_amount
+        if portal_summary is defined
+        else (
+            member_summary.unpaid_fine
+            if member_summary is defined
+            else 0
+        )
+    %}
+
+    {% set returned_count =
+        portal_summary.returned_count
+        if portal_summary is defined
+        else returned_list|length
+    %}
+
+    {% set unread_count =
+        portal_summary.unread_notifications
+        if portal_summary is defined
+        else 0
+    %}
+
+
+    <div class="member-qr-shell">
+
+        <header class="member-qr-topbar">
+
+            <a
+                href="{{ url_for('member_portal') }}"
+                class="member-qr-brand"
+            >
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library Logo"
+                >
+
+                <div>
+                    <strong>Aureon™</strong>
+                    <span>Secure Digital Library Card</span>
+                </div>
+            </a>
+
+
+            <div class="member-qr-top-actions">
+
+                <div class="member-qr-top-member">
+                    <span>{{ member.membership_id }}</span>
+                    <strong>{{ member.name }}</strong>
+                </div>
+
+                <a
+                    href="{{ url_for('member_card_logout') }}"
+                    class="member-qr-logout member-portal-logout-button"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <div class="member-qr-layout">
+
+            <aside class="member-qr-sidebar">
+
+                <section class="member-qr-mini-card">
+
+                    <div class="member-qr-avatar">
+                        {{
+                            member.name[0]|upper
+                            if member and member.name
+                            else "M"
+                        }}
+                    </div>
+
+                    <span>Digital Card Holder</span>
+
+                    <h2>{{ member.name }}</h2>
+
+                    <p>{{ member.membership_id }}</p>
+
+                    <span class="member-qr-active">
+                        Secure Account Active
+                    </span>
+
+                </section>
+
+
+                <nav
+                    class="member-qr-navigation"
+                    aria-label="Student portal sections"
+                >
+
+                    <button
+                        type="button"
+                        class="active"
+                        data-portal-target="home"
+                    >
+                        <span>⌂</span>
+                        Home
+                    </button>
+
+                    <button
+                        type="button"
+                        data-portal-target="issued"
+                    >
+                        <span>▤</span>
+                        Issued Books
+                    </button>
+
+                    <button
+                        type="button"
+                        data-portal-target="returns"
+                    >
+                        <span>↩</span>
+                        Return Records
+                    </button>
+
+                    <button
+                        type="button"
+                        data-portal-target="incidents"
+                    >
+                        <span>⚠</span>
+                        Lost &amp; Damaged
+                    </button>
+
+                    <button
+                        type="button"
+                        data-portal-target="payments"
+                    >
+                        <span>₹</span>
+                        Fines &amp; Payments
+                    </button>
+
+                    <button
+                        type="button"
+                        data-portal-target="notifications"
+                    >
+                        <span>◉</span>
+                        Notifications
+
+                        {% if unread_count %}
+                            <small class="member-qr-nav-count">
+                                {{ unread_count }}
+                            </small>
+                        {% endif %}
+                    </button>
+
+                    <button
+                        type="button"
+                        data-portal-target="profile"
+                    >
+                        <span>◎</span>
+                        My Profile
+                    </button>
+
+                </nav>
+
+            </aside>
+
+
+            <main class="member-qr-main member-portal-main">
+
+                {% with messages =
+                    get_flashed_messages(with_categories=true)
+                %}
+
+                    {% if messages %}
+
+                        <div class="member-qr-alerts">
+
+                            {% for category, message in messages %}
+
+                                <div class="alert {{ category }}">
+                                    {{ message }}
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+                <!-- HOME -->
+                <section
+                    class="member-qr-section active"
+                    data-portal-section="home"
+                    id="portal-home"
+                >
+
+                    <section class="student-home-hero">
+
+                        <div class="student-home-hero-content">
+
+                            <p class="student-home-eyebrow">
+                                My Digital Library
+                            </p>
+
+                            <h1>
+                                Hello, {{ member.name }}
+                            </h1>
+
+                            <p class="student-home-description">
+                                Everything important about your library
+                                account is available in one simple place.
+                            </p>
+
+
+                            <div class="student-home-identity">
+
+                                <span>
+                                    Membership ID
+                                </span>
+
+                                <strong>
+                                    {{ member.membership_id }}
+                                </strong>
+
+                                <small>
+                                    Secure account active
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="student-home-metrics">
+
+                            <article>
+                                <span>Issued</span>
+                                <strong>{{ issued_count or 0 }}</strong>
+                            </article>
+
+                            <article>
+                                <span>Pending</span>
+                                <strong>₹{{ pending_amount or 0 }}</strong>
+                            </article>
+
+                            <article>
+                                <span>Messages</span>
+                                <strong>{{ unread_count or 0 }}</strong>
+                            </article>
+
+                        </div>
+
+                    </section>
+
+
+                    {% if next_due_book is defined and next_due_book %}
+
+                        <section class="student-home-due">
+
+                            <div class="student-home-due-icon">
+                                ◷
+                            </div>
+
+
+                            <div class="student-home-due-content">
+
+                                <span>
+                                    {{
+                                        "Book Overdue"
+                                        if next_due_book.is_overdue
+                                        else "Next Due Book"
+                                    }}
+                                </span>
+
+                                <h2>
+                                    {{ next_due_book.title }}
+                                </h2>
+
+                                <p>
+                                    Due on {{ next_due_book.due_date }}
+                                </p>
+
+                            </div>
+
+
+                            <div class="student-home-due-value">
+
+                                {% if next_due_book.is_overdue %}
+
+                                    <small>Overdue by</small>
+
+                                    <strong>
+                                        {{
+                                            next_due_book.overdue_days
+                                            or 0
+                                        }}
+                                        day(s)
+                                    </strong>
+
+                                {% else %}
+
+                                    <small>Time remaining</small>
+
+                                    <strong>
+                                        {{
+                                            next_due_book.days_remaining
+                                            or 0
+                                        }}
+                                        day(s)
+                                    </strong>
+
+                                {% endif %}
+
+                            </div>
+
+                        </section>
+
+                    {% endif %}
+
+
+                    <section class="student-home-services">
+
+                        <button
+                            type="button"
+                            class="student-home-service-card"
+                            data-open-portal-section="issued"
+                        >
+
+                            <span class="student-home-service-icon">
+                                ▤
+                            </span>
+
+                            <span class="student-home-service-text">
+
+                                <strong>My Books</strong>
+
+                                <small>
+                                    View issued books and due dates
+                                </small>
+
+                            </span>
+
+                            <span class="student-home-service-arrow">
+                                →
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="student-home-service-card"
+                            data-open-portal-section="payments"
+                        >
+
+                            <span class="student-home-service-icon">
+                                ₹
+                            </span>
+
+                            <span class="student-home-service-text">
+
+                                <strong>Payments</strong>
+
+                                <small>
+                                    Check fines, charges and receipts
+                                </small>
+
+                            </span>
+
+                            <span class="student-home-service-arrow">
+                                →
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="student-home-service-card"
+                            data-open-portal-section="notifications"
+                        >
+
+                            <span class="student-home-service-icon">
+                                ◉
+                            </span>
+
+                            <span class="student-home-service-text">
+
+                                <strong>Notifications</strong>
+
+                                <small>
+                                    Read reminders and library updates
+                                </small>
+
+                            </span>
+
+                            <span class="student-home-service-arrow">
+                                →
+                            </span>
+
+                        </button>
+
+                    </section>
+
+                </section>
+
+
+                <!-- ISSUED BOOKS -->
+                <section
+                    class="member-qr-section"
+                    data-portal-section="issued"
+                    id="portal-issued"
+                    hidden
+                >
+
+                    <header class="member-qr-page-header">
+
+                        <div>
+                            <p class="member-qr-small-title">
+                                My Books
+                            </p>
+
+                            <h1>Issued Books</h1>
+
+                            <p>
+                                View books currently issued to your account,
+                                their due dates and penalty status.
+                            </p>
+                        </div>
+
+                    </header>
+
+
+                    <div class="member-qr-book-grid">
+
+                        {% for book in issued_list %}
+
+                            <article class="member-qr-record">
+
+                                <div class="member-qr-record-top">
+
+                                    <div>
+                                        <h3>{{ book.title }}</h3>
+                                        <p>
+                                            By
+                                            {{
+                                                book.author
+                                                or "Author unavailable"
+                                            }}
+                                        </p>
+                                    </div>
+
+                                    {% if book.is_overdue %}
+
+                                        <span class="member-qr-status overdue">
+                                            Overdue
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="member-qr-status issued">
+                                            Issued
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="member-qr-detail-grid">
+
+                                    <div class="member-qr-detail">
+                                        <span>Issue Date</span>
+                                        <strong>{{ book.issue_date }}</strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Due Date</span>
+                                        <strong>{{ book.due_date }}</strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>
+                                            {{
+                                                "Overdue By"
+                                                if book.is_overdue
+                                                else "Days Remaining"
+                                            }}
+                                        </span>
+
+                                        <strong>
+                                            {% if book.is_overdue %}
+                                                {{ book.overdue_days }} day(s)
+                                            {% else %}
+                                                {{ book.days_remaining }} day(s)
+                                            {% endif %}
+                                        </strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Current Penalty</span>
+                                        <strong>
+                                            ₹{{ book.current_fine or 0 }}
+                                        </strong>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="member-qr-actions">
+
+                                    <button
+                                        type="button"
+                                        class="member-qr-danger-button"
+                                        data-open-portal-section="incidents"
+                                        data-incident-transaction-id="{{
+                                            book.transaction_id
+                                        }}"
+                                    >
+                                        Report Lost or Damaged
+                                    </button>
+
+                                </div>
+
+                            </article>
+
+                        {% else %}
+
+                            <div class="member-qr-empty">
+                                <div>✓</div>
+                                <h3>No Books Currently Issued</h3>
+                                <p>
+                                    You do not have any active issue record.
+                                </p>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+
+                <!-- RETURNS -->
+                <section
+                    class="member-qr-section"
+                    data-portal-section="returns"
+                    id="portal-returns"
+                    hidden
+                >
+
+                    <header class="member-qr-page-header">
+
+                        <div>
+                            <p class="member-qr-small-title">
+                                My Library History
+                            </p>
+
+                            <h1>Return Records</h1>
+
+                            <p>
+                                View returned books, return dates, late status,
+                                penalties and payment receipts.
+                            </p>
+                        </div>
+
+                    </header>
+
+
+                    <div class="member-qr-record-list">
+
+                        {% for record in returned_list %}
+
+                            <article class="member-qr-record">
+
+                                <div class="member-qr-record-top">
+
+                                    <div>
+                                        <h3>{{ record.title }}</h3>
+                                        <p>
+                                            By
+                                            {{
+                                                record.author
+                                                or "Author unavailable"
+                                            }}
+                                        </p>
+                                    </div>
+
+                                    {% if record.was_late %}
+
+                                        <span class="member-qr-status overdue">
+                                            Returned Late
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="member-qr-status returned">
+                                            Returned
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="member-qr-detail-grid">
+
+                                    <div class="member-qr-detail">
+                                        <span>Issue Date</span>
+                                        <strong>{{ record.issue_date }}</strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Due Date</span>
+                                        <strong>{{ record.due_date }}</strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Return Date</span>
+                                        <strong>
+                                            {{ record.return_date or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Penalty</span>
+                                        <strong>₹{{ record.fine or 0 }}</strong>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="member-qr-actions">
+
+                                    <span
+                                        class="member-qr-status {{
+                                            (
+                                                record.payment_status
+                                                or 'No Penalty'
+                                            )
+                                            | lower
+                                            | replace(' ', '-')
+                                        }}"
+                                    >
+                                        {{
+                                            record.payment_status
+                                            or "No Penalty"
+                                        }}
+                                    </span>
+
+                                    {% if record.receipt_no %}
+
+                                        <a
+                                            href="{{
+                                                url_for(
+                                                    'member_fine_receipt',
+                                                    transaction_id=
+                                                        record.transaction_id
+                                                )
+                                            }}"
+                                            class="member-qr-receipt-link"
+                                        >
+                                            View Receipt
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </article>
+
+                        {% else %}
+
+                            <div class="member-qr-empty">
+                                <div>↩</div>
+                                <h3>No Return Records</h3>
+                                <p>
+                                    Returned book records will appear here.
+                                </p>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+
+                <!-- LOST / DAMAGED -->
+                <section
+                    class="member-qr-section"
+                    data-portal-section="incidents"
+                    id="portal-incidents"
+                    hidden
+                >
+
+                    <header class="member-qr-page-header">
+
+                        <div>
+                            <p class="member-qr-small-title">
+                                Report a Problem
+                            </p>
+
+                            <h1>Lost &amp; Damaged Books</h1>
+
+                            <p>
+                                Report only a book currently issued to your
+                                account. The Librarian will decide the charge.
+                            </p>
+                        </div>
+
+                    </header>
+
+
+                    <section class="member-qr-card">
+
+                        <div class="member-qr-card-header">
+
+                            <div>
+                                <p class="member-qr-card-title">
+                                    New Report
+                                </p>
+
+                                <h2>Submit Lost or Damaged Report</h2>
+
+                                <p>
+                                    Select the book, problem type, date and
+                                    reason.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        {% if issued_list %}
+
+                            <form
+                                method="POST"
+                                action="{{
+                                    url_for('submit_member_incident')
+                                }}"
+                                class="member-qr-form"
+                                id="memberIncidentForm"
+                            >
+
+                                <label for="incidentTransaction">
+                                    Issued Book
+
+                                    <select
+                                        id="incidentTransaction"
+                                        name="transaction_id"
+                                        required
+                                    >
+                                        <option value="">
+                                            Select an issued book
+                                        </option>
+
+                                        {% for book in issued_list %}
+
+                                            <option
+                                                value="{{
+                                                    book.transaction_id
+                                                }}"
+                                            >
+                                                {{ book.title }}
+                                                — Due {{ book.due_date }}
+                                            </option>
+
+                                        {% endfor %}
+                                    </select>
+                                </label>
+
+
+                                <label for="incidentType">
+                                    Problem Type
+
+                                    <select
+                                        id="incidentType"
+                                        name="incident_type"
+                                        required
+                                    >
+                                        <option value="">
+                                            Select problem
+                                        </option>
+                                        <option value="Lost">
+                                            Lost Book
+                                        </option>
+                                        <option value="Damaged">
+                                            Damaged Book
+                                        </option>
+                                    </select>
+                                </label>
+
+
+                                <label for="noticedDate">
+                                    Date Noticed
+
+                                    <input
+                                        type="date"
+                                        id="noticedDate"
+                                        name="noticed_date"
+                                        max="{{
+                                            today_iso
+                                            if today_iso is defined
+                                            else ''
+                                        }}"
+                                        required
+                                    >
+                                </label>
+
+
+                                <label
+                                    for="incidentDescription"
+                                    class="full-field"
+                                >
+                                    Reason and Details
+
+                                    <textarea
+                                        id="incidentDescription"
+                                        name="description"
+                                        placeholder="Explain what happened to the book."
+                                        minlength="10"
+                                        maxlength="1000"
+                                        required
+                                    ></textarea>
+                                </label>
+
+
+                                <div class="member-qr-form-submit">
+
+                                    <button
+                                        type="submit"
+                                        class="member-qr-primary-button"
+                                    >
+                                        Submit Report to Librarian
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        {% else %}
+
+                            <div class="member-qr-empty">
+                                <div>✓</div>
+                                <h3>No Issued Book Available</h3>
+                                <p>
+                                    Reports can only be submitted for books
+                                    currently issued to your account.
+                                </p>
+                            </div>
+
+                        {% endif %}
+
+                    </section>
+
+
+                    <section class="member-qr-card">
+
+                        <div class="member-qr-card-header">
+
+                            <div>
+                                <p class="member-qr-card-title">
+                                    Report Status
+                                </p>
+
+                                <h2>Lost or Damaged Records</h2>
+
+                                <p>
+                                    View approval, Librarian charge, payment
+                                    status and receipt.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="member-qr-record-list">
+
+                            {% for incident in incident_list %}
+
+                                <article class="member-qr-record">
+
+                                    <div class="member-qr-record-top">
+
+                                        <div>
+                                            <span
+                                                class="member-qr-status {{
+                                                    incident.incident_type
+                                                    | lower
+                                                }}"
+                                            >
+                                                {{
+                                                    incident.incident_type
+                                                }}
+                                            </span>
+
+                                            <h3 style="margin-top: 9px;">
+                                                {{ incident.title }}
+                                            </h3>
+
+                                            <p>
+                                                Reported on
+                                                {{
+                                                    incident.reported_at
+                                                    or "-"
+                                                }}
+                                            </p>
+                                        </div>
+
+                                        <span
+                                            class="member-qr-status {{
+                                                incident.status
+                                                | lower
+                                                | replace(' ', '-')
+                                            }}"
+                                        >
+                                            {{ incident.status }}
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="member-qr-detail-grid">
+
+                                        <div class="member-qr-detail">
+                                            <span>Date Noticed</span>
+                                            <strong>
+                                                {{
+                                                    incident.noticed_date
+                                                    or "-"
+                                                }}
+                                            </strong>
+                                        </div>
+
+                                        <div class="member-qr-detail">
+                                            <span>Librarian Charge</span>
+                                            <strong>
+                                                ₹{{ incident.charge or 0 }}
+                                            </strong>
+                                        </div>
+
+                                        <div class="member-qr-detail">
+                                            <span>Payment Status</span>
+                                            <strong>
+                                                {{
+                                                    incident.payment_status
+                                                    or "Not Started"
+                                                }}
+                                            </strong>
+                                        </div>
+
+                                        <div class="member-qr-detail">
+                                            <span>Reviewed By</span>
+                                            <strong>
+                                                {{
+                                                    incident.reviewed_by
+                                                    or "Waiting for review"
+                                                }}
+                                            </strong>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="member-qr-description">
+                                        <span>Your Description</span>
+                                        <p>
+                                            {{
+                                                incident.description
+                                                or "No description provided."
+                                            }}
+                                        </p>
+                                    </div>
+
+
+                                    {% if incident.admin_note %}
+
+                                        <div class="member-qr-note">
+                                            <span>Librarian Note</span>
+                                            <p>{{ incident.admin_note }}</p>
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    {% if
+                                        incident.payment_status == "Paid"
+                                    %}
+
+                                        <div
+                                            class="member-qr-payment-message success"
+                                        >
+                                            Payment completed using
+                                            {{
+                                                incident.payment_method
+                                                or "-"
+                                            }}.
+                                        </div>
+
+                                        <div class="member-qr-actions">
+
+                                            <a
+                                                href="{{
+                                                    url_for(
+                                                        'member_incident_receipt',
+                                                        incident_id=
+                                                            incident.incident_id
+                                                    )
+                                                }}"
+                                                class="member-qr-receipt-link"
+                                            >
+                                                View Receipt
+                                            </a>
+
+                                        </div>
+
+
+                                    {% elif
+                                        incident.payment_status
+                                        == "Awaiting Cash Confirmation"
+                                    %}
+
+                                        <div
+                                            class="member-qr-payment-message warning"
+                                        >
+                                            Cash request submitted. Pay
+                                            ₹{{ incident.charge }} to the
+                                            Librarian and wait for
+                                            confirmation.
+                                        </div>
+
+
+                                    {% elif
+                                        incident.status == "Approved"
+                                        and incident.charge
+                                        and incident.charge > 0
+                                    %}
+
+                                        <div class="member-qr-actions">
+
+                                            <form
+                                                method="POST"
+                                                action="{{
+                                                    url_for(
+                                                        'start_incident_payment',
+                                                        incident_id=
+                                                            incident.incident_id
+                                                    )
+                                                }}"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="member-qr-primary-button member-pay-online-button"
+                                                >
+                                                    Pay Online / UPI QR
+                                                </button>
+                                            </form>
+
+                                            <form
+                                                method="POST"
+                                                action="{{
+                                                    url_for(
+                                                        'request_incident_cash',
+                                                        incident_id=
+                                                            incident.incident_id
+                                                    )
+                                                }}"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="member-qr-secondary-button member-request-cash-button"
+                                                >
+                                                    Request Cash Payment
+                                                </button>
+                                            </form>
+
+                                        </div>
+
+
+                                    {% elif incident.status == "Pending" %}
+
+                                        <div
+                                            class="member-qr-payment-message warning"
+                                        >
+                                            Waiting for Librarian approval and
+                                            charge confirmation.
+                                        </div>
+
+
+                                    {% elif incident.status == "Rejected" %}
+
+                                        <div
+                                            class="member-qr-payment-message danger"
+                                        >
+                                            The report was rejected. No
+                                            payment is required.
+                                        </div>
+
+
+                                    {% elif
+                                        incident.status == "Approved"
+                                        and (
+                                            not incident.charge
+                                            or incident.charge <= 0
+                                        )
+                                    %}
+
+                                        <div
+                                            class="member-qr-payment-message warning"
+                                        >
+                                            The report is approved, but no
+                                            charge has been added.
+                                        </div>
+
+                                    {% endif %}
+
+                                </article>
+
+                            {% else %}
+
+                                <div class="member-qr-empty">
+                                    <div>📘</div>
+                                    <h3>No Lost or Damaged Reports</h3>
+                                    <p>
+                                        Submitted reports and payment status
+                                        will appear here.
+                                    </p>
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+                </section>
+
+
+                <!-- PAYMENTS -->
+                <section
+                    class="member-qr-section"
+                    data-portal-section="payments"
+                    id="portal-payments"
+                    hidden
+                >
+
+                    <header class="member-qr-page-header">
+
+                        <div>
+                            <p class="member-qr-small-title">
+                                My Payments
+                            </p>
+
+                            <h1>Fines &amp; Payments</h1>
+
+                            <p>
+                                Pay late-return penalties and approved Lost or
+                                Damaged charges online or by Cash.
+                            </p>
+                        </div>
+
+                    </header>
+
+
+                    <div class="member-qr-payment-total">
+                        <span>Total Pending Amount</span>
+                        <strong>₹{{ pending_amount or 0 }}</strong>
+                    </div>
+
+
+                    <section class="member-qr-card">
+
+                        <div class="member-qr-card-header">
+
+                            <div>
+                                <p class="member-qr-card-title">
+                                    Late Return
+                                </p>
+
+                                <h2>Book Penalties</h2>
+
+                                <p>
+                                    Review late fines, payment status and
+                                    receipts.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="member-qr-record-list">
+
+                            {% for fine in fine_list %}
+
+                                <article class="member-qr-record">
+
+                                    <div class="member-qr-record-top">
+
+                                        <div>
+                                            <h3>{{ fine.title }}</h3>
+                                            <p>
+                                                Returned on
+                                                {{ fine.return_date or "-" }}
+                                            </p>
+                                        </div>
+
+                                        <strong style="font-size: 22px;">
+                                            ₹{{ fine.fine }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="member-qr-actions">
+
+                                        {% if
+                                            fine.payment_id
+                                            or fine.receipt_no
+                                        %}
+
+                                            <span class="member-qr-status paid">
+                                                Paid
+                                            </span>
+
+                                            <a
+                                                href="{{
+                                                    url_for(
+                                                        'member_fine_receipt',
+                                                        transaction_id=
+                                                            fine.transaction_id
+                                                    )
+                                                }}"
+                                                class="member-qr-receipt-link"
+                                            >
+                                                View Receipt
+                                            </a>
+
+
+                                        {% elif
+                                            fine.payment_status
+                                            == "Awaiting Cash Confirmation"
+                                        %}
+
+                                            <span
+                                                class="member-qr-status awaiting-cash-confirmation"
+                                            >
+                                                Awaiting Cash Confirmation
+                                            </span>
+
+                                            <div
+                                                class="member-qr-payment-message warning"
+                                                style="width: 100%;"
+                                            >
+                                                Pay ₹{{ fine.fine }} to the
+                                                Librarian. The receipt appears
+                                                after confirmation.
+                                            </div>
+
+
+                                        {% else %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{
+                                                    url_for(
+                                                        'start_fine_payment',
+                                                        transaction_id=
+                                                            fine.transaction_id
+                                                    )
+                                                }}"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="member-qr-primary-button member-pay-online-button"
+                                                >
+                                                    Pay Online / UPI QR
+                                                </button>
+                                            </form>
+
+                                            <form
+                                                method="POST"
+                                                action="{{
+                                                    url_for(
+                                                        'request_fine_cash',
+                                                        transaction_id=
+                                                            fine.transaction_id
+                                                    )
+                                                }}"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="member-qr-secondary-button member-request-cash-button"
+                                                >
+                                                    Request Cash Payment
+                                                </button>
+                                            </form>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </article>
+
+                            {% else %}
+
+                                <div class="member-qr-empty">
+                                    <div>✓</div>
+                                    <h3>No Late-Return Penalty</h3>
+                                    <p>
+                                        You currently have no late fine
+                                        payment record.
+                                    </p>
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="member-qr-card">
+
+                        <div class="member-qr-card-header">
+
+                            <div>
+                                <p class="member-qr-card-title">
+                                    Lost or Damaged
+                                </p>
+
+                                <h2>Approved Charges</h2>
+
+                                <p>
+                                    Approved incident charges and receipts.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="member-qr-record-list">
+
+                            {% set approved_incident =
+                                namespace(found=false)
+                            %}
+
+                            {% for incident in incident_list %}
+
+                                {% if incident.status == "Approved"
+                                    or incident.payment_status == "Paid"
+                                %}
+
+                                    {% set approved_incident.found = true %}
+
+                                    <article class="member-qr-record">
+
+                                        <div class="member-qr-record-top">
+
+                                            <div>
+                                                <h3>{{ incident.title }}</h3>
+                                                <p>
+                                                    {{
+                                                        incident.incident_type
+                                                    }}
+                                                    report
+                                                </p>
+                                            </div>
+
+                                            <strong style="font-size: 22px;">
+                                                ₹{{ incident.charge or 0 }}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="member-qr-actions">
+
+                                            {% if
+                                                incident.payment_status
+                                                == "Paid"
+                                            %}
+
+                                                <span
+                                                    class="member-qr-status paid"
+                                                >
+                                                    Paid
+                                                </span>
+
+                                                <a
+                                                    href="{{
+                                                        url_for(
+                                                            'member_incident_receipt',
+                                                            incident_id=
+                                                                incident.incident_id
+                                                        )
+                                                    }}"
+                                                    class="member-qr-receipt-link"
+                                                >
+                                                    View Receipt
+                                                </a>
+
+
+                                            {% elif
+                                                incident.payment_status
+                                                == "Awaiting Cash Confirmation"
+                                            %}
+
+                                                <span
+                                                    class="member-qr-status awaiting-cash-confirmation"
+                                                >
+                                                    Awaiting Cash Confirmation
+                                                </span>
+
+
+                                            {% elif
+                                                incident.charge
+                                                and incident.charge > 0
+                                            %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{
+                                                        url_for(
+                                                            'start_incident_payment',
+                                                            incident_id=
+                                                                incident.incident_id
+                                                        )
+                                                    }}"
+                                                >
+                                                    <button
+                                                        type="submit"
+                                                        class="member-qr-primary-button member-pay-online-button"
+                                                    >
+                                                        Pay Online / UPI QR
+                                                    </button>
+                                                </form>
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{
+                                                        url_for(
+                                                            'request_incident_cash',
+                                                            incident_id=
+                                                                incident.incident_id
+                                                        )
+                                                    }}"
+                                                >
+                                                    <button
+                                                        type="submit"
+                                                        class="member-qr-secondary-button member-request-cash-button"
+                                                    >
+                                                        Request Cash Payment
+                                                    </button>
+                                                </form>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </article>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+
+                            {% if not approved_incident.found %}
+
+                                <div class="member-qr-empty">
+                                    <div>✓</div>
+                                    <h3>No Approved Incident Charge</h3>
+                                    <p>
+                                        Approved Lost or Damaged charges will
+                                        appear here.
+                                    </p>
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </section>
+
+                </section>
+
+
+                <!-- NOTIFICATIONS -->
+                <section
+                    class="member-qr-section"
+                    data-portal-section="notifications"
+                    id="portal-notifications"
+                    hidden
+                >
+
+                    <header class="member-qr-page-header">
+
+                        <div>
+                            <p class="member-qr-small-title">
+                                Library Messages
+                            </p>
+
+                            <h1>Notifications</h1>
+
+                            <p>
+                                View Librarian messages, issue and return
+                                updates, due-date reminders, overdue warnings
+                                and payment notifications.
+                            </p>
+                        </div>
+
+                        {% if unread_count %}
+
+                            <form
+                                method="POST"
+                                action="{{
+                                    url_for(
+                                        'mark_all_member_notifications_read'
+                                    )
+                                }}"
+                            >
+                                <button
+                                    type="submit"
+                                    class="member-qr-secure-badge"
+                                    style="cursor: pointer;"
+                                >
+                                    Mark All as Read
+                                </button>
+                            </form>
+
+                        {% endif %}
+
+                    </header>
+
+
+                    <div class="member-qr-notification-list">
+
+                        {% for notification in notice_list %}
+
+                            <article
+                                class="member-qr-notification{%
+                                    if not notification.is_read
+                                %} unread{% endif %}"
+                            >
+
+                                <div class="member-qr-notification-icon">
+                                    {{ notification.icon or "◉" }}
+                                </div>
+
+
+                                <div class="member-qr-notification-content">
+
+                                    <div class="member-qr-notification-heading">
+
+                                        <div>
+                                            <span
+                                                class="member-qr-notification-category"
+                                            >
+                                                {{
+                                                    notification.category
+                                                    or "Library Update"
+                                                }}
+                                            </span>
+
+                                            <h3>
+                                                {{ notification.title }}
+                                            </h3>
+                                        </div>
+
+                                        <time>
+                                            {{ notification.created_at }}
+                                        </time>
+
+                                    </div>
+
+                                    <p>{{ notification.message }}</p>
+
+
+                                    {% if not notification.is_read %}
+
+                                        <div class="member-qr-actions">
+
+                                            <form
+                                                method="POST"
+                                                action="{{
+                                                    url_for(
+                                                        'mark_member_notification_read',
+                                                        notification_id=
+                                                            notification.notification_id
+                                                    )
+                                                }}"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="member-qr-secondary-button"
+                                                >
+                                                    Mark as Read
+                                                </button>
+                                            </form>
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </article>
+
+                        {% else %}
+
+                            <div class="member-qr-empty">
+                                <div>◉</div>
+                                <h3>No Notifications</h3>
+                                <p>
+                                    New Librarian messages and automatic
+                                    reminders will appear here.
+                                </p>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+
+                <!-- PROFILE -->
+                <section
+                    class="member-qr-section"
+                    data-portal-section="profile"
+                    id="portal-profile"
+                    hidden
+                >
+
+                    <header class="member-qr-page-header">
+
+                        <div>
+                            <p class="member-qr-small-title">
+                                Digital Card Holder
+                            </p>
+
+                            <h1>My Profile</h1>
+
+                            <p>
+                                View your membership information and manage
+                                your secure Digital Card password.
+                            </p>
+                        </div>
+
+                    </header>
+
+
+                    <section class="member-qr-card">
+
+                        <div class="member-qr-profile-card">
+
+                            <div class="member-qr-profile-avatar">
+                                {{
+                                    member.name[0]|upper
+                                    if member and member.name
+                                    else "M"
+                                }}
+                            </div>
+
+
+                            <div>
+
+                                <p class="member-qr-card-title">
+                                    Aureon Digital Library Card
+                                </p>
+
+                                <h2 style="margin: 6px 0 0;">
+                                    {{ member.name }}
+                                </h2>
+
+                                <strong
+                                    style="
+                                        display: block;
+                                        margin-top: 5px;
+                                        color: var(--qr-secondary);
+                                    "
+                                >
+                                    {{ member.membership_id }}
+                                </strong>
+
+
+                                <div class="member-qr-profile-grid">
+
+                                    <div class="member-qr-detail">
+                                        <span>Enrollment Number</span>
+                                        <strong>
+                                            {{ member.enrollment_no or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Department</span>
+                                        <strong>
+                                            {{ member.department or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Study Year</span>
+                                        <strong>
+                                            {{ member.study_year or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Email</span>
+                                        <strong>
+                                            {{ member.email or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Phone</span>
+                                        <strong>
+                                            {{ member.phone or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="member-qr-detail">
+                                        <span>Card Status</span>
+                                        <strong>Active</strong>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="member-qr-actions">
+
+                                    <a
+                                        href="{{
+                                            url_for(
+                                                'member_change_password'
+                                            )
+                                        }}"
+                                        class="member-qr-primary-button"
+                                    >
+                                        Change Password
+                                    </a>
+
+
+                                    {% if active_qr_token %}
+
+                                        <a
+                                            href="{{
+                                                url_for(
+                                                    'member_incident_report_pdf',
+                                                    qr_token=
+                                                        active_qr_token
+                                                )
+                                            }}"
+                                            class="member-qr-secondary-button"
+                                        >
+                                            Download PDF Report
+                                        </a>
+
+                                        <a
+                                            href="{{
+                                                url_for(
+                                                    'member_incident_report_csv',
+                                                    qr_token=
+                                                        active_qr_token
+                                                )
+                                            }}"
+                                            class="member-qr-secondary-button"
+                                        >
+                                            Export CSV
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </section>
+
+            </main>
+
+        </div>
+
+
+        <nav
+            class="member-qr-mobile-nav"
+            aria-label="Mobile student portal navigation"
+        >
+
+            <button
+                type="button"
+                class="active"
+                data-portal-target="home"
+            >
+                <span>⌂</span>
+                Home
+            </button>
+
+            <button
+                type="button"
+                data-portal-target="issued"
+            >
+                <span>▤</span>
+                Books
+            </button>
+
+            <button
+                type="button"
+                data-portal-target="payments"
+            >
+                <span>₹</span>
+                Payments
+            </button>
+
+            <button
+                type="button"
+                data-portal-target="notifications"
+            >
+                <span>◉</span>
+                Messages
+            </button>
+
+            <button
+                type="button"
+                data-portal-target="profile"
+            >
+                <span>◎</span>
+                Profile
+            </button>
+
+        </nav>
+
+    </div>
+
+
+    <script
+        src="{{
+            url_for(
+                'static',
+                filename='js/member_portal.js'
+            )
+        }}"
+    ></script>
+
+</body>
+
+</html>

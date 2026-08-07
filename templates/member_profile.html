@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Member Profile | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+        /* Only the new Digital Portal controls use these classes. */
+        .member-portal-access-card {
+            margin-top: 22px;
+        }
+
+        .member-portal-access-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .member-portal-access-header h2,
+        .member-portal-access-header p {
+            margin: 0;
+        }
+
+        .member-portal-access-header h2 {
+            margin-top: 4px;
+        }
+
+        .member-portal-access-description {
+            margin-top: 7px !important;
+            color: #77729b;
+            line-height: 1.55;
+        }
+
+        .member-portal-status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 36px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .member-portal-status-badge.active {
+            background: #e9f9f1;
+            color: #237454;
+        }
+
+        .member-portal-status-badge.setup-required {
+            background: #fff7e8;
+            color: #9a6217;
+        }
+
+        .member-portal-status-badge.locked {
+            background: #fff0f0;
+            color: #b42318;
+        }
+
+        .member-portal-status-badge.disabled {
+            background: #edf1f5;
+            color: #5d6976;
+        }
+
+        .member-portal-status-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(145px, 1fr));
+            gap: 12px;
+        }
+
+        .member-portal-status-box {
+            padding: 15px;
+            border: 1px solid #e3def5;
+            border-radius: 13px;
+            background: #faf9ff;
+        }
+
+        .member-portal-status-box span,
+        .member-portal-status-box strong {
+            display: block;
+        }
+
+        .member-portal-status-box span {
+            margin-bottom: 6px;
+            color: #77729b;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .member-portal-status-box strong {
+            color: #37305f;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .member-portal-action-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .member-portal-action-area form {
+            margin: 0;
+        }
+
+        .member-portal-open-button,
+        .member-portal-reset-button,
+        .member-portal-unlock-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .member-portal-open-button {
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+            color: #ffffff;
+        }
+
+        .member-portal-reset-button {
+            background: #fff0f1;
+            color: #b42318;
+        }
+
+        .member-portal-unlock-button {
+            background: #fff7e8;
+            color: #9a6217;
+        }
+
+        .member-portal-open-button:hover,
+        .member-portal-reset-button:hover,
+        .member-portal-unlock-button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 9px 18px
+                rgba(49, 46, 129, 0.13);
+        }
+
+        .member-portal-security-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            border: 1px solid #dcd5f6;
+            border-radius: 11px;
+            background: #f8f7ff;
+            color: #625c80;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.55;
+        }
+
+        .digital-card-footer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .digital-open-portal-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.16);
+            color: inherit;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        @media (max-width: 980px) {
+            .member-portal-status-grid {
+                grid-template-columns:
+                    repeat(2, minmax(145px, 1fr));
+            }
+        }
+
+        @media (max-width: 650px) {
+            .member-portal-access-header {
+                flex-direction: column;
+            }
+
+            .member-portal-status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .member-portal-action-area,
+            .member-portal-action-area form,
+            .member-portal-action-area button,
+            .member-portal-action-area a {
+                width: 100%;
+            }
+
+            .digital-card-footer {
+                flex-direction: column;
+            }
+
+            .digital-card-footer button,
+            .digital-card-footer a {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Library Logo"
+                    class="brand-logo"
+                >
+
+                <div>
+                    <h2 class="brand-name">
+                        Aureon<span class="tm-symbol">™</span>
+                    </h2>
+
+                    <p>Library Management System</p>
+                </div>
+
+            </div>
+
+
+            <nav class="navigation">
+
+                <a href="{{ url_for('dashboard') }}">
+                    <span>⌂</span>
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('books') }}">
+                    <span>▤</span>
+                    Books
+                </a>
+
+                <a
+                    href="{{ url_for('members') }}"
+                    class="active"
+                >
+                    <span>◎</span>
+                    Members
+                </a>
+
+                <a href="{{ url_for('member_history') }}">
+                    <span>◷</span>
+                    Member History
+                </a>
+
+                <a href="{{ url_for('issue_return') }}">
+                    <span>⇄</span>
+                    Issue &amp; Return
+                </a>
+
+                <a href="{{ url_for('overdue') }}">
+                    <span>!</span>
+                    Overdue Books
+                </a>
+
+            </nav>
+
+
+            <a
+                href="{{ url_for('logout') }}"
+                class="logout-button"
+            >
+                Log Out
+            </a>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Page Header -->
+            <header class="page-header">
+
+                <div>
+
+                    <p class="small-title">
+                        Member Record
+                    </p>
+
+                    <h1>Member Profile</h1>
+
+                </div>
+
+
+                <div class="admin-badge">
+                    Librarian
+                </div>
+
+            </header>
+
+
+            <!-- Flash Messages -->
+            {% with messages =
+                get_flashed_messages(with_categories=true)
+            %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- Member Details -->
+            <section class="content-card member-profile-card">
+
+                <div class="card-header responsive-header">
+
+                    <div>
+
+                        <p class="small-title">
+                            Member Details
+                        </p>
+
+                        <h2>{{ member.name }}</h2>
+
+
+                        <div class="member-information">
+
+                            <p>
+                                <strong>Membership ID:</strong>
+                                {{ member.membership_id or '-' }}
+                            </p>
+
+                            <p>
+                                <strong>Email:</strong>
+                                {{ member.email or '-' }}
+                            </p>
+
+                            <p>
+                                <strong>Phone:</strong>
+                                {{ member.phone or '-' }}
+                            </p>
+
+                            <p>
+                                <strong>Member ID:</strong>
+                                {{ member.id }}
+                            </p>
+
+                            <p>
+                                <strong>Enrollment Number:</strong>
+                                {{ member.enrollment_no or '-' }}
+                            </p>
+
+                            <p>
+                                <strong>Department:</strong>
+                                {{ member.department or '-' }}
+                            </p>
+
+                            <p>
+                                <strong>Year:</strong>
+                                {{ member.study_year or '-' }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('member_history') }}"
+                        class="books-clear-button"
+                    >
+                        Back to Member History
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- New Secure Digital Portal Controls -->
+            <section
+                class="content-card member-portal-access-card"
+            >
+
+                <div class="member-portal-access-header">
+
+                    <div>
+
+                        <p class="small-title">
+                            Digital Card Security
+                        </p>
+
+                        <h2>Student Portal Access</h2>
+
+                        <p class="member-portal-access-description">
+                            Check password activation, failed login attempts,
+                            account lock and the student's latest login.
+                        </p>
+
+                    </div>
+
+
+                    {% if
+                        member.card_portal_enabled is defined
+                        and not member.card_portal_enabled
+                    %}
+
+                        <span
+                            class="member-portal-status-badge disabled"
+                        >
+                            Portal Disabled
+                        </span>
+
+                    {% elif
+                        member.card_locked_until is defined
+                        and member.card_locked_until
+                    %}
+
+                        <span
+                            class="member-portal-status-badge locked"
+                        >
+                            Temporarily Locked
+                        </span>
+
+                    {% elif
+                        member.card_password_hash is defined
+                        and member.card_password_hash
+                        and not member.card_reset_required
+                    %}
+
+                        <span
+                            class="member-portal-status-badge active"
+                        >
+                            Password Active
+                        </span>
+
+                    {% else %}
+
+                        <span
+                            class="member-portal-status-badge setup-required"
+                        >
+                            Password Setup Required
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="member-portal-status-grid">
+
+                    <article class="member-portal-status-box">
+
+                        <span>Password Status</span>
+
+                        <strong>
+                            {% if
+                                member.card_password_hash is defined
+                                and member.card_password_hash
+                                and not member.card_reset_required
+                            %}
+                                Created
+                            {% else %}
+                                Not Created / Reset Required
+                            {% endif %}
+                        </strong>
+
+                    </article>
+
+
+                    <article class="member-portal-status-box">
+
+                        <span>Failed Login Attempts</span>
+
+                        <strong>
+                            {{
+                                member.card_failed_attempts
+                                if member.card_failed_attempts is defined
+                                else 0
+                            }}
+                        </strong>
+
+                    </article>
+
+
+                    <article class="member-portal-status-box">
+
+                        <span>Locked Until</span>
+
+                        <strong>
+                            {{
+                                member.card_locked_until
+                                if (
+                                    member.card_locked_until is defined
+                                    and member.card_locked_until
+                                )
+                                else "Not Locked"
+                            }}
+                        </strong>
+
+                    </article>
+
+
+                    <article class="member-portal-status-box">
+
+                        <span>Last Student Login</span>
+
+                        <strong>
+                            {{
+                                member.card_last_login
+                                if (
+                                    member.card_last_login is defined
+                                    and member.card_last_login
+                                )
+                                else "Not Logged In Yet"
+                            }}
+                        </strong>
+
+                    </article>
+
+                </div>
+
+
+                <div class="member-portal-action-area">
+
+                    {% if member.qr_token %}
+
+                        <a
+                            href="{{
+                                url_for(
+                                    'member_scan',
+                                    qr_token=member.qr_token
+                                )
+                            }}"
+                            class="member-portal-open-button"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            Open Student Login Page
+                        </a>
+
+                    {% endif %}
+
+
+                    <form
+                        method="POST"
+                        action="{{
+                            url_for(
+                                'reset_member_card_password',
+                                member_id=member.id
+                            )
+                        }}"
+                    >
+                        <button
+                            type="submit"
+                            class="member-portal-reset-button"
+                            onclick="return confirm(
+                                'Reset this student password? The student must create a new password after scanning the QR code.'
+                            );"
+                        >
+                            Reset Student Password
+                        </button>
+                    </form>
+
+
+                    {% if
+                        (
+                            member.card_locked_until is defined
+                            and member.card_locked_until
+                        )
+                        or (
+                            member.card_failed_attempts is defined
+                            and member.card_failed_attempts
+                        )
+                    %}
+
+                        <form
+                            method="POST"
+                            action="{{
+                                url_for(
+                                    'unlock_member_card',
+                                    member_id=member.id
+                                )
+                            }}"
+                        >
+                            <button
+                                type="submit"
+                                class="member-portal-unlock-button"
+                                onclick="return confirm(
+                                    'Unlock this student Digital Card?'
+                                );"
+                            >
+                                Unlock Student Account
+                            </button>
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="member-portal-security-note">
+                    The Librarian cannot view the student's password.
+                    Passwords are stored only as secure hashes. Resetting the
+                    password signs out existing student sessions and requires
+                    the student to create a new password.
+                </div>
+
+            </section>
+
+<!-- Pending Cash Fine Requests -->
+{% if pending_cash_requests %}
+
+    <section class="cash-approval-section">
+
+        <div class="cash-approval-header">
+
+            <div>
+
+                <p class="small-title">
+                    Payment Confirmation
+                </p>
+
+                <h2>Pending Cash Fine Requests</h2>
+
+                <p>
+                    Confirm only after receiving the complete cash
+                    amount from the student.
+                </p>
+
+            </div>
+
+            <span class="cash-request-count">
+                {{ pending_cash_requests|length }}
+                Pending
+            </span>
+
+        </div>
+
+
+        <div class="cash-request-list">
+
+            {% for request_item in pending_cash_requests %}
+
+                <article class="cash-request-card">
+
+                    <div class="cash-request-icon">
+                        ₹
+                    </div>
+
+
+                    <div class="cash-request-information">
+
+                        <h3>
+                            {{ request_item.title }}
+                        </h3>
+
+                        <p>
+                            {{ request_item.author or "Author not available" }}
+                        </p>
+
+
+                        <div class="cash-request-details">
+
+                            <div>
+                                <span>Fine Amount</span>
+
+                                <strong>
+                                    ₹{{ request_item.amount }}
+                                </strong>
+                            </div>
+
+
+                            <div>
+                                <span>Returned On</span>
+
+                                <strong>
+                                    {{ request_item.return_date or "-" }}
+                                </strong>
+                            </div>
+
+
+                            <div>
+                                <span>Requested On</span>
+
+                                <strong>
+                                    {{
+                                        request_item.cash_requested_at
+                                        or "-"
+                                    }}
+                                </strong>
+                            </div>
+
+
+                            <div>
+                                <span>Status</span>
+
+                                <strong class="cash-waiting-status">
+                                    Awaiting Cash
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{{
+                            url_for(
+                                'confirm_fine_cash',
+                                request_id=request_item.request_id
+                            )
+                        }}"
+                        class="cash-confirm-form"
+                    >
+
+                        <button
+                            type="submit"
+                            class="cash-confirm-button"
+                            onclick="return confirm(
+                                'Have you received ₹{{ request_item.amount }} in cash from this student?'
+                            );"
+                        >
+                            Confirm Cash Received
+                        </button>
+
+                    </form>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+{% endif %}
+
+
+            <!-- Digital Member Card -->
+            <section
+                class="digital-member-card"
+                id="digital-member-card"
+            >
+
+                <!-- Card Header -->
+                <div class="digital-card-header">
+
+                    <div>
+
+                        <p class="digital-card-label">
+                            AUREON LIBRARY
+                        </p>
+
+                        <h2>
+                            Digital Member Card
+                        </h2>
+
+                    </div>
+
+                    <span class="digital-active-badge">
+                        Active
+                    </span>
+
+                </div>
+
+
+                <!-- Card Main Details -->
+                <div class="digital-card-body">
+
+                    <div class="digital-member-avatar">
+
+                        {% if member.name %}
+
+                            {{ member.name[0]|upper }}
+
+                        {% else %}
+
+                            M
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="digital-member-information">
+
+                        <h2>
+                            {{ member.name }}
+                        </h2>
+
+                        <p class="digital-member-id">
+                            {{
+                                member.membership_id
+                                or 'Membership ID not generated'
+                            }}
+                        </p>
+
+                        <p>
+                            <strong>Enrollment:</strong>
+                            {{ member.enrollment_no or '-' }}
+                        </p>
+
+                        <p>
+                            <strong>Department:</strong>
+                            {{ member.department or '-' }}
+                        </p>
+
+                        <p>
+                            <strong>Year:</strong>
+                            {{ member.study_year or '-' }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="digital-qr-area">
+
+                        <img
+                            src="{{
+                                url_for(
+                                    'member_qr',
+                                    member_id=member.id
+                                )
+                            }}?v=13"
+                            alt="QR Code for {{ member.name }}"
+                            class="digital-member-qr"
+                        >
+
+                        <span>
+                            Scan this QR code to securely access the
+                            student's personal library account
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Card Footer -->
+                <div class="digital-card-footer">
+
+                    {% if member.qr_token %}
+
+                        <a
+                            href="{{
+                                url_for(
+                                    'member_scan',
+                                    qr_token=member.qr_token
+                                )
+                            }}"
+                            class="digital-open-portal-button"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            Test QR Login
+                        </a>
+
+                    {% endif %}
+
+                    <button
+                        type="button"
+                        class="digital-print-button"
+                        onclick="window.print()"
+                    >
+                        Print Card
+                    </button>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

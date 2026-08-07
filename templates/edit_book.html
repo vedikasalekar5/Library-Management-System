@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Book | Aureon Library</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="edit-page">
+
+        <section class="content-card edit-card">
+
+            <p class="small-title">
+                Book Management
+            </p>
+
+            <h1>Edit Book</h1>
+
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <form method="POST" class="form-stack">
+
+                <label for="isbn">
+                    ISBN Number
+
+                    <input
+                        type="text"
+                        id="isbn"
+                        name="isbn"
+                        value="{{ book.isbn or '' }}"
+                        placeholder="Enter ISBN-10 or ISBN-13"
+                    >
+                </label>
+
+
+                <label for="title">
+                    Book Title
+
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value="{{ book.title }}"
+                        placeholder="Enter book title"
+                        required
+                    >
+                </label>
+
+
+                <label for="author">
+                    Author
+
+                    <input
+                        type="text"
+                        id="author"
+                        name="author"
+                        value="{{ book.author }}"
+                        placeholder="Enter author name"
+                        required
+                    >
+                </label>
+
+
+                <label for="publisher">
+                    Publisher
+
+                    <input
+                        type="text"
+                        id="publisher"
+                        name="publisher"
+                        value="{{ book.publisher or '' }}"
+                        placeholder="Enter publisher name"
+                    >
+                </label>
+
+
+                <label for="published_year">
+                    Published Year
+
+                    <input
+                        type="text"
+                        id="published_year"
+                        name="published_year"
+                        value="{{ book.published_year or '' }}"
+                        placeholder="Example: 2024"
+                        maxlength="4"
+                    >
+                </label>
+
+
+                <label for="category">
+                    Category
+
+                    <input
+                        type="text"
+                        id="category"
+                        name="category"
+                        value="{{ book.category or '' }}"
+                        placeholder="Example: Programming"
+                    >
+                </label>
+
+
+                <label for="description">
+                    Description
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        placeholder="Enter book description"
+                    >{{ book.description or '' }}</textarea>
+                </label>
+
+
+                <label for="cover_url">
+                    Book Cover URL
+
+                    <input
+                        type="url"
+                        id="cover_url"
+                        name="cover_url"
+                        value="{{ book.cover_url or '' }}"
+                        placeholder="Enter book cover image URL"
+                    >
+                </label>
+
+
+                {% if book.cover_url %}
+
+                    <div class="book-cover-preview-area">
+
+                        <p>
+                            Current Book Cover
+                        </p>
+
+                        <img
+                            src="{{ book.cover_url }}"
+                            alt="Cover of {{ book.title }}"
+                            onerror="this.parentElement.style.display='none';"
+                        >
+
+                    </div>
+
+                {% endif %}
+
+
+                <label for="copies">
+                    Total Copies
+
+                    <input
+                        type="number"
+                        id="copies"
+                        name="copies"
+                        value="{{ book.total_copies }}"
+                        min="1"
+                        required
+                    >
+                </label>
+
+
+                <button
+                    type="submit"
+                    class="primary-button full-width"
+                >
+                    Save Changes
+                </button>
+
+
+                <a
+                    href="{{ url_for('books') }}"
+                    class="secondary-button full-width center-button"
+                >
+                    Cancel
+                </a>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

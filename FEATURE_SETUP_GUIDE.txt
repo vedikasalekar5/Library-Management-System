@@ -1,0 +1,280 @@
+AUREON LIBRARY MANAGEMENT SYSTEM
+ALL FEATURES SETUP GUIDE
+========================================
+
+This project includes these four features:
+
+1. Librarian email OTP security gate
+2. Aureon student chatbot
+3. Automatic WhatsApp library messages
+4. Paid digital-book reading and downloading
+
+
+A. INSTALL AND RUN
+------------------
+
+Open Command Prompt inside the project folder and run:
+
+    pip install -r requirements.txt
+    python -m py_compile app.py email_service.py whatsapp_service.py aureon_chatbot.py digital_book_service.py send_whatsapp_reminders.py
+    python app.py
+
+Open:
+
+    http://127.0.0.1:5000
+
+
+B. EMAIL OTP SECURITY
+---------------------
+
+Open .env and set:
+
+    LIBRARIAN_ALLOWED_EMAIL=vedikasalekar9@gmail.com
+    OTP_SENDER_EMAIL=vedikasalekar9@gmail.com
+    OTP_SENDER_APP_PASSWORD=YOUR_16_DIGIT_GMAIL_APP_PASSWORD
+
+Use a Gmail App Password, not the normal Gmail password.
+
+Login flow:
+
+    Email OTP gate
+    -> 6-digit OTP verification
+    -> Existing Librarian username/password login
+    -> Dashboard
+
+OTP controls already included:
+
+- 5-minute expiry
+- 5 maximum attempts
+- 60-second resend delay
+- OTP stored as a password hash
+- OTP cannot be reused
+
+
+C. AUREON STUDENT CHATBOT
+-------------------------
+
+The chatbot is already available in the Student Portal as "Ask Aureon".
+It uses the current library database and does not require a paid AI API.
+
+It can answer questions about:
+
+- book title, author and category
+- physical-copy availability
+- paid digital-book availability
+- the student's issued books
+- due dates and overdue books
+- unpaid fines
+- library timings
+- Librarian contact information
+
+Optional values in .env:
+
+    LIBRARY_TIMINGS=Monday to Saturday, 9:00 AM to 5:00 PM
+    LIBRARIAN_DISPLAY_NAME=RSIET Librarian
+    LIBRARY_CONTACT=Visit the RSIET Library help desk during library hours.
+
+
+D. AUTOMATIC WHATSAPP MESSAGES
+------------------------------
+
+Automatic messages are included for:
+
+- book issued
+- due in two days
+- due today
+- overdue
+- book returned
+- fine payment confirmed
+- lost/damaged report approved, rejected or paid
+
+The student must have:
+
+1. a valid phone number
+2. the WhatsApp Reminders consent checkbox selected in Add/Edit Member
+
+Open .env and replace these placeholders:
+
+    WHATSAPP_ENABLED=true
+    WHATSAPP_ACCESS_TOKEN=YOUR_META_ACCESS_TOKEN
+    WHATSAPP_PHONE_NUMBER_ID=YOUR_PHONE_NUMBER_ID
+    WHATSAPP_API_VERSION=THE_VERSION_SHOWN_IN_META
+    WHATSAPP_TEMPLATE_LANGUAGE=en_US
+
+Create and approve these Utility templates in WhatsApp Manager.
+The parameter order must match exactly.
+
+1. rsiet_book_issued
+   Parameters:
+   {{1}} Student name
+   {{2}} Book title
+   {{3}} Issue date
+   {{4}} Due date
+
+   Suggested body:
+   Hello {{1}}, the book "{{2}}" was issued on {{3}} and is due on {{4}}. - RSIET Library
+
+2. rsiet_book_due_soon
+   Parameters:
+   {{1}} Student name
+   {{2}} Book title
+   {{3}} Due date
+
+   Suggested body:
+   Hello {{1}}, the book "{{2}}" is due on {{3}}. Please return it on time. - RSIET Library
+
+3. rsiet_book_due_today
+   Parameters:
+   {{1}} Student name
+   {{2}} Book title
+
+   Suggested body:
+   Hello {{1}}, the book "{{2}}" is due today. Please return it to RSIET Library.
+
+4. rsiet_book_overdue
+   Parameters:
+   {{1}} Student name
+   {{2}} Book title
+   {{3}} Overdue days
+   {{4}} Fine amount
+
+   Suggested body:
+   Hello {{1}}, the book "{{2}}" is overdue by {{3}} day(s). Current fine: INR {{4}}. Please return it. - RSIET Library
+
+5. rsiet_book_returned
+   Parameters:
+   {{1}} Student name
+   {{2}} Book title
+   {{3}} Return date
+   {{4}} Fine amount
+
+   Suggested body:
+   Hello {{1}}, the book "{{2}}" was returned on {{3}}. Fine: INR {{4}}. - RSIET Library
+
+6. rsiet_payment_confirmed
+   Parameters:
+   {{1}} Student name
+   {{2}} Amount
+   {{3}} Payment description
+
+   Suggested body:
+   Hello {{1}}, your payment of INR {{2}} for {{3}} was confirmed. - RSIET Library
+
+7. rsiet_incident_update
+   Parameters:
+   {{1}} Student name
+   {{2}} Book title
+   {{3}} Status
+   {{4}} Charge
+
+   Suggested body:
+   Hello {{1}}, your lost/damaged report for "{{2}}" is {{3}}. Charge: INR {{4}}. - RSIET Library
+
+Issue, return and payment messages are sent when those actions happen.
+Due and overdue messages are checked by send_whatsapp_reminders.py.
+
+For a manual test:
+
+    python send_whatsapp_reminders.py
+
+For automatic daily checking on Windows:
+
+1. Open Task Scheduler.
+2. Create Basic Task.
+3. Name: RSIET Library WhatsApp Reminders
+4. Trigger: Daily, for example 9:00 AM.
+5. Action: Start a program.
+6. Program: the full path of python.exe (run "where python" to find it).
+7. Add arguments:
+
+       "FULL_PROJECT_PATH\send_whatsapp_reminders.py"
+
+8. Start in:
+
+       FULL_PROJECT_PATH
+
+The included run_whatsapp_reminders.bat can also be selected as the program.
+
+
+E. PAID DIGITAL BOOKS
+---------------------
+
+Librarian setup:
+
+1. Log in as Librarian.
+2. Open Book Management.
+3. Scroll to Paid Digital Book Access.
+4. Select an existing catalogue book.
+5. Upload an authorised PDF.
+6. Select reading price: INR 10 or INR 20.
+7. Download price is fixed at INR 100.
+8. Publish the digital book.
+
+Student flow:
+
+    Student Portal
+    -> Digital Books
+    -> Search book
+    -> Pay INR 10/20 for 24-hour reading access
+    OR
+    -> Pay INR 100 for permanent download access
+
+Razorpay settings required in .env:
+
+    RAZORPAY_KEY_ID=YOUR_TEST_OR_LIVE_KEY_ID
+    RAZORPAY_KEY_SECRET=YOUR_KEY_SECRET
+
+Use Test keys first.
+
+Security included:
+
+- PDFs are stored in private_books, not static
+- payment is verified on the server
+- reading and download permissions are checked for every request
+- reading access expires after 24 hours by default
+- download access does not expire
+- direct public static links are not used
+- upload is restricted to PDF files
+- maximum request size is 50 MB
+
+Optional reading duration in .env:
+
+    DIGITAL_READ_ACCESS_HOURS=24
+
+Important copyright rule:
+
+Upload only PDF books that the college owns or is licensed to distribute.
+The software can block direct unpaid access, but no website can completely
+prevent screenshots or screen recording.
+
+The three old zero-byte PDF placeholders in private_books are not published.
+Upload real authorised PDF files through Book Management.
+
+
+F. IMPORTANT SECRET VALUES
+--------------------------
+
+Do not share or upload these values publicly:
+
+- OTP_SENDER_APP_PASSWORD
+- RAZORPAY_KEY_SECRET
+- WHATSAPP_ACCESS_TOKEN
+- SECRET_KEY
+
+Keep .env private.
+
+
+G. QUICK TEST CHECKLIST
+-----------------------
+
+[ ] OTP email arrives and expires correctly
+[ ] Librarian login opens only after OTP verification
+[ ] Student chatbot answers book availability
+[ ] Student phone and WhatsApp consent are saved
+[ ] WhatsApp template names are approved in Meta
+[ ] Daily reminder script runs without Python errors
+[ ] Librarian can upload a real PDF digital book
+[ ] Student sees the book in Digital Books
+[ ] Razorpay Test payment grants read access
+[ ] Read access opens the protected reader
+[ ] INR 100 payment grants download access

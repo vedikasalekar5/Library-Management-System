@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <meta
+        name="description"
+        content="Secure Librarian verification for Aureon Library Management System"
+    >
+
+    <title>Security Verification | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body class="login-body security-gate-body">
+
+    <main class="security-gate-layout">
+
+        <section class="security-brand-panel">
+
+            <div class="security-brand-top">
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library logo"
+                    class="security-college-logo"
+                >
+
+                <div>
+                    <p class="security-college-name">
+                        Rajaram Shinde Institute of Technology, Pedhambe
+                    </p>
+                    <p class="security-brand-name">
+                        Aureon Library Management System
+                    </p>
+                </div>
+            </div>
+
+            <div class="security-hero-copy">
+                <span class="security-eyebrow">
+                    Secure Librarian Access
+                </span>
+
+                <h1>
+                    Verify your identity before entering Aureon.
+                </h1>
+
+                <p>
+                    A one-time security code will be sent only to the
+                    approved Librarian email address. After verification,
+                    the normal college Librarian login will open.
+                </p>
+            </div>
+
+            <div class="security-feature-list">
+                <span>✓ One-time email code</span>
+                <span>✓ Five-minute expiry</span>
+                <span>✓ Limited verification attempts</span>
+            </div>
+
+        </section>
+
+
+        <section class="security-card-wrap">
+
+            <article class="security-card">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library logo"
+                    class="security-card-logo"
+                >
+
+                <span class="security-card-badge">
+                    Stage 1 of 2
+                </span>
+
+                <h2>
+                    Email Security Check
+                </h2>
+
+                <p class="security-card-description">
+                    Enter the approved Librarian email to receive a
+                    {{ otp_length }}-digit OTP.
+                </p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="security-alert-stack">
+                            {% for category, message in messages %}
+                                <div class="alert {{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('login') }}"
+                    class="security-form"
+                    id="security-email-form"
+                    novalidate
+                >
+                    <label for="security-email">
+                        Approved Librarian Email
+                    </label>
+
+                    <div class="security-input-shell">
+                        <span aria-hidden="true">✉</span>
+                        <input
+                            id="security-email"
+                            type="email"
+                            name="email"
+                            placeholder="{{ approved_email_hint }}"
+                            autocomplete="email"
+                            spellcheck="false"
+                            required
+                        >
+                    </div>
+
+                    <p class="security-field-help">
+                        The OTP is sent only to the authorised email.
+                    </p>
+
+                    <button
+                        type="submit"
+                        class="primary-button full-width security-submit-button"
+                    >
+                        Send Security OTP
+                        <span aria-hidden="true">→</span>
+                    </button>
+                </form>
+
+                <div class="security-privacy-note">
+                    <span aria-hidden="true">🔒</span>
+                    <p>
+                        The OTP is encrypted in Aureon's database and
+                        cannot be reused after successful verification.
+                    </p>
+                </div>
+
+                <div class="publisher-credit security-credit">
+                    Designed and Developed by
+                    <strong>Vedika Satish Salekar</strong>
+                </div>
+
+            </article>
+
+        </section>
+
+    </main>
+
+    <script
+        src="{{ url_for('static', filename='security_gate.js') }}"
+        defer
+    ></script>
+
+</body>
+
+</html>

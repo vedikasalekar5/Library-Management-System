@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Login | Aureon Digital Library Card</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body class="member-card-auth-page">
+
+    <main class="member-card-auth-wrapper">
+
+        <section class="member-card-auth-card">
+
+            <!-- Brand -->
+            <div class="member-card-auth-brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library Logo"
+                    class="member-card-auth-logo"
+                >
+
+                <div>
+                    <h1>
+                        Aureon<span class="tm-symbol">™</span>
+                    </h1>
+
+                    <p>Secure Digital Library Card</p>
+                </div>
+
+            </div>
+
+
+            <!-- Security Badge -->
+            <div class="member-card-security-badge">
+                🔒 Password-Protected Student Portal
+            </div>
+
+
+            <!-- Heading -->
+            <div class="member-card-auth-heading">
+
+                <p class="small-title">
+                    Student Access
+                </p>
+
+                <h2>Unlock Your Digital Library Card</h2>
+
+                <p>
+                    Enter your card password to access your issued books,
+                    return records, penalties, payments, Lost or Damaged
+                    reports and library notifications.
+                </p>
+
+            </div>
+
+
+            <!-- Flash Messages -->
+            {% with messages =
+                get_flashed_messages(with_categories=true)
+            %}
+
+                {% if messages %}
+
+                    <div class="member-card-auth-alerts">
+
+                        {% for category, message in messages %}
+
+                            <div class="alert {{ category }}">
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- Lock Message -->
+            {% if lock_message %}
+
+                <div class="member-card-lock-message">
+
+                    <strong>Digital Card Temporarily Locked</strong>
+
+                    <p>{{ lock_message }}</p>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- Student Information -->
+            <div class="member-card-login-member">
+
+                <div class="member-card-login-avatar">
+
+                    {{
+                        member.name[0]|upper
+                        if member and member.name
+                        else "M"
+                    }}
+
+                </div>
+
+                <div>
+
+                    <span>Digital Card Holder</span>
+
+                    <strong>
+                        {{ member.name }}
+                    </strong>
+
+                    <small>
+                        {{ member.department or "Department not available" }}
+
+                        {% if member.study_year %}
+                            · {{ member.study_year }}
+                        {% endif %}
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- Login Form -->
+            <form
+                method="POST"
+                action="{{
+                    url_for(
+                        'member_card_login',
+                        qr_token=member.qr_token
+                    )
+                }}"
+                class="member-card-auth-form"
+                id="memberCardLoginForm"
+            >
+
+                <label for="membershipId">
+                    Membership ID
+                </label>
+
+                <div class="member-card-input-group">
+
+                    <span class="member-card-input-icon">
+                        ID
+                    </span>
+
+                    <input
+                        type="text"
+                        id="membershipId"
+                        name="membership_id"
+                        value="{{ member.membership_id }}"
+                        readonly
+                        required
+                        autocomplete="username"
+                    >
+
+                </div>
+
+
+                <label for="cardPassword">
+                    Card Password
+                </label>
+
+                <div class="member-card-input-group">
+
+                    <span class="member-card-input-icon">
+                        🔑
+                    </span>
+
+                    <input
+                        type="password"
+                        id="cardPassword"
+                        name="password"
+                        placeholder="Enter your card password"
+                        minlength="6"
+                        maxlength="128"
+                        required
+                        autocomplete="current-password"
+                        {% if lock_message %}
+                            disabled
+                        {% endif %}
+                    >
+
+                    <button
+                        type="button"
+                        class="member-card-password-toggle"
+                        id="toggleCardPassword"
+                        aria-label="Show password"
+                    >
+                        Show
+                    </button>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="member-card-login-button"
+                    {% if lock_message %}
+                        disabled
+                    {% endif %}
+                >
+                    Unlock My Digital Card
+                </button>
+
+            </form>
+
+
+            <!-- First-Time Password Setup -->
+            {% if allow_setup %}
+
+                <div class="member-card-first-time">
+
+                    <strong>First time using your Digital Card?</strong>
+
+                    <p>
+                        Create a private password before accessing your
+                        student library portal.
+                    </p>
+
+                    <a
+                        href="{{
+                            url_for(
+                                'member_card_setup',
+                                qr_token=member.qr_token
+                            )
+                        }}"
+                        class="member-card-setup-link"
+                    >
+                        Create Card Password
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- Password Reset Information -->
+            <div class="member-card-reset-help">
+
+                <strong>Forgot your password?</strong>
+
+                <p>
+                    Contact the Librarian to reset and unlock your
+                    Digital Library Card. The Librarian cannot see
+                    your existing password.
+                </p>
+
+            </div>
+
+
+            <!-- Security Information -->
+            <div class="member-card-auth-security">
+
+                <span>✓ Private student account</span>
+
+                <span>✓ Secure password protection</span>
+
+                <span>✓ Automatic logout after inactivity</span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                const passwordInput =
+                    document.getElementById("cardPassword");
+
+                const toggleButton =
+                    document.getElementById(
+                        "toggleCardPassword"
+                    );
+
+                if (!passwordInput || !toggleButton) {
+                    return;
+                }
+
+                toggleButton.addEventListener(
+                    "click",
+                    function () {
+                        const passwordIsHidden =
+                            passwordInput.type === "password";
+
+                        passwordInput.type =
+                            passwordIsHidden
+                                ? "text"
+                                : "password";
+
+                        toggleButton.textContent =
+                            passwordIsHidden
+                                ? "Hide"
+                                : "Show";
+
+                        toggleButton.setAttribute(
+                            "aria-label",
+                            passwordIsHidden
+                                ? "Hide password"
+                                : "Show password"
+                        );
+                    }
+                );
+            }
+        );
+    </script>
+
+</body>
+
+</html>

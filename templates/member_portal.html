@@ -1,0 +1,2030 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Digital Library Card | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', filename='js/member_portal.js') }}"
+        defer
+    ></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+    <script
+        src="{{ url_for('static', filename='digital_books.js') }}"
+        defer
+    ></script>
+    <script
+        src="{{ url_for('static', filename='aureon_chatbot.js') }}"
+        defer
+    ></script>
+</head>
+
+<body class="member-portal-page">
+
+    <div class="member-portal-shell">
+
+        <!-- Top Bar -->
+        <header class="member-portal-topbar">
+
+            <a
+                href="{{ url_for('member_portal') }}"
+                class="member-portal-brand"
+            >
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library Logo"
+                    class="member-portal-logo"
+                >
+
+                <div>
+                    <strong>
+                        Aureon<span class="tm-symbol">™</span>
+                    </strong>
+
+                    <span>Secure Digital Library Card</span>
+                </div>
+            </a>
+
+
+            <div class="member-portal-top-actions">
+
+                <div class="member-portal-top-member">
+                    <span>{{ member.membership_id }}</span>
+                    <strong>{{ member.name }}</strong>
+                </div>
+
+                <a
+                    href="{{ url_for('member_card_logout') }}"
+                    class="member-portal-logout-button"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- Side Navigation -->
+        <aside class="member-portal-sidebar">
+
+            <section class="member-portal-mini-card">
+
+                <div class="member-portal-avatar">
+                    {{
+                        member.name[0]|upper
+                        if member and member.name
+                        else "M"
+                    }}
+                </div>
+
+                <div>
+                    <span>Digital Card Holder</span>
+                    <h2>{{ member.name }}</h2>
+                    <p>{{ member.membership_id }}</p>
+                </div>
+
+                <div class="member-portal-active-badge">
+                    Active
+                </div>
+
+            </section>
+
+
+            <nav
+                class="member-portal-navigation"
+                aria-label="Student portal sections"
+            >
+
+                <button
+                    type="button"
+                    class="member-portal-nav-button active"
+                    data-portal-target="home"
+                >
+                    <span>⌂</span>
+                    Home
+                </button>
+
+                <button
+                    type="button"
+                    class="member-portal-nav-button"
+                    data-portal-target="issued"
+                >
+                    <span>▤</span>
+                    Issued Books
+                </button>
+
+                <button
+                    type="button"
+                    class="member-portal-nav-button"
+                    data-portal-target="digital-books"
+                >
+                    <span>▣</span>
+                    Digital Books
+                </button>
+
+                <button
+                    type="button"
+                    class="member-portal-nav-button"
+                    data-portal-target="returns"
+                >
+                    <span>↩</span>
+                    Return Records
+                </button>
+
+                <button
+                    type="button"
+                    class="member-portal-nav-button"
+                    data-portal-target="incidents"
+                >
+                    <span>⚠</span>
+                    Lost &amp; Damaged
+                </button>
+
+                <button
+                    type="button"
+                    class="member-portal-nav-button"
+                    data-portal-target="payments"
+                >
+                    <span>₹</span>
+                    Fines &amp; Payments
+                </button>
+
+                <button
+                    type="button"
+                    class="member-portal-nav-button"
+                    data-portal-target="notifications"
+                >
+                    <span>◉</span>
+                    Notifications
+
+                    {% if portal_summary.unread_notifications %}
+                        <small class="member-portal-nav-count">
+                            {{ portal_summary.unread_notifications }}
+                        </small>
+                    {% endif %}
+                </button>
+
+                <button
+                    type="button"
+                    class="member-portal-nav-button"
+                    data-portal-target="profile"
+                >
+                    <span>◎</span>
+                    My Profile
+                </button>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- Main Portal -->
+        <main class="member-portal-main">
+
+            <!-- Flash Messages -->
+            {% with messages =
+                get_flashed_messages(with_categories=true)
+            %}
+
+                {% if messages %}
+
+                    <div class="member-portal-alerts">
+
+                        {% for category, message in messages %}
+
+                            <div class="alert {{ category }}">
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- HOME -->
+            <section
+                class="member-portal-section active"
+                id="portal-home"
+                data-portal-section="home"
+            >
+
+                <section class="student-home-hero">
+
+                    <div class="student-home-hero-content">
+
+                        <p class="student-home-eyebrow">
+                            My Digital Library
+                        </p>
+
+                        <h1>
+                            Hello, {{ member.name }}
+                        </h1>
+
+                        <p class="student-home-description">
+                            Everything important about your library
+                            account is available in one simple place.
+                        </p>
+
+
+                        <div class="student-home-identity">
+
+                            <span>
+                                Membership ID
+                            </span>
+
+                            <strong>
+                                {{ member.membership_id }}
+                            </strong>
+
+                            <small>
+                                Secure account active
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="student-home-metrics">
+
+                        <article>
+                            <span>Issued</span>
+
+                            <strong>
+                                {{
+                                    portal_summary.issued_count
+                                    | default(0, true)
+                                }}
+                            </strong>
+                        </article>
+
+                        <article>
+                            <span>Pending</span>
+
+                            <strong>
+                                ₹{{
+                                    portal_summary.pending_amount
+                                    | default(0, true)
+                                }}
+                            </strong>
+                        </article>
+
+                        <article>
+                            <span>Messages</span>
+
+                            <strong>
+                                {{
+                                    portal_summary.unread_notifications
+                                    | default(0, true)
+                                }}
+                            </strong>
+                        </article>
+
+                    </div>
+
+                </section>
+
+
+                {% if next_due_book %}
+
+                    <section class="student-home-due">
+
+                        <div class="student-home-due-icon">
+                            ◷
+                        </div>
+
+
+                        <div class="student-home-due-content">
+
+                            <span>
+                                {{
+                                    "Book Overdue"
+                                    if next_due_book.is_overdue
+                                    else "Next Due Book"
+                                }}
+                            </span>
+
+                            <h2>
+                                {{ next_due_book.title }}
+                            </h2>
+
+                            <p>
+                                Due on {{ next_due_book.due_date }}
+                            </p>
+
+                        </div>
+
+
+                        <div class="student-home-due-value">
+
+                            {% if next_due_book.is_overdue %}
+
+                                <small>Overdue by</small>
+
+                                <strong>
+                                    {{
+                                        next_due_book.overdue_days
+                                        | default(0, true)
+                                    }}
+                                    day(s)
+                                </strong>
+
+                            {% else %}
+
+                                <small>Time remaining</small>
+
+                                <strong>
+                                    {{
+                                        next_due_book.days_remaining
+                                        | default(0, true)
+                                    }}
+                                    day(s)
+                                </strong>
+
+                            {% endif %}
+
+                        </div>
+
+                    </section>
+
+                {% endif %}
+
+
+                <section class="student-home-services">
+
+                    <button
+                        type="button"
+                        class="student-home-service-card"
+                        data-open-portal-section="issued"
+                    >
+
+                        <span class="student-home-service-icon">
+                            ▤
+                        </span>
+
+                        <span class="student-home-service-text">
+
+                            <strong>My Books</strong>
+
+                            <small>
+                                View issued books and due dates
+                            </small>
+
+                        </span>
+
+                        <span class="student-home-service-arrow">
+                            →
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="student-home-service-card"
+                        data-open-portal-section="payments"
+                    >
+
+                        <span class="student-home-service-icon">
+                            ₹
+                        </span>
+
+                        <span class="student-home-service-text">
+
+                            <strong>Payments</strong>
+
+                            <small>
+                                Check fines, charges and receipts
+                            </small>
+
+                        </span>
+
+                        <span class="student-home-service-arrow">
+                            →
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="student-home-service-card"
+                        data-open-portal-section="notifications"
+                    >
+
+                        <span class="student-home-service-icon">
+                            ◉
+                        </span>
+
+                        <span class="student-home-service-text">
+
+                            <strong>Notifications</strong>
+
+                            <small>
+                                Read reminders and library updates
+                            </small>
+
+                        </span>
+
+                        <span class="student-home-service-arrow">
+                            →
+                        </span>
+
+                    </button>
+
+                </section>
+
+            </section>
+
+
+            <!-- ISSUED BOOKS -->
+            <section
+                class="member-portal-section"
+                id="portal-issued"
+                data-portal-section="issued"
+                hidden
+            >
+
+                <header class="member-portal-page-header">
+
+                    <div>
+                        <p class="small-title">
+                            My Books
+                        </p>
+
+                        <h1>Issued Books</h1>
+
+                        <p>
+                            These books are currently issued to your account.
+                        </p>
+                    </div>
+
+                </header>
+
+
+                {% if issued_books %}
+
+                    <div class="member-portal-book-grid">
+
+                        {% for book in issued_books %}
+
+                            <article class="member-issued-book-card">
+
+                                <div class="member-issued-book-cover">
+
+                                    {% if book.cover_url %}
+
+                                        <img
+                                            src="{{ book.cover_url }}"
+                                            alt="{{ book.title }} cover"
+                                            loading="lazy"
+                                        >
+
+                                    {% else %}
+
+                                        <span>📘</span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="member-issued-book-content">
+
+                                    <div class="member-issued-book-heading">
+
+                                        <div>
+                                            <h2>{{ book.title }}</h2>
+
+                                            <p>
+                                                By
+                                                {{
+                                                    book.author
+                                                    or "Author unavailable"
+                                                }}
+                                            </p>
+                                        </div>
+
+                                        {% if book.is_overdue %}
+
+                                            <span class="member-book-status overdue">
+                                                Overdue
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="member-book-status issued">
+                                                Issued
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                   
+                                           
+                                    <div class="member-issued-book-details">
+
+    <div>
+        <span>Issue Date</span>
+        <strong>{{ book.issue_date }}</strong>
+    </div>
+
+    <div>
+        <span>Due Date</span>
+        <strong>{{ book.due_date }}</strong>
+    </div>
+
+    <div>
+        <span>
+            {{
+                "Overdue By"
+                if book.is_overdue
+                else "Days Remaining"
+            }}
+        </span>
+
+        <strong>
+            {% if book.is_overdue %}
+
+                {{ book.overdue_days }} day(s)
+
+            {% else %}
+
+                {{ book.days_remaining }} day(s)
+
+            {% endif %}
+        </strong>
+    </div>
+
+    <div
+        class="{%
+            if book.is_overdue
+        %}member-current-penalty overdue{%
+            else
+        %}member-current-penalty{% endif %}"
+    >
+        <span>Current Penalty</span>
+
+        {% if book.is_overdue %}
+
+            <strong>
+                ₹{{ book.current_fine }}
+            </strong>
+
+            <small>
+                Late return penalty
+            </small>
+
+        {% else %}
+
+            <strong>₹0</strong>
+
+            <small>
+                No penalty
+            </small>
+
+        {% endif %}
+    </div>
+
+</div>
+
+
+                                    <button
+                                        type="button"
+                                        class="member-report-book-button"
+                                        data-open-portal-section="incidents"
+                                        data-incident-transaction-id="{{
+                                            book.transaction_id
+                                        }}"
+                                    >
+                                        Report This Book as Lost or Damaged
+                                    </button>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <section class="member-portal-empty-state">
+
+                        <div>✓</div>
+                        <h2>No Books Currently Issued</h2>
+
+                        <p>
+                            You do not have any active book issue records.
+                        </p>
+
+                    </section>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- PAID DIGITAL BOOKS -->
+            <section
+                class="member-portal-section"
+                id="portal-digital-books"
+                data-portal-section="digital-books"
+                hidden
+            >
+                <div class="member-portal-section-heading digital-books-heading">
+                    <div>
+                        <span class="member-section-eyebrow">Aureon Digital Library</span>
+                        <h1>Read and Download Digital Books</h1>
+                        <p>
+                            Search approved digital books. Reading access costs
+                            ₹10 or ₹20 for 24 hours. Download access costs ₹100.
+                        </p>
+                    </div>
+                    <input
+                        type="search"
+                        id="digitalBookSearch"
+                        class="digital-book-search"
+                        placeholder="Search title, author or subject"
+                        aria-label="Search digital books"
+                    >
+                </div>
+
+                <div
+                    id="digitalBookPaymentStatus"
+                    class="digital-book-payment-status"
+                    hidden
+                ></div>
+
+                <div class="digital-book-grid">
+                    {% for digital_book in digital_books %}
+                        <article
+                            class="digital-book-card"
+                            data-digital-book-card
+                            data-search-text="{{ digital_book.title }} {{ digital_book.author }} {{ digital_book.category or '' }}"
+                        >
+                            <div class="digital-book-cover">
+                                {% if digital_book.cover_url %}
+                                    <img
+                                        src="{{ digital_book.cover_url }}"
+                                        alt="{{ digital_book.title }} cover"
+                                        loading="lazy"
+                                    >
+                                {% else %}
+                                    <span>📘</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="digital-book-card-content">
+                                <span class="digital-book-category">
+                                    {{ digital_book.category or 'Digital Book' }}
+                                </span>
+                                <h2>{{ digital_book.title }}</h2>
+                                <p class="digital-book-author">
+                                    {{ digital_book.author }}
+                                </p>
+                                <p class="digital-book-description">
+                                    {{ digital_book.description or 'Protected academic digital reading copy.' }}
+                                </p>
+
+                                <div class="digital-book-prices">
+                                    <span>Read ₹{{ digital_book.read_price }}</span>
+                                    <span>Download ₹{{ digital_book.download_price }}</span>
+                                </div>
+
+                                <div class="digital-book-actions">
+                                    {% if digital_book.can_read %}
+                                        <a
+                                            href="{{ url_for('digital_book_reader', digital_book_id=digital_book.digital_book_id) }}"
+                                            class="digital-book-read-button"
+                                        >
+                                            Read Now
+                                        </a>
+                                    {% else %}
+                                        <button
+                                            type="button"
+                                            class="digital-book-read-button"
+                                            data-digital-purchase
+                                            data-book-id="{{ digital_book.digital_book_id }}"
+                                            data-access-type="read"
+                                        >
+                                            Pay ₹{{ digital_book.read_price }} to Read
+                                        </button>
+                                    {% endif %}
+
+                                    {% if digital_book.can_download %}
+                                        <a
+                                            href="{{ url_for('digital_book_download', digital_book_id=digital_book.digital_book_id) }}"
+                                            class="digital-book-download-button"
+                                        >
+                                            Download PDF
+                                        </a>
+                                    {% else %}
+                                        <button
+                                            type="button"
+                                            class="digital-book-download-button"
+                                            data-digital-purchase
+                                            data-book-id="{{ digital_book.digital_book_id }}"
+                                            data-access-type="download"
+                                        >
+                                            Pay ₹{{ digital_book.download_price }} to Download
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    {% else %}
+                        <div class="digital-book-empty-state">
+                            <span>📚</span>
+                            <h2>No digital books published yet</h2>
+                            <p>The Librarian can upload approved PDF books from Book Management.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <p class="digital-book-copyright-note">
+                    Only college-owned or licensed digital books may be provided.
+                    Paid reading does not permit copying, redistribution or screen recording.
+                </p>
+            </section>
+
+
+            <!-- RETURN RECORDS -->
+            <section
+                class="member-portal-section"
+                id="portal-returns"
+                data-portal-section="returns"
+                hidden
+            >
+
+                <header class="member-portal-page-header">
+
+                    <div>
+                        <p class="small-title">
+                            My Library History
+                        </p>
+
+                        <h1>Return Records</h1>
+
+                        <p>
+                            View returned books, return dates, late status,
+                            penalties and payment receipts.
+                        </p>
+                    </div>
+
+                </header>
+
+
+                {% if return_records %}
+
+                    <div class="member-return-record-list">
+
+                        {% for record in return_records %}
+
+                            <article class="member-return-record-card">
+
+                                <div class="member-return-record-heading">
+
+                                    <div>
+                                        <h2>{{ record.title }}</h2>
+
+                                        <p>
+                                            By
+                                            {{
+                                                record.author
+                                                or "Author unavailable"
+                                            }}
+                                        </p>
+                                    </div>
+
+                                    {% if record.was_late %}
+
+                                        <span class="member-book-status overdue">
+                                            Returned Late
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="member-book-status returned">
+                                            Returned
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="member-return-record-grid">
+
+                                    <div>
+                                        <span>Issue Date</span>
+                                        <strong>{{ record.issue_date }}</strong>
+                                    </div>
+
+                                    <div>
+                                        <span>Due Date</span>
+                                        <strong>{{ record.due_date }}</strong>
+                                    </div>
+
+                                    <div>
+                                        <span>Return Date</span>
+                                        <strong>
+                                            {{ record.return_date or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div>
+                                        <span>Penalty</span>
+                                        <strong>
+                                            ₹{{
+                                                record.fine
+                                                | default(0, true)
+                                            }}
+                                        </strong>
+                                    </div>
+
+                                    <div>
+                                        <span>Payment Status</span>
+
+                                        <strong>
+                                            {{
+                                                record.payment_status
+                                                or (
+                                                    "No Penalty"
+                                                    if not record.fine
+                                                    else "Payment Pending"
+                                                )
+                                            }}
+                                        </strong>
+                                    </div>
+
+                                </div>
+
+
+                                {% if record.receipt_no %}
+
+                                    <a
+                                        href="{{
+                                            url_for(
+                                                'member_fine_receipt',
+                                                transaction_id=
+                                                    record.transaction_id
+                                            )
+                                        }}"
+                                        class="member-portal-receipt-link"
+                                    >
+                                        View Payment Receipt
+                                    </a>
+
+                                {% endif %}
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <section class="member-portal-empty-state">
+
+                        <div>↩</div>
+                        <h2>No Return Records</h2>
+
+                        <p>
+                            Returned book records will appear here.
+                        </p>
+
+                    </section>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- LOST AND DAMAGED -->
+            <section
+                class="member-portal-section"
+                id="portal-incidents"
+                data-portal-section="incidents"
+                hidden
+            >
+
+                <header class="member-portal-page-header">
+
+                    <div>
+                        <p class="small-title">
+                            Report a Problem
+                        </p>
+
+                        <h1>Lost &amp; Damaged Books</h1>
+
+                        <p>
+                            Report only books that are currently issued to
+                            your account. The Librarian will review the report
+                            and decide the charge.
+                        </p>
+                    </div>
+
+                </header>
+
+
+                <section class="member-incident-form-card">
+
+                    <div class="member-incident-form-heading">
+
+                        <h2>Submit New Report</h2>
+
+                        <p>
+                            Select the issued book, incident type, date and
+                            reason.
+                        </p>
+
+                    </div>
+
+
+                    {% if issued_books %}
+
+                        <form
+                            method="POST"
+                            action="{{
+                                url_for('submit_member_incident')
+                            }}"
+                            class="member-incident-form"
+                            id="memberIncidentForm"
+                        >
+
+                            <label for="incidentTransaction">
+                                Issued Book
+                            </label>
+
+                            <select
+                                id="incidentTransaction"
+                                name="transaction_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Select an issued book
+                                </option>
+
+                                {% for book in issued_books %}
+
+                                    <option
+                                        value="{{ book.transaction_id }}"
+                                    >
+                                        {{ book.title }} — Due {{ book.due_date }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+
+                            <label for="incidentType">
+                                Report Type
+                            </label>
+
+                            <select
+                                id="incidentType"
+                                name="incident_type"
+                                required
+                            >
+                                <option value="">Select type</option>
+                                <option value="Lost">Lost</option>
+                                <option value="Damaged">Damaged</option>
+                            </select>
+
+
+                            <label for="noticedDate">
+                                Date Lost or Damage Noticed
+                            </label>
+
+                            <input
+                                type="date"
+                                id="noticedDate"
+                                name="noticed_date"
+                                max="{{ today_iso }}"
+                                required
+                            >
+
+
+                            <label for="incidentDescription">
+                                Reason and Details
+                            </label>
+
+                            <textarea
+                                id="incidentDescription"
+                                name="description"
+                                placeholder="Explain what happened and provide useful details."
+                                minlength="10"
+                                maxlength="1000"
+                                required
+                            ></textarea>
+
+
+                            <button
+                                type="submit"
+                                class="member-portal-primary-button"
+                            >
+                                Submit Report to Librarian
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <div class="member-portal-inline-message">
+                            You have no currently issued book available
+                            for a new Lost or Damaged report.
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <section class="member-incident-history">
+
+                    <div class="member-portal-section-heading">
+
+                        <div>
+                            <p class="small-title">
+                                Previous Reports
+                            </p>
+
+                            <h2>Report Status</h2>
+                        </div>
+
+                    </div>
+
+
+                    {% if incident_records %}
+
+                        <div class="member-incident-record-list">
+
+                            {% for incident in incident_records %}
+
+                                <article class="member-incident-record-card">
+
+                                    <div class="member-incident-record-top">
+
+                                        <div>
+
+                                            <div class="member-incident-badges">
+
+                                                <span class="member-incident-type">
+                                                    {{ incident.incident_type }}
+                                                </span>
+
+                                                <span
+                                                    class="member-incident-status status-{{
+                                                        incident.status
+                                                        | lower
+                                                        | replace(' ', '-')
+                                                    }}"
+                                                >
+                                                    {{ incident.status }}
+                                                </span>
+
+                                            </div>
+
+                                            <h2>{{ incident.title }}</h2>
+
+                                            <p>
+                                                Reported on
+                                                {{ incident.reported_at }}
+                                            </p>
+
+                                        </div>
+
+                                        <strong class="member-incident-charge">
+                                            ₹{{
+                                                incident.charge
+                                                | default(0, true)
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="member-incident-record-grid">
+
+                                        <div>
+                                            <span>Date Noticed</span>
+                                            <strong>
+                                                {{
+                                                    incident.noticed_date
+                                                    or "-"
+                                                }}
+                                            </strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Payment Status</span>
+                                            <strong>
+                                                {{
+                                                    incident.payment_status
+                                                    or "Not Started"
+                                                }}
+                                            </strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Reviewed By</span>
+                                            <strong>
+                                                {{
+                                                    incident.reviewed_by
+                                                    or "Waiting for review"
+                                                }}
+                                            </strong>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="member-incident-description">
+
+                                        <span>Your Reason</span>
+
+                                        <p>
+                                            {{
+                                                incident.description
+                                                or "No description provided."
+                                            }}
+                                        </p>
+
+                                    </div>
+
+
+                                    {% if incident.admin_note %}
+
+                                        <div class="member-librarian-note">
+
+                                            <span>Librarian Note</span>
+
+                                            <p>{{ incident.admin_note }}</p>
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    {% if
+                                        incident.status == "Approved"
+                                        and incident.charge
+                                        and incident.payment_status != "Paid"
+                                    %}
+
+                                        <div class="member-incident-payment-actions">
+
+                                            {% if
+                                                incident.payment_status
+                                                == "Awaiting Cash Confirmation"
+                                            %}
+
+                                                <span class="member-payment-waiting">
+                                                    Cash request submitted.
+                                                    Pay ₹{{ incident.charge }}
+                                                    to the Librarian and wait
+                                                    for confirmation.
+                                                </span>
+
+                                            {% else %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{
+                                                        url_for(
+                                                            'start_incident_payment',
+                                                            incident_id=
+                                                                incident.incident_id
+                                                        )
+                                                    }}"
+                                                >
+                                                    <button
+                                                        type="submit"
+                                                        class="member-pay-online-button"
+                                                    >
+                                                        Pay Online / UPI QR
+                                                    </button>
+                                                </form>
+
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{
+                                                        url_for(
+                                                            'request_incident_cash',
+                                                            incident_id=
+                                                                incident.incident_id
+                                                        )
+                                                    }}"
+                                                >
+                                                    <button
+                                                        type="submit"
+                                                        class="member-request-cash-button"
+                                                    >
+                                                        Request Cash Payment
+                                                    </button>
+                                                </form>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    {% elif
+                                        incident.payment_status == "Paid"
+                                    %}
+
+                                        <a
+                                            href="{{
+                                                url_for(
+                                                    'member_incident_receipt',
+                                                    incident_id=
+                                                        incident.incident_id
+                                                )
+                                            }}"
+                                            class="member-portal-receipt-link"
+                                        >
+                                            View Payment Receipt
+                                        </a>
+
+                                    {% endif %}
+
+                                </article>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <section class="member-portal-empty-state">
+
+                            <div>✓</div>
+                            <h2>No Lost or Damaged Reports</h2>
+
+                            <p>
+                                Reports submitted from your account will
+                                appear here.
+                            </p>
+
+                        </section>
+
+                    {% endif %}
+
+                </section>
+
+            </section>
+
+
+            <!-- FINES AND PAYMENTS -->
+            <section
+                class="member-portal-section"
+                id="portal-payments"
+                data-portal-section="payments"
+                hidden
+            >
+
+                <header class="member-portal-page-header">
+
+                    <div>
+                        <p class="small-title">
+                            My Payments
+                        </p>
+
+                        <h1>Fines &amp; Payments</h1>
+
+                        <p>
+                            Pay late-return penalties and approved Lost or
+                            Damaged charges by online/UPI QR or request Cash
+                            payment.
+                        </p>
+                    </div>
+
+                </header>
+
+
+                <section class="member-payment-summary-card">
+
+                    <span>Total Pending Amount</span>
+
+                    <strong>
+                        ₹{{
+                            portal_summary.pending_amount
+                            | default(0, true)
+                        }}
+                    </strong>
+
+                </section>
+
+
+                <div class="member-portal-section-heading">
+
+                    <div>
+                        <p class="small-title">
+                            Late Return
+                        </p>
+
+                        <h2>Book Penalties</h2>
+                    </div>
+
+                </div>
+
+
+                {% if fine_records %}
+
+                    <div class="member-payment-record-list">
+
+                        {% for fine in fine_records %}
+
+                            <article class="member-payment-record-card">
+
+                                <div>
+
+                                    <h3>{{ fine.title }}</h3>
+
+                                    <p>
+                                        Returned on
+                                        {{ fine.return_date or "-" }}
+                                    </p>
+
+                                </div>
+
+                                <div class="member-payment-amount">
+                                    ₹{{ fine.fine }}
+                                </div>
+
+                                <div class="member-payment-status">
+
+                                    <span>Status</span>
+
+                                    <strong>
+                                        {{
+                                            fine.payment_status
+                                            or (
+                                                "Paid"
+                                                if fine.receipt_no
+                                                else "Payment Pending"
+                                            )
+                                        }}
+                                    </strong>
+
+                                </div>
+
+
+                                {% if fine.receipt_no %}
+
+                                    <a
+                                        href="{{
+                                            url_for(
+                                                'member_fine_receipt',
+                                                transaction_id=
+                                                    fine.transaction_id
+                                            )
+                                        }}"
+                                        class="member-portal-receipt-link"
+                                    >
+                                        View Receipt
+                                    </a>
+
+                                {% elif
+                                    fine.payment_status
+                                    == "Awaiting Cash Confirmation"
+                                %}
+
+                                    <span class="member-payment-waiting">
+                                        Cash request submitted. Pay
+                                        ₹{{ fine.fine }} to the Librarian.
+                                    </span>
+
+                                {% else %}
+
+                                    <div class="member-payment-actions">
+
+                                        <form
+                                            method="POST"
+                                            action="{{
+                                                url_for(
+                                                    'start_fine_payment',
+                                                    transaction_id=
+                                                        fine.transaction_id
+                                                )
+                                            }}"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="member-pay-online-button"
+                                            >
+                                                Pay Online / UPI QR
+                                            </button>
+                                        </form>
+
+
+                                        <form
+                                            method="POST"
+                                            action="{{
+                                                url_for(
+                                                    'request_fine_cash',
+                                                    transaction_id=
+                                                        fine.transaction_id
+                                                )
+                                            }}"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="member-request-cash-button"
+                                            >
+                                                Request Cash Payment
+                                            </button>
+                                        </form>
+
+                                    </div>
+
+                                {% endif %}
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <section class="member-portal-empty-state compact">
+
+                        <div>✓</div>
+                        <h2>No Late-Return Penalties</h2>
+
+                        <p>
+                            You currently have no book-return fine.
+                        </p>
+
+                    </section>
+
+                {% endif %}
+
+
+                <div class="member-portal-section-heading payment-heading">
+
+                    <div>
+                        <p class="small-title">
+                            Lost or Damaged
+                        </p>
+
+                        <h2>Approved Charges</h2>
+                    </div>
+
+                </div>
+
+
+                {% set payable_incidents =
+                    incident_records
+                    | selectattr('status', 'equalto', 'Approved')
+                    | list
+                %}
+
+                {% if payable_incidents %}
+
+                    <div class="member-payment-record-list">
+
+                        {% for incident in payable_incidents %}
+
+                            <article class="member-payment-record-card">
+
+                                <div>
+
+                                    <h3>{{ incident.title }}</h3>
+
+                                    <p>
+                                        {{ incident.incident_type }} report
+                                    </p>
+
+                                </div>
+
+                                <div class="member-payment-amount">
+                                    ₹{{
+                                        incident.charge
+                                        | default(0, true)
+                                    }}
+                                </div>
+
+                                <div class="member-payment-status">
+
+                                    <span>Status</span>
+
+                                    <strong>
+                                        {{
+                                            incident.payment_status
+                                            or "Payment Pending"
+                                        }}
+                                    </strong>
+
+                                </div>
+
+
+                                {% if
+                                    incident.payment_status == "Paid"
+                                %}
+
+                                    <a
+                                        href="{{
+                                            url_for(
+                                                'member_incident_receipt',
+                                                incident_id=
+                                                    incident.incident_id
+                                            )
+                                        }}"
+                                        class="member-portal-receipt-link"
+                                    >
+                                        View Receipt
+                                    </a>
+
+                                {% elif
+                                    incident.payment_status
+                                    == "Awaiting Cash Confirmation"
+                                %}
+
+                                    <span class="member-payment-waiting">
+                                        Cash request submitted. Pay
+                                        ₹{{ incident.charge }} to the
+                                        Librarian.
+                                    </span>
+
+                                {% elif incident.charge and incident.charge > 0 %}
+
+                                    <div class="member-payment-actions">
+
+                                        <form
+                                            method="POST"
+                                            action="{{
+                                                url_for(
+                                                    'start_incident_payment',
+                                                    incident_id=
+                                                        incident.incident_id
+                                                )
+                                            }}"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="member-pay-online-button"
+                                            >
+                                                Pay Online / UPI QR
+                                            </button>
+                                        </form>
+
+
+                                        <form
+                                            method="POST"
+                                            action="{{
+                                                url_for(
+                                                    'request_incident_cash',
+                                                    incident_id=
+                                                        incident.incident_id
+                                                )
+                                            }}"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="member-request-cash-button"
+                                            >
+                                                Request Cash Payment
+                                            </button>
+                                        </form>
+
+                                    </div>
+
+                                {% else %}
+
+                                    <span class="member-payment-complete">
+                                        No payment required.
+                                    </span>
+
+                                {% endif %}
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <section class="member-portal-empty-state compact">
+
+                        <div>✓</div>
+                        <h2>No Approved Incident Charges</h2>
+
+                        <p>
+                            Approved Lost or Damaged charges will appear here.
+                        </p>
+
+                    </section>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- NOTIFICATIONS -->
+            <section
+                class="member-portal-section"
+                id="portal-notifications"
+                data-portal-section="notifications"
+                hidden
+            >
+
+                <header class="member-portal-page-header">
+
+                    <div>
+                        <p class="small-title">
+                            Library Messages
+                        </p>
+
+                        <h1>Notifications</h1>
+
+                        <p>
+                            View Librarian announcements and automatic
+                            reminders related to issues, returns, due dates,
+                            penalties, incidents and payments.
+                        </p>
+                    </div>
+
+
+                    {% if portal_summary.unread_notifications %}
+
+                        <form
+                            method="POST"
+                            action="{{
+                                url_for(
+                                    'mark_all_member_notifications_read'
+                                )
+                            }}"
+                        >
+                            <button
+                                type="submit"
+                                class="member-mark-all-read-button"
+                            >
+                                Mark All as Read
+                            </button>
+                        </form>
+
+                    {% endif %}
+
+                </header>
+
+
+                {% if notifications %}
+
+                    <div class="member-notification-list">
+
+                        {% for notification in notifications %}
+
+                            <article
+                                class="member-notification-card{%
+                                    if not notification.is_read
+                                %} unread{% endif %}"
+                            >
+
+                                <div class="member-notification-icon">
+                                    {{
+                                        notification.icon
+                                        or "◉"
+                                    }}
+                                </div>
+
+
+                                <div class="member-notification-content">
+
+                                    <div class="member-notification-heading">
+
+                                        <div>
+
+                                            <span>
+                                                {{
+                                                    notification.category
+                                                    or "Library Update"
+                                                }}
+                                            </span>
+
+                                            <h2>
+                                                {{ notification.title }}
+                                            </h2>
+
+                                        </div>
+
+                                        <time>
+                                            {{ notification.created_at }}
+                                        </time>
+
+                                    </div>
+
+                                    <p>{{ notification.message }}</p>
+
+
+                                    {% if not notification.is_read %}
+
+                                        <form
+                                            method="POST"
+                                            action="{{
+                                                url_for(
+                                                    'mark_member_notification_read',
+                                                    notification_id=
+                                                        notification.notification_id
+                                                )
+                                            }}"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="member-mark-read-button"
+                                            >
+                                                Mark as Read
+                                            </button>
+                                        </form>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <section class="member-portal-empty-state">
+
+                        <div>◉</div>
+                        <h2>No Notifications</h2>
+
+                        <p>
+                            New Librarian messages and automatic reminders
+                            will appear here.
+                        </p>
+
+                    </section>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- PROFILE -->
+            <section
+                class="member-portal-section"
+                id="portal-profile"
+                data-portal-section="profile"
+                hidden
+            >
+
+                <header class="member-portal-page-header">
+
+                    <div>
+                        <p class="small-title">
+                            Digital Card Holder
+                        </p>
+
+                        <h1>My Profile</h1>
+
+                        <p>
+                            View your registered library membership details
+                            and manage your Digital Card password.
+                        </p>
+                    </div>
+
+                </header>
+
+
+                <section class="member-profile-digital-card">
+
+                    <div class="member-profile-digital-avatar">
+
+                        {{
+                            member.name[0]|upper
+                            if member and member.name
+                            else "M"
+                        }}
+
+                    </div>
+
+
+                    <div class="member-profile-digital-information">
+
+                        <p class="small-title">
+                            Aureon Digital Library Card
+                        </p>
+
+                        <h2>{{ member.name }}</h2>
+
+                        <strong>{{ member.membership_id }}</strong>
+
+                        <div class="member-profile-digital-grid">
+
+                            <div>
+                                <span>Enrollment Number</span>
+                                <strong>
+                                    {{ member.enrollment_no or "-" }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Department</span>
+                                <strong>
+                                    {{ member.department or "-" }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Study Year</span>
+                                <strong>
+                                    {{ member.study_year or "-" }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Email</span>
+                                <strong>
+                                    {{ member.email or "-" }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Phone</span>
+                                <strong>
+                                    {{ member.phone or "-" }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Card Status</span>
+                                <strong>Active</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <section class="member-profile-security-card">
+
+                    <div>
+
+                        <p class="small-title">
+                            Account Security
+                        </p>
+
+                        <h2>Digital Card Password</h2>
+
+                        <p>
+                            Change your password regularly and never share it
+                            with another person.
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="{{
+                            url_for('member_change_password')
+                        }}"
+                        class="member-change-password-link"
+                    >
+                        Change Password
+                    </a>
+
+                </section>
+
+            </section>
+
+        </main>
+
+
+        <button
+            type="button"
+            id="aureonChatLauncher"
+            class="aureon-chat-launcher"
+            aria-controls="aureonChatPanel"
+            aria-expanded="false"
+        >
+            <span>✦</span>
+            Ask Aureon
+        </button>
+
+        <section
+            id="aureonChatPanel"
+            class="aureon-chat-panel"
+            aria-label="Aureon library chatbot"
+            hidden
+        >
+            <header class="aureon-chat-header">
+                <div>
+                    <span class="aureon-chat-avatar">A</span>
+                    <div>
+                        <strong>Aureon</strong>
+                        <small>Library Assistant</small>
+                    </div>
+                </div>
+                <button type="button" id="aureonChatClose" aria-label="Close chatbot">×</button>
+            </header>
+
+            <div id="aureonChatMessages" class="aureon-chat-messages">
+                <div class="aureon-chat-message aureon">
+                    Hello! Ask me about book availability, your issued books,
+                    due dates, fines, library timings or digital books.
+                </div>
+            </div>
+
+            <div id="aureonChatSuggestions" class="aureon-chat-suggestions"></div>
+
+            <form id="aureonChatForm" class="aureon-chat-form">
+                <input
+                    type="text"
+                    id="aureonChatInput"
+                    maxlength="500"
+                    placeholder="Ask Aureon a library question…"
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit">Send</button>
+            </form>
+        </section>
+
+
+        <!-- Mobile Bottom Navigation -->
+        <nav
+            class="member-portal-mobile-navigation"
+            aria-label="Mobile student portal navigation"
+        >
+
+            <button
+                type="button"
+                class="active"
+                data-portal-target="home"
+            >
+                <span>⌂</span>
+                Home
+            </button>
+
+            <button
+                type="button"
+                data-portal-target="digital-books"
+            >
+                <span>▣</span>
+                Digital
+            </button>
+
+            <button
+                type="button"
+                data-portal-target="payments"
+            >
+                <span>₹</span>
+                Payments
+            </button>
+
+            <button
+                type="button"
+                data-portal-target="notifications"
+            >
+                <span>◉</span>
+                Messages
+            </button>
+
+            <button
+                type="button"
+                data-portal-target="profile"
+            >
+                <span>◎</span>
+                Profile
+            </button>
+
+        </nav>
+
+    </div>
+
+</body>
+
+</html>

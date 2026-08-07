@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Member | Aureon Library</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="edit-page">
+
+        <section class="content-card edit-card">
+
+            <p class="small-title">
+                Member Management
+            </p>
+
+            <h1>Edit Member</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <form method="POST" class="form-stack">
+
+                <label>
+                    Membership ID
+
+                    <input
+                        type="text"
+                        value="{{ member.membership_id or '' }}"
+                        required
+                    >
+                </label>
+
+
+
+                <label>
+                    Member Name
+
+                    <input
+                        type="text"
+                        name="name"
+                        value="{{ member.name }}"
+                        required
+                    >
+                </label>
+
+
+                <label>
+                    Email
+
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ member.email or '' }}"
+                    >
+                </label>
+
+
+                <label>
+                    Phone Number
+
+                    <input
+                        type="text"
+                        name="phone"
+                        value="{{ member.phone or '' }}"
+                    >
+                </label>
+
+
+                <label class="whatsapp-consent-field">
+                    <span>WhatsApp Reminders</span>
+                    <span class="whatsapp-consent-control">
+                        <input
+                            type="checkbox"
+                            name="whatsapp_opt_in"
+                            value="1"
+                            {% if member.whatsapp_opt_in %}checked{% endif %}
+                        >
+                        Student agrees to receive automatic RSIET Library
+                        messages on this phone number.
+                    </span>
+                </label>
+
+
+                <label>
+                    Enrollment Number
+
+                    <input
+                        type="text"
+                        name="enrollment_no"
+                        value="{{ member.enrollment_no or '' }}"
+                        required
+                    >
+                </label>
+
+
+                <label>
+                    Department
+
+                    <select name="department" required>
+
+                        <option value="">
+                            Select Department
+                        </option>
+
+                        <option
+                            value="Computer Engineering"
+                            {% if member.department == "Computer Engineering" %}
+                                selected
+                            {% endif %}
+                        >
+                            Computer Engineering
+                        </option>
+
+                        <option
+                            value="Information Technology"
+                            {% if member.department == "Information Technology" %}
+                                selected
+                            {% endif %}
+                        >
+                            Information Technology
+                        </option>
+
+                        <option
+                            value="Civil Engineering"
+                            {% if member.department == "Civil Engineering" %}
+                                selected
+                            {% endif %}
+                        >
+                            Civil Engineering
+                        </option>
+
+                        <option
+                            value="Mechanical Engineering"
+                            {% if member.department == "Mechanical Engineering" %}
+                                selected
+                            {% endif %}
+                        >
+                            Mechanical Engineering
+                        </option>
+
+                        <option
+                            value="Electrical Engineering"
+                            {% if member.department == "Electrical Engineering" %}
+                                selected
+                            {% endif %}
+                        >
+                            Electrical Engineering
+                        </option>
+
+                    </select>
+                </label>
+
+
+                <label>
+                    Year of Study
+
+                    <select name="study_year" required>
+
+                        <option value="">
+                            Select Year
+                        </option>
+
+                        <option
+                            value="1st Year"
+                            {% if member.study_year == "1st Year" %}
+                                selected
+                            {% endif %}
+                        >
+                            1st Year
+                        </option>
+
+                        <option
+                            value="2nd Year"
+                            {% if member.study_year == "2nd Year" %}
+                                selected
+                            {% endif %}
+                        >
+                            2nd Year
+                        </option>
+
+                        <option
+                            value="3rd Year"
+                            {% if member.study_year == "3rd Year" %}
+                                selected
+                            {% endif %}
+                        >
+                            3rd Year
+                        </option>
+
+                    </select>
+                </label>
+
+
+                <button
+                    type="submit"
+                    class="primary-button full-width"
+                >
+                    Save Changes
+                </button>
+
+
+                <a
+                    href="{{ url_for('members') }}"
+                    class="secondary-button full-width center-button"
+                >
+                    Cancel
+                </a>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

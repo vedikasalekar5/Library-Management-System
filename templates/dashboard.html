@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Dashboard | Aureon Library</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        <!-- Existing Indigo Librarian Sidebar -->
+        <aside class="sidebar">
+
+            <div class="brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library Logo"
+                    class="brand-logo"
+                >
+
+                <div class="brand-text">
+
+                    <h2 class="brand-name">
+                        Aureon<span class="tm-symbol">™</span>
+                    </h2>
+
+                    <p>Library Management System</p>
+
+                </div>
+
+            </div>
+
+
+            <nav class="navigation">
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="{%
+                        if request.endpoint == 'dashboard'
+                    %}active{% endif %}"
+                >
+                    <span>⌂</span>
+                    Dashboard
+                </a>
+
+                <a
+                    href="{{ url_for('books') }}"
+                    class="{%
+                        if request.endpoint == 'books'
+                    %}active{% endif %}"
+                >
+                    <span>▤</span>
+                    Books
+                </a>
+
+                <a
+                    href="{{ url_for('members') }}"
+                    class="{%
+                        if request.endpoint == 'members'
+                    %}active{% endif %}"
+                >
+                    <span>◎</span>
+                    Members
+                </a>
+
+                <a
+                    href="{{ url_for('member_history') }}"
+                    class="{%
+                        if request.endpoint == 'member_history'
+                    %}active{% endif %}"
+                >
+                    <span>◷</span>
+                    Member History
+                </a>
+
+                <a
+                    href="{{ url_for('issue_return') }}"
+                    class="{%
+                        if request.endpoint == 'issue_return'
+                    %}active{% endif %}"
+                >
+                    <span>⇄</span>
+                    Issue &amp; Return
+                </a>
+
+                <a
+                    href="{{ url_for('overdue') }}"
+                    class="{%
+                        if request.endpoint == 'overdue'
+                    %}active{% endif %}"
+                >
+                    <span>!</span>
+                    Overdue Books
+                </a>
+
+                <a
+                    href="{{ url_for('incidents') }}"
+                    class="{%
+                        if request.endpoint == 'incidents'
+                    %}active{% endif %}"
+                >
+                    <span>⚠</span>
+                    Lost &amp; Damaged
+                </a>
+
+                <a
+                    href="{{ url_for('librarian_notifications') }}"
+                    class="{%
+                        if request.endpoint
+                        == 'librarian_notifications'
+                    %}active{% endif %}"
+                >
+                    <span>◉</span>
+                    Notifications
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <div class="college-dashboard-user">
+
+                    <span class="college-dashboard-user-avatar">
+                        L
+                    </span>
+
+                    <div>
+                        <strong>Librarian</strong>
+                        <small>Administrator</small>
+                    </div>
+
+                </div>
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout-button"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- College Professional Dashboard -->
+        <main class="main-content college-dashboard-main">
+
+            <!-- Professional Header -->
+            <header class="college-dashboard-header">
+
+                <div class="college-dashboard-heading">
+
+                    <div class="college-dashboard-college-mark">
+
+                        <img
+                            src="{{
+                                url_for(
+                                    'static',
+                                    filename='logo.png'
+                                )
+                            }}"
+                            alt="RSIET Logo"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <p class="college-dashboard-kicker">
+                            RSIET Digital Library
+                        </p>
+
+                        <h1>
+                            <span id="dashboardGreeting">
+                                Welcome
+                            </span>,
+                            Librarian
+                            <span class="college-dashboard-wave">
+                                👋
+                            </span>
+                        </h1>
+
+                        <p>
+                            Library overview, circulation activity and
+                            student services in one organised workspace.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="college-dashboard-header-right">
+
+                    <div class="college-dashboard-date">
+
+                        <span>▣</span>
+
+                        <div>
+                            <strong id="dashboardDate">
+                                Today
+                            </strong>
+
+                            <small id="dashboardTime">
+                                Current time
+                            </small>
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('librarian_notifications') }}"
+                        class="college-dashboard-notification"
+                        aria-label="Open notifications"
+                    >
+                        <span>◉</span>
+                        <i></i>
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('issue_return') }}"
+                        class="college-dashboard-primary-action"
+                    >
+                        <span>⇄</span>
+                        Issue / Return Book
+                    </a>
+
+                </div>
+
+            </header>
+
+
+            <!-- Flash Messages -->
+            {% with messages =
+                get_flashed_messages(with_categories=true)
+            %}
+
+                {% if messages %}
+
+                    <section class="dashboard-alerts">
+
+                        {% for category, message in messages %}
+
+                            <div class="alert {{ category }}">
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    </section>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- Four Key Metrics -->
+            <section class="college-dashboard-stats">
+
+                <a
+                    href="{{ url_for('books') }}"
+                    class="college-dashboard-stat"
+                >
+
+                    <span
+                        class="
+                            college-dashboard-stat-icon
+                            stat-blue
+                        "
+                    >
+                        ▤
+                    </span>
+
+                    <div>
+
+                        <p>Total Books</p>
+
+                        <strong>{{ total_books }}</strong>
+
+                        <small>
+                            View all books
+                            <b>→</b>
+                        </small>
+
+                    </div>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('books') }}"
+                    class="college-dashboard-stat"
+                >
+
+                    <span
+                        class="
+                            college-dashboard-stat-icon
+                            stat-green
+                        "
+                    >
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <p>Available Books</p>
+
+                        <strong>{{ available_books }}</strong>
+
+                        <small>
+                            Ready to issue
+                            <b>→</b>
+                        </small>
+
+                    </div>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('members') }}"
+                    class="college-dashboard-stat"
+                >
+
+                    <span
+                        class="
+                            college-dashboard-stat-icon
+                            stat-purple
+                        "
+                    >
+                        ◎
+                    </span>
+
+                    <div>
+
+                        <p>Total Members</p>
+
+                        <strong>{{ total_members }}</strong>
+
+                        <small>
+                            View all members
+                            <b>→</b>
+                        </small>
+
+                    </div>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('issue_return') }}"
+                    class="college-dashboard-stat"
+                >
+
+                    <span
+                        class="
+                            college-dashboard-stat-icon
+                            stat-orange
+                        "
+                    >
+                        ⇄
+                    </span>
+
+                    <div>
+
+                        <p>Issued Books</p>
+
+                        <strong>{{ issued_books }}</strong>
+
+                        <small>
+                            View transactions
+                            <b>→</b>
+                        </small>
+
+                    </div>
+
+                </a>
+
+            </section>
+
+
+            <!-- Dashboard Main Grid -->
+            <section class="college-dashboard-grid">
+
+                <!-- Recent Activity -->
+                <article
+                    class="
+                        college-dashboard-panel
+                        college-dashboard-activity
+                    "
+                >
+
+                    <div class="college-dashboard-panel-heading">
+
+                        <div>
+
+                            <p>Latest Activity</p>
+
+                            <h2>Recent Transactions</h2>
+
+                        </div>
+
+                        <a href="{{ url_for('issue_return') }}">
+                            View all
+                        </a>
+
+                    </div>
+
+
+                    <div class="college-dashboard-activity-list">
+
+                        {% for row in recent_transactions %}
+
+                            <div class="college-dashboard-activity-item">
+
+                                <span class="activity-book-icon">
+                                    ▤
+                                </span>
+
+
+                                <div class="activity-book-detail">
+
+                                    <strong>{{ row.title }}</strong>
+
+                                    <small>
+                                        {{ row.name }}
+                                    </small>
+
+                                </div>
+
+
+                                <div class="activity-date-detail">
+
+                                    <span>
+                                        {{ row.issue_date }}
+                                    </span>
+
+                                    <small>
+                                        Due {{ row.due_date }}
+                                    </small>
+
+                                </div>
+
+
+                                <span
+                                    class="
+                                        college-dashboard-status
+                                        {{ row.status|lower }}
+                                    "
+                                >
+                                    {{ row.status }}
+                                </span>
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="college-dashboard-empty">
+
+                                <span>✓</span>
+
+                                <div>
+                                    <strong>No recent transactions</strong>
+                                    <p>
+                                        New issue and return activity will
+                                        appear here.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </article>
+
+
+                <!-- Quick Actions -->
+                <article
+                    class="
+                        college-dashboard-panel
+                        college-dashboard-actions
+                    "
+                >
+
+                    <div class="college-dashboard-panel-heading">
+
+                        <div>
+
+                            <p>Quick Access</p>
+
+                            <h2>Library Actions</h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="college-dashboard-action-grid">
+
+                        <a href="{{ url_for('books') }}">
+
+                            <span>▤</span>
+
+                            <strong>Books</strong>
+
+                            <small>Add or update</small>
+
+                        </a>
+
+
+                        <a href="{{ url_for('members') }}">
+
+                            <span>◎</span>
+
+                            <strong>Members</strong>
+
+                            <small>Cards and profiles</small>
+
+                        </a>
+
+
+                        <a href="{{ url_for('issue_return') }}">
+
+                            <span>⇄</span>
+
+                            <strong>Issue / Return</strong>
+
+                            <small>Manage circulation</small>
+
+                        </a>
+
+
+                        <a href="{{ url_for('incidents') }}">
+
+                            <span>⚠</span>
+
+                            <strong>Lost &amp; Damaged</strong>
+
+                            <small>Review reports</small>
+
+                        </a>
+
+
+                        <a
+                            href="{{
+                                url_for('librarian_notifications')
+                            }}"
+                        >
+
+                            <span>◉</span>
+
+                            <strong>Notifications</strong>
+
+                            <small>Message students</small>
+
+                        </a>
+
+
+                        <a href="{{ url_for('member_history') }}">
+
+                            <span>◷</span>
+
+                            <strong>Member History</strong>
+
+                            <small>View full records</small>
+
+                        </a>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Library Overview -->
+                <article
+                    class="
+                        college-dashboard-panel
+                        college-dashboard-overview
+                    "
+                >
+
+                    <div class="college-dashboard-panel-heading">
+
+                        <div>
+
+                            <p>Collection Status</p>
+
+                            <h2>Library at a Glance</h2>
+
+                        </div>
+
+                    </div>
+
+
+                    {% set available_angle =
+                        (
+                            (available_books / total_books) * 360
+                        )
+                        if total_books
+                        else 0
+                    %}
+
+                    <div class="college-dashboard-chart-area">
+
+                        <div
+                            class="college-dashboard-donut"
+                            style="
+                                --available-angle:
+                                {{ available_angle|round(1) }}deg;
+                            "
+                        >
+
+                            <div>
+
+                                <strong>{{ total_books }}</strong>
+
+                                <span>Total Books</span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="college-dashboard-chart-legend">
+
+                            <div>
+
+                                <i class="legend-available"></i>
+
+                                <span>Available</span>
+
+                                <strong>
+                                    {{ available_books }}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <i class="legend-issued"></i>
+
+                                <span>Issued</span>
+
+                                <strong>
+                                    {{ issued_books }}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <i class="legend-members"></i>
+
+                                <span>Members</span>
+
+                                <strong>
+                                    {{ total_members }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Alert Area -->
+                <article
+                    class="
+                        college-dashboard-panel
+                        college-dashboard-alert-panel
+                    "
+                >
+
+                    <div class="college-dashboard-panel-heading">
+
+                        <div>
+
+                            <p>Attention Required</p>
+
+                            <h2>Important Alerts</h2>
+
+                        </div>
+
+                        <a href="{{ url_for('overdue') }}">
+                            View all
+                        </a>
+
+                    </div>
+
+
+                    {% set overdue_total =
+                        overdue_count|default(0, true)
+                    %}
+
+                    {% if overdue_total > 0 %}
+
+                        <a
+                            href="{{ url_for('overdue') }}"
+                            class="college-dashboard-alert-item danger"
+                        >
+
+                            <span>!</span>
+
+                            <div>
+
+                                <strong>
+                                    {{ overdue_total }}
+                                    overdue
+                                    {{
+                                        "book"
+                                        if overdue_total == 1
+                                        else "books"
+                                    }}
+                                </strong>
+
+                                <small>
+                                    Review delayed returns and fines.
+                                </small>
+
+                            </div>
+
+                            <b>→</b>
+
+                        </a>
+
+                    {% else %}
+
+                        <a
+                            href="{{ url_for('overdue') }}"
+                            class="college-dashboard-alert-item success"
+                        >
+
+                            <span>✓</span>
+
+                            <div>
+
+                                <strong>
+                                    Overdue monitoring is active
+                                </strong>
+
+                                <small>
+                                    Open the overdue section for the
+                                    latest status.
+                                </small>
+
+                            </div>
+
+                            <b>→</b>
+
+                        </a>
+
+                    {% endif %}
+
+
+                    <a
+                        href="{{ url_for('incidents') }}"
+                        class="college-dashboard-alert-item neutral"
+                    >
+
+                        <span>⚠</span>
+
+                        <div>
+
+                            <strong>
+                                Lost &amp; Damaged reports
+                            </strong>
+
+                            <small>
+                                Check pending reports and Cash requests.
+                            </small>
+
+                        </div>
+
+                        <b>→</b>
+
+                    </a>
+
+                </article>
+
+            </section>
+
+
+            <!-- Compact Digital Student Service -->
+            <section class="college-dashboard-student-strip">
+
+                <div class="college-dashboard-student-icon">
+                    ◈
+                </div>
+
+
+                <div>
+
+                    <p>Digital Student Services</p>
+
+                    <h2>Secure Member Card Portal</h2>
+
+                    <span>
+                        QR login, private student records, payments,
+                        receipts and notifications are available.
+                    </span>
+
+                </div>
+
+
+                <div class="college-dashboard-student-actions">
+
+                    <a href="{{ url_for('members') }}">
+                        Member Profiles
+                    </a>
+
+                    <a
+                        href="{{
+                            url_for('librarian_notifications')
+                        }}"
+                    >
+                        Send Notification
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <footer class="college-dashboard-footer">
+
+                <span>
+                    © 2026 Rajaram Shinde Institute of Engineering
+                    and Technology
+                </span>
+
+                <strong>
+                    Aureon Digital Library Management System
+                </strong>
+
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <script>
+        (function () {
+            const greetingElement =
+                document.getElementById("dashboardGreeting");
+
+            const dateElement =
+                document.getElementById("dashboardDate");
+
+            const timeElement =
+                document.getElementById("dashboardTime");
+
+            function updateDashboardClock() {
+                const now = new Date();
+                const hour = now.getHours();
+
+                let greeting = "Good evening";
+
+                if (hour < 12) {
+                    greeting = "Good morning";
+                } else if (hour < 17) {
+                    greeting = "Good afternoon";
+                }
+
+                if (greetingElement) {
+                    greetingElement.textContent = greeting;
+                }
+
+                if (dateElement) {
+                    dateElement.textContent =
+                        now.toLocaleDateString(
+                            "en-IN",
+                            {
+                                day: "2-digit",
+                                month: "long",
+                                year: "numeric"
+                            }
+                        );
+                }
+
+                if (timeElement) {
+                    timeElement.textContent =
+                        now.toLocaleTimeString(
+                            "en-IN",
+                            {
+                                hour: "2-digit",
+                                minute: "2-digit"
+                            }
+                        );
+                }
+            }
+
+            updateDashboardClock();
+
+            window.setInterval(
+                updateDashboardClock,
+                60000
+            );
+        })();
+    </script>
+
+</body>
+
+</html>
+   

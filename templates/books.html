@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta
+    name="author"
+    content="Vedika Satish Salekar"
+>
+
+<meta
+    name="copyright"
+    content="© 2026 Vedika Satish Salekar"
+>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Books | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+
+<body>
+
+    <div class="app-layout">
+
+        <!-- ================= SIDEBAR ================= -->
+
+        <aside class="sidebar">
+
+            <div class="brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Library Logo"
+                    class="brand-logo"
+                >
+
+                <div>
+                    <h2 class="brand-name">
+                        Aureon<span class="tm-symbol">™</span>
+                    </h2>
+                    <p>Library Management System</p>
+                </div>
+
+            </div>
+
+
+<nav class="navigation">
+
+    <a
+        href="{{ url_for('dashboard') }}"
+        class="{% if request.endpoint == 'dashboard' %}active{% endif %}"
+    >
+        <span>⌂</span>
+        Dashboard
+    </a>
+
+    <a
+        href="{{ url_for('books') }}"
+        class="{% if request.endpoint == 'books' %}active{% endif %}"
+    >
+        <span>▤</span>
+        Books
+    </a>
+
+    <a
+        href="{{ url_for('members') }}"
+        class="{% if request.endpoint == 'members' %}active{% endif %}"
+    >
+        <span>◎</span>
+        Members
+    </a>
+
+    <a
+        href="{{ url_for('member_history') }}"
+        class="{% if request.endpoint == 'member_history' %}active{% endif %}"
+    >
+        <span>◷</span>
+        Member History
+    </a>
+
+    <a
+        href="{{ url_for('issue_return') }}"
+        class="{% if request.endpoint == 'issue_return' %}active{% endif %}"
+    >
+        <span>⇄</span>
+        Issue & Return
+    </a>
+
+    <a
+        href="{{ url_for('overdue') }}"
+        class="{% if request.endpoint == 'overdue' %}active{% endif %}"
+    >
+        <span>!</span>
+        Overdue Books
+    </a>
+
+    <a
+        href="{{ url_for('incidents') }}"
+        class="{% if request.endpoint == 'incidents' %}active{% endif %}"
+    >
+        <span>⚠</span>
+        Lost & Damaged
+    </a>
+    
+    <a
+    href="{{ url_for('librarian_notifications') }}"
+    class="{%
+        if request.endpoint == 'librarian_notifications'
+    %}active{% endif %}"
+    >
+    <span class="nav-icon">◉</span>
+    Notifications
+    </a>
+
+</nav>
+
+   <!-- Librarian Profile -->
+            <div class="sidebar-footer">
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout-button"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- ================= MAIN CONTENT ================= -->
+
+        <main class="main-content">
+                    <!-- Page Header -->
+            <header class="page-header dashboard-page-header">
+
+                <div>
+
+                    <p class="small-title">
+                        BOOK MANAGEMENT
+                    </p>
+
+                    <h1>Books</h1>
+
+                    <p class="page-description">
+                       Add, search and manage library books and availability. .
+                    </p>
+
+                </div>
+
+                <div class="admin-badge">
+                    Admin
+                </div>
+
+            </header>
+
+
+            <!-- ================= FLASH MESSAGES ================= -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <div class="two-column-layout">
+
+                <!-- ================= ADD BOOK FORM ================= -->
+
+                <section class="content-card form-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <p class="small-title">
+                                New Record
+                            </p>
+
+                            <h2>Add Book</h2>
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('books') }}"
+                        class="form-stack"
+                    >
+
+                        <!-- ISBN Auto-Fill -->
+                        <div class="isbn-fetch-row">
+
+                            <div class="form-group">
+
+                                <label for="isbn">
+                                    ISBN Number
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="isbn"
+                                    name="isbn"
+                                    placeholder="Enter ISBN-10 or ISBN-13"
+                                >
+
+                            </div>
+
+
+                            <button
+                                type="button"
+                                id="fetch-isbn-button"
+                                class="isbn-fetch-button"
+                            >
+                                Fetch Book Details
+                            </button>
+
+                        </div>
+
+
+                        <p
+                            id="isbn-message"
+                            class="isbn-message"
+                            aria-live="polite"
+                        ></p>
+
+
+                        <label for="title">
+                            Book Title
+
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                placeholder="Enter book title"
+                                required
+                            >
+                        </label>
+
+
+                        <label for="author">
+                            Author Name
+
+                            <input
+                                type="text"
+                                id="author"
+                                name="author"
+                                placeholder="Enter author name"
+                                required
+                            >
+                        </label>
+
+
+                        <label for="publisher">
+                            Publisher
+
+                            <input
+                                type="text"
+                                id="publisher"
+                                name="publisher"
+                                placeholder="Enter publisher name"
+                            >
+                        </label>
+
+
+                        <label for="published_year">
+                            Published Year
+
+                            <input
+                                type="text"
+                                id="published_year"
+                                name="published_year"
+                                placeholder="Example: 2024"
+                                maxlength="4"
+                                inputmode="numeric"
+                            >
+                        </label>
+
+
+                        <label for="category">
+                            Category
+
+                            <input
+                                type="text"
+                                id="category"
+                                name="category"
+                                placeholder="Example: Technology"
+                            >
+                        </label>
+
+
+                        <label for="description">
+                            Description
+
+                            <textarea
+                                id="description"
+                                name="description"
+                                rows="4"
+                                placeholder="Enter a short book description"
+                            ></textarea>
+                        </label>
+
+
+                        <input
+                            type="hidden"
+                            id="cover_url"
+                            name="cover_url"
+                        >
+
+
+                        <div
+                            id="book-cover-preview-area"
+                            class="book-cover-preview-area"
+                            hidden
+                        >
+                            <p>Book Cover Preview</p>
+
+                            <img
+                                id="book-cover-preview"
+                                src=""
+                                alt="Book cover preview"
+                            >
+                        </div>
+
+
+                        <label for="copies">
+                            Number of Copies
+
+                            <input
+                                type="number"
+                                id="copies"
+                                name="copies"
+                                value="1"
+                                min="1"
+                                required
+                            >
+                        </label>
+
+
+                        <button
+                            type="submit"
+                            class="primary-button full-width"
+                        >
+                            Add Book
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+                <!-- ================= BOOK LIST ================= -->
+
+                <section class="content-card">
+
+                    <div class="card-header responsive-header books-list-header">
+
+                        <div class="books-title-area">
+
+                            <p class="small-title">
+                                Collection
+                            </p>
+
+                            <h2>All Books</h2>
+
+                        </div>
+
+
+                        <!-- Search and Filter -->
+
+                        <form
+                            method="GET"
+                            action="{{ url_for('books') }}"
+                            class="search-form books-filter-form"
+                        >
+
+                            <input
+                                type="text"
+                                name="search"
+                                value="{{ request.args.get('search', '') }}"
+                                placeholder="Search title or author"
+                            >
+
+
+                            <select name="category">
+
+                                <option value="">
+                                    All Categories
+                                </option>
+
+
+                                <option
+                                    value="Programming"
+                                    {% if request.args.get('category') == 'Programming' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Programming
+                                </option>
+
+
+                                <option
+                                    value="Networking"
+                                    {% if request.args.get('category') == 'Networking' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Networking
+                                </option>
+
+
+                                <option
+                                    value="Database"
+                                    {% if request.args.get('category') == 'Database' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Database
+                                </option>
+
+
+                                <option
+                                    value="Operating System"
+                                    {% if request.args.get('category') == 'Operating System' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Operating System
+                                </option>
+
+                            </select>
+
+
+                            <button type="submit">
+                                Search
+                            </button>
+
+
+                            <a
+                                href="{{ url_for('books') }}"
+                                class="books-clear-button"
+                            >
+                                Clear
+                            </a>
+
+                        </form>
+
+                    </div>
+
+
+                    <!-- ================= BOOKS TABLE ================= -->
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Book Title</th>
+                                    <th>Author</th>
+                                    <th>Category</th>
+                                    <th>Total Copies</th>
+                                    <th>Available</th>
+                                    <th>Action</th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for book in books %}
+
+                                    <tr>
+
+                                        <td>
+                                            {{ book.id }}
+                                        </td>
+
+
+                                        <td>
+                                            <strong>
+                                                {{ book.title }}
+                                            </strong>
+                                        </td>
+
+
+                                        <td>
+                                            {{ book.author }}
+                                        </td>
+
+
+                                        <td>
+                                            {{ book.category or '-' }}
+                                        </td>
+
+
+                                        <td>
+                                            {{ book.total_copies }}
+                                        </td>
+
+
+                                        <td>
+
+                                            {% if book.available_copies > 0 %}
+
+                                                <span class="status returned">
+                                                    {{ book.available_copies }}
+                                                    Available
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="status issued">
+                                                    Not Available
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <div class="action-buttons">
+
+                                                <a
+                                                    href="{{ url_for('edit_book', book_id=book.id) }}"
+                                                    class="edit-button"
+                                                >
+                                                    Edit
+                                                </a>
+
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('delete_book', book_id=book.id) }}"
+                                                    onsubmit="return confirm('Are you sure you want to delete this book?');"
+                                                >
+
+                                                    <button
+                                                        type="submit"
+                                                        class="delete-button"
+                                                    >
+                                                        Delete
+                                                    </button>
+
+                                                </form>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+
+                                {% else %}
+
+                                    <tr>
+
+                                        <td
+                                            colspan="7"
+                                            class="empty-message"
+                                        >
+                                            No books found.
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                     
+                    
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script
+        src="{{ url_for('static', filename='js/isbn_autofill.js') }}"
+    ></script>
+
+</body>
+
+</html>

@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Lost &amp; Damaged Books | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+        .incident-main {
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(124, 58, 237, 0.10),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    135deg,
+                    #f8f7ff,
+                    #eef3ff
+                );
+        }
+
+        .incident-page-header {
+            align-items: flex-start;
+        }
+
+        .incident-page-header h1 {
+            margin-bottom: 7px;
+        }
+
+        .incident-page-description {
+            max-width: 720px;
+            margin: 0;
+            color: #77729b;
+            line-height: 1.55;
+        }
+
+        .incident-summary-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(150px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .incident-summary-box {
+            padding: 19px;
+            border: 1px solid #e1dcf6;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow:
+                0 10px 25px
+                rgba(49, 46, 129, 0.07);
+        }
+
+        .incident-summary-box span {
+            display: block;
+            color: #77729b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .incident-summary-box strong {
+            display: block;
+            margin-top: 7px;
+            color: #4338ca;
+            font-size: 27px;
+        }
+
+        .incident-tools-card {
+            margin-bottom: 22px;
+            padding: 18px;
+            border: 1px solid #e1dcf6;
+            border-radius: 17px;
+            background: #ffffff;
+            box-shadow:
+                0 10px 25px
+                rgba(49, 46, 129, 0.06);
+        }
+
+        .incident-tools-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .incident-search-box {
+            position: relative;
+            flex: 1;
+            min-width: 230px;
+        }
+
+        .incident-search-box input {
+            width: 100%;
+            min-height: 44px;
+            padding: 11px 14px;
+            border: 1px solid #d8d2f3;
+            border-radius: 11px;
+            outline: none;
+            background: #faf9ff;
+            color: #292451;
+        }
+
+        .incident-search-box input:focus {
+            border-color: #7c3aed;
+            box-shadow:
+                0 0 0 4px
+                rgba(124, 58, 237, 0.10);
+        }
+
+        .incident-filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .incident-filter-button {
+            min-height: 40px;
+            padding: 9px 13px;
+            border: 1px solid #d8d2f3;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #514b75;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .incident-filter-button.active,
+        .incident-filter-button:hover {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: #ffffff;
+        }
+
+        .incident-record-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .librarian-incident-card {
+            overflow: hidden;
+            padding: 23px;
+            border: 1px solid #e1dcf6;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow:
+                0 15px 34px
+                rgba(49, 46, 129, 0.09);
+        }
+
+        .incident-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            padding-bottom: 17px;
+            border-bottom: 1px solid #ece8f8;
+        }
+
+        .incident-card-top h2 {
+            margin: 9px 0 5px;
+            color: #312e81;
+            font-size: 23px;
+        }
+
+        .incident-card-top p {
+            margin: 0;
+            color: #77729b;
+        }
+
+        .incident-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .incident-type-chip,
+        .incident-status-chip,
+        .payment-status-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .type-lost {
+            background: #ffe8eb;
+            color: #c2415d;
+        }
+
+        .type-damaged {
+            background: #f1eaff;
+            color: #6d28d9;
+        }
+
+        .status-pending {
+            background: #fff1db;
+            color: #9f6218;
+        }
+
+        .status-approved {
+            background: #e9efff;
+            color: #3558a2;
+        }
+
+        .status-paid {
+            background: #e4f7ed;
+            color: #287d5c;
+        }
+
+        .status-rejected {
+            background: #fff0f1;
+            color: #b42318;
+        }
+
+        .payment-not-started,
+        .payment-payment-pending {
+            background: #f2f0f8;
+            color: #655f7f;
+        }
+
+        .payment-awaiting-cash-confirmation {
+            background: #fff1db;
+            color: #9f6218;
+        }
+
+        .payment-paid {
+            background: #e4f7ed;
+            color: #287d5c;
+        }
+
+        .incident-information-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .incident-information-box {
+            padding: 13px;
+            border: 1px solid #ece8f8;
+            border-radius: 11px;
+            background: #faf9ff;
+        }
+
+        .incident-information-box span {
+            display: block;
+            margin-bottom: 5px;
+            color: #8983a5;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .incident-information-box strong {
+            color: #37305f;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .incident-charge-value {
+            color: #c2415d !important;
+            font-size: 19px !important;
+        }
+
+        .incident-description-box,
+        .librarian-note-box {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 12px;
+        }
+
+        .incident-description-box {
+            border: 1px solid #e6e1f6;
+            background: #faf9ff;
+        }
+
+        .librarian-note-box {
+            border: 1px solid #d9cffb;
+            background: #f4f0ff;
+        }
+
+        .incident-description-box span,
+        .librarian-note-box span {
+            display: block;
+            margin-bottom: 6px;
+            color: #6f6991;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .incident-description-box p,
+        .librarian-note-box p {
+            margin: 0;
+            color: #4a4569;
+            line-height: 1.55;
+        }
+
+        .incident-review-panel {
+            margin-top: 18px;
+            padding: 18px;
+            border: 1px solid #ded7f6;
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #faf9ff,
+                    #f5f3ff
+                );
+        }
+
+        .incident-review-panel h3 {
+            margin: 0 0 14px;
+            color: #312e81;
+        }
+
+        .incident-review-form {
+            display: grid;
+            grid-template-columns:
+                minmax(180px, 0.6fr)
+                minmax(250px, 1.4fr);
+            gap: 13px;
+        }
+
+        .incident-review-form label {
+            display: grid;
+            gap: 7px;
+            color: #37305f;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .incident-review-form input,
+        .incident-review-form textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d8d2f3;
+            border-radius: 10px;
+            outline: none;
+            background: #ffffff;
+            color: #292451;
+            box-sizing: border-box;
+        }
+
+        .incident-review-form textarea {
+            min-height: 83px;
+            resize: vertical;
+        }
+
+        .incident-review-form input:focus,
+        .incident-review-form textarea:focus {
+            border-color: #7c3aed;
+            box-shadow:
+                0 0 0 4px
+                rgba(124, 58, 237, 0.10);
+        }
+
+        .incident-review-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .approve-incident-button,
+        .reject-incident-button,
+        .confirm-cash-button,
+        .view-member-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .approve-incident-button,
+        .confirm-cash-button {
+            border: none;
+            background:
+                linear-gradient(
+                    135deg,
+                    #4338ca,
+                    #7c3aed
+                );
+            color: #ffffff;
+        }
+
+        .reject-incident-button {
+            border: 1px solid #f2b5b5;
+            background: #fff0f0;
+            color: #b42318;
+        }
+
+        .view-member-button {
+            border: 1px solid #d8d2f3;
+            background: #ffffff;
+            color: #4338ca;
+        }
+
+        .payment-state-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 13px;
+        }
+
+        .payment-state-panel h3 {
+            margin: 0 0 5px;
+        }
+
+        .payment-state-panel p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .state-waiting {
+            border: 1px solid #cbd7ff;
+            background: #eef3ff;
+            color: #3159b7;
+        }
+
+        .state-cash {
+            border: 1px solid #f0d48e;
+            background: #fff9e9;
+            color: #8d6019;
+        }
+
+        .state-paid {
+            border: 1px solid #afe4c8;
+            background: #edf9f3;
+            color: #237454;
+        }
+
+        .state-rejected {
+            border: 1px solid #f2b5b5;
+            background: #fff1f1;
+            color: #b42318;
+        }
+
+        .incident-empty-list {
+            padding: 55px 20px;
+            border: 1px dashed #cfc7ee;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.94);
+            text-align: center;
+        }
+
+        .incident-empty-list div {
+            margin-bottom: 10px;
+            font-size: 46px;
+        }
+
+        .incident-empty-list h3 {
+            margin: 0 0 7px;
+            color: #312e81;
+        }
+
+        .incident-empty-list p {
+            margin: 0;
+            color: #77729b;
+        }
+
+        .incident-no-filter-result {
+            display: none;
+            padding: 30px;
+            border: 1px dashed #cfc7ee;
+            border-radius: 16px;
+            background: #ffffff;
+            color: #77729b;
+            text-align: center;
+            font-weight: 700;
+        }
+
+
+        /* New notification and payment-detail controls */
+
+        .incident-header-actions {
+            display: grid;
+            justify-items: end;
+            gap: 10px;
+        }
+
+        .incident-notification-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 15px;
+            border: 1px solid #d8d2f3;
+            border-radius: 11px;
+            background: #ffffff;
+            color: #4338ca;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow:
+                0 8px 18px
+                rgba(49, 46, 129, 0.08);
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .incident-notification-link:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 11px 22px
+                rgba(49, 46, 129, 0.13);
+        }
+
+        .incident-payment-details-panel {
+            margin-top: 18px;
+            padding: 17px;
+            border: 1px solid #dcd5f6;
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #f8f7ff
+                );
+        }
+
+        .incident-payment-details-panel h3 {
+            margin: 0 0 13px;
+            color: #312e81;
+            font-size: 17px;
+        }
+
+        .incident-payment-details-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(130px, 1fr));
+            gap: 11px;
+        }
+
+        .incident-payment-detail {
+            padding: 12px;
+            border: 1px solid #ece8f8;
+            border-radius: 10px;
+            background: #faf9ff;
+        }
+
+        .incident-payment-detail span,
+        .incident-payment-detail strong {
+            display: block;
+        }
+
+        .incident-payment-detail span {
+            margin-bottom: 5px;
+            color: #8983a5;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .incident-payment-detail strong {
+            color: #37305f;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .incident-security-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            margin: 0 0 22px;
+            padding: 14px 16px;
+            border: 1px solid #dcd5f6;
+            border-radius: 13px;
+            background: #f8f7ff;
+            color: #625c80;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.55;
+        }
+
+        .incident-security-note span {
+            display: grid;
+            flex: 0 0 30px;
+            width: 30px;
+            height: 30px;
+            place-items: center;
+            border-radius: 9px;
+            background: #eeeafe;
+        }
+
+        @media (max-width: 950px) {
+
+            .incident-summary-grid {
+                grid-template-columns:
+                    repeat(2, minmax(150px, 1fr));
+            }
+
+            .incident-information-grid {
+                grid-template-columns:
+                    repeat(2, minmax(140px, 1fr));
+            }
+
+            .incident-review-form {
+                grid-template-columns: 1fr;
+            }
+
+            .incident-review-actions {
+                grid-column: auto;
+            }
+        }
+
+
+        @media (max-width: 950px) {
+            .incident-payment-details-grid {
+                grid-template-columns:
+                    repeat(2, minmax(130px, 1fr));
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .incident-summary-grid,
+            .incident-information-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .incident-card-top,
+            .payment-state-panel {
+                flex-direction: column;
+            }
+
+            .incident-filter-buttons,
+            .incident-review-actions {
+                flex-direction: column;
+            }
+
+            .incident-filter-button,
+            .approve-incident-button,
+            .reject-incident-button,
+            .confirm-cash-button,
+            .view-member-button {
+                width: 100%;
+            }
+
+            .librarian-incident-card {
+                padding: 18px;
+            }
+        }
+
+
+        @media (max-width: 650px) {
+            .incident-header-actions {
+                width: 100%;
+                justify-items: stretch;
+            }
+
+            .incident-notification-link {
+                width: 100%;
+            }
+
+            .incident-payment-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ==================================================
+           FINAL INCIDENT PAGE DESIGN
+           Uses this template's real class names.
+        ================================================== */
+
+        .incident-main .page-header.incident-admin-header {
+            position: relative !important;
+            overflow: hidden !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: 26px !important;
+            width: 100% !important;
+            min-height: 155px !important;
+            margin: 0 0 28px !important;
+            padding: 30px 32px !important;
+            border: 1px solid rgba(99, 102, 241, 0.18) !important;
+            border-radius: 24px !important;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(124, 58, 237, 0.15),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    135deg,
+                    #ffffff 0%,
+                    #f8f7ff 60%,
+                    #f0edff 100%
+                ) !important;
+            box-shadow:
+                0 16px 40px
+                rgba(49, 46, 129, 0.12) !important;
+        }
+
+        .incident-main .page-header.incident-admin-header::before {
+            content: "" !important;
+            position: absolute !important;
+            top: 0 !important;
+            right: 0 !important;
+            left: auto !important;
+            width: 7px !important;
+            height: 100% !important;
+            background:
+                linear-gradient(
+                    180deg,
+                    #4f46e5,
+                    #7c3aed,
+                    #a855f7
+                ) !important;
+            pointer-events: none !important;
+        }
+
+        .incident-main .page-header.incident-admin-header::after {
+            content: "" !important;
+            position: absolute !important;
+            top: -115px !important;
+            right: -78px !important;
+            z-index: 0 !important;
+            width: 315px !important;
+            height: 315px !important;
+            border-radius: 50% !important;
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(99, 102, 241, 0.14),
+                    transparent 69%
+                ) !important;
+            pointer-events: none !important;
+        }
+
+        .incident-main .page-header.incident-admin-header > * {
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        .incident-main .page-header .small-title {
+            margin: 0 0 14px !important;
+            color: #7c3aed !important;
+            font-size: 13px !important;
+            font-weight: 900 !important;
+            letter-spacing: 1.4px !important;
+            text-transform: uppercase !important;
+        }
+
+        .incident-main .page-header h1 {
+            margin: 0 !important;
+            color: #312e81 !important;
+            font-size: clamp(34px, 4vw, 46px) !important;
+            font-weight: 800 !important;
+            line-height: 1.15 !important;
+            letter-spacing: -0.8px !important;
+        }
+
+        .incident-main .page-header p:not(.small-title) {
+            max-width: 780px !important;
+            margin: 20px 0 0 !important;
+            color: #5f587f !important;
+            font-size: 15px !important;
+            line-height: 1.6 !important;
+        }
+
+        .incident-main .page-header .librarian-badge,
+        .incident-main .page-header .admin-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex: 0 0 auto !important;
+            min-width: 130px !important;
+            min-height: 66px !important;
+            margin-left: auto !important;
+            padding: 13px 22px !important;
+            border: 1px solid rgba(99, 102, 241, 0.17) !important;
+            border-radius: 20px !important;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.97),
+                    rgba(238, 242, 255, 0.95)
+                ) !important;
+            color: #312e81 !important;
+            font-size: 16px !important;
+            font-weight: 800 !important;
+            box-shadow:
+                0 12px 28px
+                rgba(49, 46, 129, 0.13) !important;
+        }
+
+        /* Four top statistic cards */
+
+        .incident-main .incident-summary-grid {
+            gap: 18px !important;
+            margin-bottom: 28px !important;
+        }
+
+        .incident-main
+        .incident-summary-grid
+        > .incident-summary-box {
+            position: relative !important;
+            overflow: hidden !important;
+            min-height: 122px !important;
+            padding: 28px 24px 22px !important;
+            border: 1px solid rgba(99, 102, 241, 0.21) !important;
+            border-radius: 22px !important;
+            background:
+                linear-gradient(
+                    90deg,
+                    #315cf4 0%,
+                    #5947f5 50%,
+                    #974bff 100%
+                ) top / 100% 6px no-repeat,
+                radial-gradient(
+                    circle at top right,
+                    rgba(99, 102, 241, 0.18),
+                    transparent 47%
+                ),
+                linear-gradient(
+                    135deg,
+                    #ffffff 0%,
+                    #ffffff 68%,
+                    #f1efff 100%
+                ) !important;
+            box-shadow:
+                0 17px 36px rgba(49, 46, 129, 0.16),
+                0 5px 14px rgba(79, 70, 229, 0.07) !important;
+            transition:
+                transform 0.24s ease,
+                border-color 0.24s ease,
+                box-shadow 0.24s ease !important;
+        }
+
+        .incident-main
+        .incident-summary-grid
+        > .incident-summary-box span {
+            position: relative !important;
+            z-index: 1 !important;
+            display: block !important;
+            color: #706a94 !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+        }
+
+        .incident-main
+        .incident-summary-grid
+        > .incident-summary-box strong {
+            position: relative !important;
+            z-index: 1 !important;
+            display: block !important;
+            margin-top: 14px !important;
+            color: #4338ca !important;
+            font-size: 31px !important;
+            font-weight: 800 !important;
+        }
+
+        .incident-main
+        .incident-summary-grid
+        > .incident-summary-box:hover {
+            transform: translateY(-5px) !important;
+            border-color: rgba(99, 102, 241, 0.36) !important;
+            box-shadow:
+                0 24px 48px rgba(49, 46, 129, 0.22),
+                0 8px 18px rgba(79, 70, 229, 0.10) !important;
+        }
+
+        /* Search/filter and incident record cards */
+
+        .incident-main .incident-tools-card,
+        .incident-main .librarian-incident-card {
+            position: relative !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(99, 102, 241, 0.19) !important;
+            background:
+                linear-gradient(
+                    90deg,
+                    #315cf4 0%,
+                    #5947f5 50%,
+                    #974bff 100%
+                ) top / 100% 6px no-repeat,
+                radial-gradient(
+                    circle at top right,
+                    rgba(99, 102, 241, 0.12),
+                    transparent 42%
+                ),
+                linear-gradient(
+                    135deg,
+                    #ffffff 0%,
+                    #ffffff 74%,
+                    #f5f3ff 100%
+                ) !important;
+            box-shadow:
+                0 16px 38px
+                rgba(49, 46, 129, 0.13) !important;
+        }
+
+        .incident-main .incident-tools-card {
+            padding: 28px 22px 22px !important;
+            border-radius: 22px !important;
+        }
+
+        .incident-main .librarian-incident-card {
+            padding: 30px 24px 24px !important;
+            border-radius: 24px !important;
+        }
+
+        .incident-main .incident-filters {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        @media (max-width: 700px) {
+
+            .incident-main .page-header.incident-admin-header {
+                min-height: auto !important;
+                padding: 24px 20px !important;
+                flex-direction: column !important;
+            }
+
+            .incident-main .page-header .librarian-badge,
+            .incident-main .page-header .admin-badge {
+                width: 100% !important;
+                min-height: 52px !important;
+                margin-left: 0 !important;
+            }
+
+            .incident-main
+            .incident-summary-grid
+            > .incident-summary-box:hover {
+                transform: none !important;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    {% set totals = namespace(
+        pending=0,
+        awaiting_cash=0,
+        paid=0
+    ) %}
+
+    {% for incident in incidents %}
+
+        {% if incident.status == 'Pending' %}
+            {% set totals.pending = totals.pending + 1 %}
+        {% endif %}
+
+        {% if
+            incident.payment_status
+            == 'Awaiting Cash Confirmation'
+        %}
+            {% set totals.awaiting_cash =
+                totals.awaiting_cash + 1
+            %}
+        {% endif %}
+
+        {% if incident.payment_status == 'Paid' %}
+            {% set totals.paid = totals.paid + 1 %}
+        {% endif %}
+
+    {% endfor %}
+
+
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library Logo"
+                    class="brand-logo"
+                >
+
+                <div class="brand-text">
+                    <h2 class="brand-name">
+                        Aureon<span class="tm-symbol">™</span>
+                    </h2>
+                    <p>Library Management System</p>
+                </div>
+
+            </div>
+
+
+            <nav class="navigation">
+
+                <a href="{{ url_for('dashboard') }}">
+                    <span class="nav-icon">⌂</span>
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('books') }}">
+                    <span class="nav-icon">▤</span>
+                    Books
+                </a>
+
+                <a href="{{ url_for('members') }}">
+                    <span class="nav-icon">◎</span>
+                    Members
+                </a>
+
+                <a href="{{ url_for('member_history') }}">
+                    <span class="nav-icon">◷</span>
+                    Member History
+                </a>
+
+                <a href="{{ url_for('issue_return') }}">
+                    <span class="nav-icon">⇄</span>
+                    Issue &amp; Return
+                </a>
+
+                <a href="{{ url_for('overdue') }}">
+                    <span class="nav-icon">!</span>
+                    Overdue Books
+                </a>
+
+                <a
+                    href="{{ url_for('incidents') }}"
+                    class="active"
+                    aria-current="page"
+                >
+                    <span class="nav-icon">⚠</span>
+                    Lost &amp; Damaged
+                </a>
+
+                <a href="{{ url_for('librarian_notifications') }}">
+                    <span class="nav-icon">◉</span>
+                    Notifications
+                </a>
+                
+
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout-button"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content incident-main">
+
+            <header class="page-header incident-admin-header">
+
+    <div>
+        <p class="small-title">
+            Librarian Approval Centre
+        </p>
+
+        <h1>Lost & Damaged Books</h1>
+
+        <p>
+            Review member reports, enter the charge,
+            approve or reject incidents and confirm
+            Cash payments.
+        </p>
+    </div>
+
+                <div class="incident-header-actions">
+
+                    <div class="librarian-badge">
+                        Librarian
+                    </div>
+
+                    <a
+                        href="{{ url_for('librarian_notifications') }}"
+                        class="incident-notification-link"
+                    >
+                        Send Student Notification
+                    </a>
+
+                </div>
+
+            </header>
+
+                
+
+
+            <!-- Flash Messages -->
+            {% with messages =
+                get_flashed_messages(
+                    with_categories=true
+                )
+            %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <section class="incident-security-note">
+
+                <span>🔒</span>
+
+                <div>
+                    Incident records are visible only to the Librarian and
+                    the student who owns the Digital Member Card. Confirm a
+                    Cash payment only after receiving the full amount.
+                </div>
+
+            </section>
+
+
+            <!-- Summary -->
+            <section class="incident-summary-grid">
+
+                <article class="incident-summary-box">
+                    <span>Total Reports</span>
+                    <strong>{{ incidents|length }}</strong>
+                </article>
+
+                <article class="incident-summary-box">
+                    <span>Pending Approval</span>
+                    <strong>{{ totals.pending }}</strong>
+                </article>
+
+                <article class="incident-summary-box">
+                    <span>Cash to Confirm</span>
+                    <strong>{{ totals.awaiting_cash }}</strong>
+                </article>
+
+                <article class="incident-summary-box">
+                    <span>Payments Completed</span>
+                    <strong>{{ totals.paid }}</strong>
+                </article>
+
+            </section>
+
+
+            <!-- Search and Filter -->
+            <section class="incident-tools-card">
+
+                <div class="incident-tools-row">
+
+                    <div class="incident-search-box">
+
+                        <input
+                            type="search"
+                            id="incidentSearch"
+                            placeholder="Search member, membership ID or book"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <div class="incident-filters lost-damage-filter-card">
+
+                        <button
+                            type="button"
+                            class="incident-filter-button active"
+                            data-filter="all"
+                        >
+                            All
+                        </button>
+
+                        <button
+                            type="button"
+                            class="incident-filter-button"
+                            data-filter="pending"
+                        >
+                            Pending
+                        </button>
+
+                        <button
+                            type="button"
+                            class="incident-filter-button"
+                            data-filter="approved"
+                        >
+                            Approved
+                        </button>
+
+                        <button
+                            type="button"
+                            class="incident-filter-button"
+                            data-filter="cash"
+                        >
+                            Cash Confirmation
+                        </button>
+
+                        <button
+                            type="button"
+                            class="incident-filter-button"
+                            data-filter="paid"
+                        >
+                            Paid
+                        </button>
+
+                        <button
+                            type="button"
+                            class="incident-filter-button"
+                            data-filter="rejected"
+                        >
+                            Rejected
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {% if incidents %}
+
+                <section
+                    class="incident-record-list"
+                    id="incidentRecordList"
+                >
+
+                    {% for incident in incidents %}
+
+                        {% set payment_status =
+                            incident.payment_status
+                            or (
+                                'Payment Pending'
+                                if incident.status == 'Approved'
+                                    and incident.charge
+                                    and incident.charge > 0
+                                else 'Not Started'
+                            )
+                        %}
+
+                        {% set filter_status =
+                            'cash'
+                            if payment_status
+                                == 'Awaiting Cash Confirmation'
+                            else (
+                                'paid'
+                                if payment_status == 'Paid'
+                                else incident.status|lower
+                            )
+                        %}
+
+
+                        <article
+                            class="librarian-incident-card lost-damage-record-card"
+                            data-status="{{ filter_status }}"
+                            data-search="{{
+                                (
+                                    (incident.member_name or '')
+                                    ~ ' '
+                                    ~ (incident.membership_id or '')
+                                    ~ ' '
+                                    ~ (incident.title or '')
+                                    ~ ' '
+                                    ~ (incident.author or '')
+                                    ~ ' '
+                                    ~ (incident.incident_type or '')
+                                )|lower
+                            }}"
+                        >
+                            <div class="incident-card-top">
+
+                                <div>
+
+                                    <div class="incident-badge-row">
+
+                                        <span
+                                            class="incident-type-chip type-{{ incident.incident_type|lower }}"
+                                        >
+                                            {{ incident.incident_type }}
+                                        </span>
+
+                                        <span
+                                            class="incident-status-chip status-{{ incident.status|lower }}"
+                                        >
+                                            {{ incident.status }}
+                                        </span>
+
+                                    </div>
+
+                                    <h2>{{ incident.title }}</h2>
+
+                                    <p>
+                                        By
+                                        {{
+                                            incident.author
+                                            or 'Author unavailable'
+                                        }}
+                                    </p>
+
+                                </div>
+
+
+                                <span
+                                    class="payment-status-chip payment-{{
+                                        payment_status
+                                        | lower
+                                        | replace(' ', '-')
+                                    }}"
+                                >
+                                    {{ payment_status }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="incident-information-grid">
+
+                                <div class="incident-information-box">
+                                    <span>Member</span>
+
+                                    <strong>
+                                        {{ incident.member_name }}
+                                    </strong>
+                                </div>
+
+                                <div class="incident-information-box">
+                                    <span>Membership ID</span>
+
+                                    <strong>
+                                        {{
+                                            incident.membership_id
+                                            or '-'
+                                        }}
+                                    </strong>
+                                </div>
+
+                                <div class="incident-information-box">
+                                    <span>Date Noticed</span>
+
+                                    <strong>
+                                        {{
+                                            incident.noticed_date
+                                            or '-'
+                                        }}
+                                    </strong>
+                                </div>
+
+                                <div class="incident-information-box">
+                                    <span>Reported On</span>
+
+                                    <strong>
+                                        {{
+                                            incident.reported_at
+                                            or '-'
+                                        }}
+                                    </strong>
+                                </div>
+
+                                <div class="incident-information-box">
+                                    <span>Librarian Charge</span>
+
+                                    <strong class="incident-charge-value">
+                                        ₹{{ incident.charge or 0 }}
+                                    </strong>
+                                </div>
+
+                                <div class="incident-information-box">
+                                    <span>Reviewed By</span>
+
+                                    <strong>
+                                        {{
+                                            incident.reviewed_by
+                                            or 'Not reviewed'
+                                        }}
+                                    </strong>
+                                </div>
+
+                                <div class="incident-information-box">
+                                    <span>Reviewed On</span>
+
+                                    <strong>
+                                        {{
+                                            incident.reviewed_at
+                                            or '-'
+                                        }}
+                                    </strong>
+                                </div>
+
+                                <div class="incident-information-box">
+                                    <span>Payment Method</span>
+
+                                    <strong>
+                                        {{
+                                            incident.payment_method
+                                            or '-'
+                                        }}
+                                    </strong>
+                                </div>
+
+
+                                <div class="incident-information-box">
+                                    <span>Department</span>
+
+                                    <strong>
+                                        {{ incident.department or '-' }}
+                                    </strong>
+                                </div>
+
+
+                                <div class="incident-information-box">
+                                    <span>Study Year</span>
+
+                                    <strong>
+                                        {{ incident.study_year or '-' }}
+                                    </strong>
+                                </div>
+
+
+                                <div class="incident-information-box">
+                                    <span>Issue Date</span>
+
+                                    <strong>
+                                        {{ incident.issue_date or '-' }}
+                                    </strong>
+                                </div>
+
+
+                                <div class="incident-information-box">
+                                    <span>Due Date</span>
+
+                                    <strong>
+                                        {{ incident.due_date or '-' }}
+                                    </strong>
+                                </div>
+
+
+                                <div class="incident-information-box">
+                                    <span>Book Record Status</span>
+
+                                    <strong>
+                                        {{
+                                            incident.transaction_status
+                                            or '-'
+                                        }}
+                                    </strong>
+                                </div>
+
+                            </div>
+
+
+                            <div class="incident-description-box">
+
+                                <span>Member Description</span>
+
+                                <p>
+                                    {{
+                                        incident.description
+                                        or 'No description provided.'
+                                    }}
+                                </p>
+
+                            </div>
+
+
+                            {% if incident.admin_note %}
+
+                                <div class="librarian-note-box">
+
+                                    <span>Librarian Note</span>
+
+                                    <p>
+                                        {{ incident.admin_note }}
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if incident.payment_id %}
+
+                                <section
+                                    class="incident-payment-details-panel"
+                                >
+
+                                    <h3>Payment Record Details</h3>
+
+                                    <div
+                                        class="incident-payment-details-grid"
+                                    >
+
+                                        <div
+                                            class="incident-payment-detail"
+                                        >
+                                            <span>Receipt Number</span>
+
+                                            <strong>
+                                                {{
+                                                    incident.receipt_no
+                                                    or 'Not Generated'
+                                                }}
+                                            </strong>
+                                        </div>
+
+
+                                        <div
+                                            class="incident-payment-detail"
+                                        >
+                                            <span>Payment Reference</span>
+
+                                            <strong>
+                                                {{
+                                                    incident.payment_reference
+                                                    or '-'
+                                                }}
+                                            </strong>
+                                        </div>
+
+
+                                        <div
+                                            class="incident-payment-detail"
+                                        >
+                                            <span>Cash Requested On</span>
+
+                                            <strong>
+                                                {{
+                                                    incident.cash_requested_at
+                                                    or '-'
+                                                }}
+                                            </strong>
+                                        </div>
+
+
+                                        <div
+                                            class="incident-payment-detail"
+                                        >
+                                            <span>Cash Confirmed By</span>
+
+                                            <strong>
+                                                {{
+                                                    incident.cash_confirmed_by
+                                                    or '-'
+                                                }}
+                                            </strong>
+                                        </div>
+
+
+                                        <div
+                                            class="incident-payment-detail"
+                                        >
+                                            <span>Paid On</span>
+
+                                            <strong>
+                                                {{
+                                                    incident.paid_at
+                                                    or '-'
+                                                }}
+                                            </strong>
+                                        </div>
+
+
+                                        <div
+                                            class="incident-payment-detail"
+                                        >
+                                            <span>Payment Record ID</span>
+
+                                            <strong>
+                                                {{ incident.payment_id }}
+                                            </strong>
+                                        </div>
+
+                                    </div>
+
+                                </section>
+
+                            {% endif %}
+
+
+                            {% if incident.status == 'Pending' %}
+
+                                <section class="incident-review-panel">
+
+                                    <h3>
+                                        Librarian Review
+                                    </h3>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'review_incident',
+                                            incident_id=
+                                                incident.incident_id
+                                        ) }}"
+                                        class="incident-review-form"
+                                    >
+
+                                        <label>
+                                            Charge Amount
+
+                                            <input
+                                                type="number"
+                                                name="charge"
+                                                min="0"
+                                                step="1"
+                                                placeholder="Enter charge in ₹"
+                                                required
+                                            >
+                                        </label>
+
+
+                                        <label>
+                                            Librarian Note
+
+                                            <textarea
+                                                name="admin_note"
+                                                placeholder="Add reason or instructions for the member"
+                                            ></textarea>
+                                        </label>
+
+
+                                        <div class="incident-review-actions">
+
+                                            <button
+                                                type="submit"
+                                                name="action"
+                                                value="approve"
+                                                class="approve-incident-button"
+                                                onclick="return confirm(
+                                                    'Approve this report and add the entered charge?'
+                                                );"
+                                            >
+                                                Approve and Add Charge
+                                            </button>
+
+
+                                            <button
+                                                type="submit"
+                                                name="action"
+                                                value="reject"
+                                                class="reject-incident-button"
+                                                formnovalidate
+                                                onclick="return confirm(
+                                                    'Reject this Lost or Damaged report?'
+                                                );"
+                                            >
+                                                Reject Report
+                                            </button>
+
+
+                                            <a
+                                                href="{{ url_for(
+                                                    'member_profile',
+                                                    member_id=
+                                                        incident.member_id
+                                                ) }}"
+                                                class="view-member-button"
+                                            >
+                                                View Member
+                                            </a>
+
+                                        </div>
+
+                                    </form>
+
+                                </section>
+
+
+                            {% elif
+                                payment_status
+                                == 'Awaiting Cash Confirmation'
+                            %}
+
+                                <section class="payment-state-panel state-cash">
+
+                                    <div>
+
+                                        <h3>
+                                            Cash Payment Waiting
+                                        </h3>
+
+                                        <p>
+                                            The member requested Cash
+                                            payment on
+                                            {{
+                                                incident.cash_requested_at
+                                                or '-'
+                                            }}.
+                                            Confirm only after receiving
+                                            ₹{{ incident.charge }}.
+                                        </p>
+
+                                    </div>
+
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'confirm_incident_cash',
+                                            payment_id=
+                                                incident.payment_id
+                                        ) }}"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="confirm-cash-button"
+                                            onclick="return confirm(
+                                                'Have you received ₹{{ incident.charge }} in Cash?'
+                                            );"
+                                        >
+                                            Confirm Cash Received
+                                        </button>
+
+                                    </form>
+
+                                </section>
+
+
+                            {% elif payment_status == 'Paid' %}
+
+                                <section class="payment-state-panel state-paid">
+
+                                    <div>
+
+                                        <h3>
+                                            Payment Completed
+                                        </h3>
+
+                                        <p>
+                                            Paid using
+                                            {{
+                                                incident.payment_method
+                                                or '-'
+                                            }}
+                                            on
+                                            {{
+                                                incident.paid_at
+                                                or '-'
+                                            }}.
+                                            The receipt is available
+                                            through the member QR page.
+                                        </p>
+
+                                    </div>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'member_profile',
+                                            member_id=
+                                                incident.member_id
+                                        ) }}"
+                                        class="view-member-button"
+                                    >
+                                        View Member
+                                    </a>
+
+                                </section>
+
+
+                            {% elif incident.status == 'Rejected' %}
+
+                                <section class="payment-state-panel state-rejected">
+
+                                    <div>
+
+                                        <h3>Report Rejected</h3>
+
+                                        <p>
+                                            No payment is required for
+                                            this rejected report.
+                                        </p>
+
+                                    </div>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'member_profile',
+                                            member_id=
+                                                incident.member_id
+                                        ) }}"
+                                        class="view-member-button"
+                                    >
+                                        View Member
+                                    </a>
+
+                                </section>
+
+
+                            {% elif
+                                incident.status == 'Approved'
+                                and (
+                                    not incident.charge
+                                    or incident.charge <= 0
+                                )
+                            %}
+
+                                <section class="payment-state-panel state-paid">
+
+                                    <div>
+
+                                        <h3>
+                                            Approved Without Charge
+                                        </h3>
+
+                                        <p>
+                                            The Librarian approved this
+                                            report with ₹0 charge.
+                                        </p>
+
+                                    </div>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'member_profile',
+                                            member_id=
+                                                incident.member_id
+                                        ) }}"
+                                        class="view-member-button"
+                                    >
+                                        View Member
+                                    </a>
+
+                                </section>
+
+
+                            {% else %}
+
+                                <section class="payment-state-panel state-waiting">
+
+                                    <div>
+
+                                        <h3>
+                                            Waiting for Member Payment
+                                        </h3>
+
+                                        <p>
+                                            Charge:
+                                            ₹{{ incident.charge or 0 }}.
+                                            The member can pay by
+                                            Online/UPI or request Cash
+                                            payment from the
+                                            Digital Member Card QR page.
+                                        </p>
+
+                                    </div>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'member_profile',
+                                            member_id=
+                                                incident.member_id
+                                        ) }}"
+                                        class="view-member-button"
+                                    >
+                                        View Member
+                                    </a>
+
+                                </section>
+
+                            {% endif %}
+
+                        </article>
+
+                    {% endfor %}
+
+                </section>
+
+
+                <div
+                    class="incident-no-filter-result"
+                    id="incidentNoResult"
+                >
+                    No incident records match this
+                    search or status filter.
+                </div>
+
+            {% else %}
+
+                <section class="incident-empty-list">
+
+                    <div>✓</div>
+
+                    <h3>
+                        No Lost or Damaged Reports
+                    </h3>
+
+                    <p>
+                        Reports submitted from the secure
+                        Student Portal or scanned Digital Member Card
+                        will appear here.
+                    </p>
+
+                </section>
+
+            {% endif %}
+
+        </main>
+
+    </div>
+
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                const searchInput =
+                    document.getElementById(
+                        "incidentSearch"
+                    );
+
+                const filterButtons =
+                    document.querySelectorAll(
+                        ".incident-filter-button"
+                    );
+
+                const incidentCards =
+                    document.querySelectorAll(
+                        ".librarian-incident-card"
+                    );
+
+                const noResult =
+                    document.getElementById(
+                        "incidentNoResult"
+                    );
+
+                let selectedFilter = "all";
+
+
+                function updateIncidentList() {
+                    const searchValue =
+                        searchInput
+                            ? searchInput.value
+                                .trim()
+                                .toLowerCase()
+                            : "";
+
+                    let visibleCount = 0;
+
+                    incidentCards.forEach(
+                        function (card) {
+                            const cardStatus =
+                                card.dataset.status || "";
+
+                            const cardSearch =
+                                card.dataset.search || "";
+
+                            const matchesStatus =
+                                selectedFilter === "all" ||
+                                cardStatus ===
+                                    selectedFilter;
+
+                            const matchesSearch =
+                                !searchValue ||
+                                cardSearch.includes(
+                                    searchValue
+                                );
+
+                            const shouldShow =
+                                matchesStatus &&
+                                matchesSearch;
+
+                            card.hidden =
+                                !shouldShow;
+
+                            if (shouldShow) {
+                                visibleCount += 1;
+                            }
+                        }
+                    );
+
+                    if (noResult) {
+                        noResult.style.display =
+                            visibleCount === 0
+                                ? "block"
+                                : "none";
+                    }
+                }
+
+
+                if (searchInput) {
+                    searchInput.addEventListener(
+                        "input",
+                        updateIncidentList
+                    );
+                }
+
+
+                filterButtons.forEach(
+                    function (button) {
+                        button.addEventListener(
+                            "click",
+                            function () {
+                                filterButtons.forEach(
+                                    function (item) {
+                                        item.classList.remove(
+                                            "active"
+                                        );
+                                    }
+                                );
+
+                                button.classList.add(
+                                    "active"
+                                );
+
+                                selectedFilter =
+                                    button.dataset.filter
+                                    || "all";
+
+                                updateIncidentList();
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    </script>
+
+</body>
+
+</html>

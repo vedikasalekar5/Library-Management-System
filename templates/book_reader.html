@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ digital_book.title }} | Aureon Reader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="digital-reader-page">
+    <header class="digital-reader-header">
+        <a href="{{ url_for('member_portal') }}#digital-books" class="digital-reader-back">← Back to Digital Books</a>
+        <div>
+            <strong>{{ digital_book.title }}</strong>
+            <span>{{ digital_book.author }}</span>
+        </div>
+        <span class="digital-reader-security">Protected reading access</span>
+    </header>
+
+    <main class="digital-reader-shell">
+        <div class="digital-reader-notice">
+            This online copy is provided for personal academic reading. Direct downloading is available only after purchasing download access.
+        </div>
+        <iframe
+            src="{{ url_for('digital_book_content', digital_book_id=digital_book.id) }}#toolbar=0&navpanes=0"
+            title="{{ digital_book.title }} digital reader"
+            class="digital-reader-frame"
+        ></iframe>
+    </main>
+</body>
+</html>

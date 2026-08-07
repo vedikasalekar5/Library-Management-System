@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Card Password | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body class="member-card-auth-page">
+
+    <main class="member-card-auth-wrapper">
+
+        <section class="member-card-auth-card">
+
+            <!-- Brand -->
+            <div class="member-card-auth-brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library Logo"
+                    class="member-card-auth-logo"
+                >
+
+                <div>
+
+                    <h1>
+                        Aureon<span class="tm-symbol">™</span>
+                    </h1>
+
+                    <p>Secure Digital Library Card</p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Security Badge -->
+            <div class="member-card-security-badge">
+                🔐 First-Time Digital Card Activation
+            </div>
+
+
+            <!-- Heading -->
+            <div class="member-card-auth-heading">
+
+                <p class="small-title">
+                    Create Password
+                </p>
+
+                <h2>Activate Your Digital Library Card</h2>
+
+                <p>
+                    Create a private password to protect your issued-book
+                    records, return history, fines, payments, Lost or Damaged
+                    reports and notifications.
+                </p>
+
+            </div>
+
+
+            <!-- Flash Messages -->
+            {% with messages =
+                get_flashed_messages(with_categories=true)
+            %}
+
+                {% if messages %}
+
+                    <div class="member-card-auth-alerts">
+
+                        {% for category, message in messages %}
+
+                            <div class="alert {{ category }}">
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- Member Information -->
+            <div class="member-card-login-member">
+
+                <div class="member-card-login-avatar">
+
+                    {{
+                        member.name[0]|upper
+                        if member and member.name
+                        else "M"
+                    }}
+
+                </div>
+
+                <div>
+
+                    <span>Digital Card Holder</span>
+
+                    <strong>
+                        {{ member.name }}
+                    </strong>
+
+                    <small>
+                        {{ member.membership_id }}
+
+                        {% if member.department %}
+                            · {{ member.department }}
+                        {% endif %}
+
+                        {% if member.study_year %}
+                            · {{ member.study_year }}
+                        {% endif %}
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- Password Setup Form -->
+            <form
+                method="POST"
+                action="{{
+                    url_for(
+                        'member_card_setup',
+                        qr_token=member.qr_token
+                    )
+                }}"
+                class="member-card-auth-form"
+                id="memberCardSetupForm"
+            >
+
+                <label for="membershipId">
+                    Membership ID
+                </label>
+
+                <div class="member-card-input-group">
+
+                    <span class="member-card-input-icon">
+                        ID
+                    </span>
+
+                    <input
+                        type="text"
+                        id="membershipId"
+                        name="membership_id"
+                        value="{{ member.membership_id }}"
+                        readonly
+                        required
+                        autocomplete="username"
+                    >
+
+                </div>
+
+
+                <label for="newPassword">
+                    Create Password
+                </label>
+
+                <div class="member-card-input-group">
+
+                    <span class="member-card-input-icon">
+                        🔑
+                    </span>
+
+                    <input
+                        type="password"
+                        id="newPassword"
+                        name="new_password"
+                        placeholder="Create a secure password"
+                        minlength="8"
+                        maxlength="128"
+                        required
+                        autocomplete="new-password"
+                    >
+
+                    <button
+                        type="button"
+                        class="member-card-password-toggle"
+                        data-password-toggle="newPassword"
+                        aria-label="Show password"
+                    >
+                        Show
+                    </button>
+
+                </div>
+
+
+                <!-- Password Requirements -->
+                <div class="member-card-password-rules">
+
+                    <p>Your password must contain:</p>
+
+                    <ul>
+
+                        <li id="ruleLength">
+                            At least 8 characters
+                        </li>
+
+                        <li id="ruleUppercase">
+                            One uppercase letter
+                        </li>
+
+                        <li id="ruleLowercase">
+                            One lowercase letter
+                        </li>
+
+                        <li id="ruleNumber">
+                            One number
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <label for="confirmPassword">
+                    Confirm Password
+                </label>
+
+                <div class="member-card-input-group">
+
+                    <span class="member-card-input-icon">
+                        ✓
+                    </span>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirm_password"
+                        placeholder="Enter the password again"
+                        minlength="8"
+                        maxlength="128"
+                        required
+                        autocomplete="new-password"
+                    >
+
+                    <button
+                        type="button"
+                        class="member-card-password-toggle"
+                        data-password-toggle="confirmPassword"
+                        aria-label="Show password"
+                    >
+                        Show
+                    </button>
+
+                </div>
+
+
+                <p
+                    class="member-card-password-match"
+                    id="passwordMatchMessage"
+                    aria-live="polite"
+                ></p>
+
+
+                <button
+                    type="submit"
+                    class="member-card-login-button"
+                    id="activateCardButton"
+                >
+                    Activate My Digital Card
+                </button>
+
+            </form>
+
+
+            <!-- Existing Password Link -->
+            <div class="member-card-first-time">
+
+                <strong>Already created your password?</strong>
+
+                <p>
+                    Return to the secure student login page.
+                </p>
+
+                <a
+                    href="{{
+                        url_for(
+                            'member_card_login',
+                            qr_token=member.qr_token
+                        )
+                    }}"
+                    class="member-card-setup-link"
+                >
+                    Go to Student Login
+                </a>
+
+            </div>
+
+
+            <!-- Security Information -->
+            <div class="member-card-auth-security">
+
+                <span>✓ Your password will remain private</span>
+
+                <span>✓ The Librarian cannot view your password</span>
+
+                <span>✓ Only a secure password hash will be stored</span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const setupForm =
+                    document.getElementById(
+                        "memberCardSetupForm"
+                    );
+
+                const newPassword =
+                    document.getElementById(
+                        "newPassword"
+                    );
+
+                const confirmPassword =
+                    document.getElementById(
+                        "confirmPassword"
+                    );
+
+                const matchMessage =
+                    document.getElementById(
+                        "passwordMatchMessage"
+                    );
+
+                const ruleLength =
+                    document.getElementById(
+                        "ruleLength"
+                    );
+
+                const ruleUppercase =
+                    document.getElementById(
+                        "ruleUppercase"
+                    );
+
+                const ruleLowercase =
+                    document.getElementById(
+                        "ruleLowercase"
+                    );
+
+                const ruleNumber =
+                    document.getElementById(
+                        "ruleNumber"
+                    );
+
+
+                function setRuleState(element, passed) {
+
+                    if (!element) {
+                        return;
+                    }
+
+                    element.classList.toggle(
+                        "password-rule-passed",
+                        passed
+                    );
+
+                }
+
+
+                function validatePasswordRules() {
+
+                    const password =
+                        newPassword.value;
+
+                    const rules = {
+                        length:
+                            password.length >= 8,
+
+                        uppercase:
+                            /[A-Z]/.test(password),
+
+                        lowercase:
+                            /[a-z]/.test(password),
+
+                        number:
+                            /[0-9]/.test(password)
+                    };
+
+                    setRuleState(
+                        ruleLength,
+                        rules.length
+                    );
+
+                    setRuleState(
+                        ruleUppercase,
+                        rules.uppercase
+                    );
+
+                    setRuleState(
+                        ruleLowercase,
+                        rules.lowercase
+                    );
+
+                    setRuleState(
+                        ruleNumber,
+                        rules.number
+                    );
+
+                    return (
+                        rules.length &&
+                        rules.uppercase &&
+                        rules.lowercase &&
+                        rules.number
+                    );
+                }
+
+
+                function validatePasswordMatch() {
+
+                    if (!confirmPassword.value) {
+
+                        matchMessage.textContent = "";
+
+                        matchMessage.className =
+                            "member-card-password-match";
+
+                        return false;
+                    }
+
+                    const passwordsMatch =
+                        newPassword.value ===
+                        confirmPassword.value;
+
+                    matchMessage.textContent =
+                        passwordsMatch
+                            ? "Passwords match."
+                            : "Passwords do not match.";
+
+                    matchMessage.className =
+                        passwordsMatch
+                            ? "member-card-password-match match-success"
+                            : "member-card-password-match match-error";
+
+                    return passwordsMatch;
+                }
+
+
+                newPassword.addEventListener(
+                    "input",
+                    function () {
+                        validatePasswordRules();
+                        validatePasswordMatch();
+                    }
+                );
+
+
+                confirmPassword.addEventListener(
+                    "input",
+                    validatePasswordMatch
+                );
+
+
+                document
+                    .querySelectorAll(
+                        "[data-password-toggle]"
+                    )
+                    .forEach(
+                        function (button) {
+
+                            button.addEventListener(
+                                "click",
+                                function () {
+
+                                    const inputId =
+                                        button.dataset
+                                            .passwordToggle;
+
+                                    const passwordInput =
+                                        document.getElementById(
+                                            inputId
+                                        );
+
+                                    if (!passwordInput) {
+                                        return;
+                                    }
+
+                                    const isHidden =
+                                        passwordInput.type ===
+                                        "password";
+
+                                    passwordInput.type =
+                                        isHidden
+                                            ? "text"
+                                            : "password";
+
+                                    button.textContent =
+                                        isHidden
+                                            ? "Hide"
+                                            : "Show";
+
+                                    button.setAttribute(
+                                        "aria-label",
+                                        isHidden
+                                            ? "Hide password"
+                                            : "Show password"
+                                    );
+                                }
+                            );
+                        }
+                    );
+
+
+                setupForm.addEventListener(
+                    "submit",
+                    function (event) {
+
+                        const rulesPassed =
+                            validatePasswordRules();
+
+                        const passwordsMatch =
+                            validatePasswordMatch();
+
+                        if (
+                            !rulesPassed ||
+                            !passwordsMatch
+                        ) {
+                            event.preventDefault();
+
+                            matchMessage.textContent =
+                                !rulesPassed
+                                    ? "Please meet all password requirements."
+                                    : "Passwords do not match.";
+
+                            matchMessage.className =
+                                "member-card-password-match match-error";
+                        }
+                    }
+                );
+            }
+        );
+    </script>
+
+</body>
+
+</html>

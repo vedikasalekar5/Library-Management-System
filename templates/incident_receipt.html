@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ receipt.receipt_no }} | Incident Payment Receipt
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body.receipt-page {
+            margin: 0;
+            min-height: 100vh;
+            padding: 30px 18px;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(124, 58, 237, 0.12),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    135deg,
+                    #f8f7ff,
+                    #eef3ff
+                );
+            color: #292451;
+            font-family:
+                Inter,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .incident-receipt-wrapper {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .incident-receipt-card {
+            overflow: hidden;
+            border: 1px solid #dfdaf4;
+            border-radius: 24px;
+            background: #ffffff;
+            box-shadow:
+                0 20px 48px
+                rgba(49, 46, 129, 0.14);
+        }
+
+        .receipt-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 28px 30px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #312e81,
+                    #4f46e5 55%,
+                    #7c3aed
+                );
+            color: #ffffff;
+        }
+
+        .receipt-brand-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .receipt-logo {
+            width: 58px;
+            height: 58px;
+            padding: 6px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.96);
+            object-fit: contain;
+        }
+
+        .receipt-brand .small-title {
+            margin: 0 0 7px;
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .receipt-brand h1 {
+            margin: 0;
+            font-size: clamp(24px, 4vw, 34px);
+            line-height: 1.2;
+        }
+
+        .receipt-subtitle {
+            margin: 8px 0 0;
+            color: #e7e5ff;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .receipt-paid-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-width: 90px;
+            min-height: 40px;
+            padding: 8px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+
+        .receipt-paid-badge::before {
+            content: "✓";
+            display: grid;
+            width: 19px;
+            height: 19px;
+            place-items: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.18);
+            font-size: 11px;
+        }
+
+        .receipt-body {
+            padding: 28px 30px 10px;
+        }
+
+        .receipt-number-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px 18px;
+            border: 1px solid #ded8f5;
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #faf9ff,
+                    #f4f1ff
+                );
+        }
+
+        .receipt-number-box span {
+            color: #77729b;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .receipt-number-box strong {
+            color: #4338ca;
+            font-size: 18px;
+            overflow-wrap: anywhere;
+            text-align: right;
+        }
+
+        .receipt-details-section {
+            margin-bottom: 24px;
+        }
+
+        .receipt-details-section h2 {
+            margin: 0 0 13px;
+            color: #312e81;
+            font-size: 18px;
+        }
+
+        .receipt-details-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .receipt-detail {
+            padding: 14px;
+            border: 1px solid #ebe7f7;
+            border-radius: 12px;
+            background: #faf9ff;
+        }
+
+        .receipt-detail.full-detail {
+            grid-column: 1 / -1;
+        }
+
+        .receipt-detail span {
+            display: block;
+            margin-bottom: 6px;
+            color: #8983a5;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .receipt-detail strong {
+            display: block;
+            color: #37305f;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .receipt-detail .receipt-amount {
+            color: #c2415d;
+            font-size: 24px;
+        }
+
+        .receipt-status-paid {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 7px;
+            width: fit-content;
+            color: #237454 !important;
+        }
+
+        .receipt-status-paid::before {
+            content: "✓";
+            display: inline-grid;
+            width: 21px;
+            height: 21px;
+            place-items: center;
+            border-radius: 50%;
+            background: #dff5e9;
+            font-size: 12px;
+        }
+
+        .receipt-method-badge {
+            display: inline-flex !important;
+            width: fit-content;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #ede9fe;
+            color: #4338ca !important;
+            font-size: 12px !important;
+        }
+
+        .receipt-confirmation-box {
+            margin: 4px 0 24px;
+            padding: 16px;
+            border: 1px solid #cfe6d9;
+            border-radius: 13px;
+            background: #eef9f3;
+            color: #237454;
+        }
+
+        .receipt-confirmation-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .receipt-confirmation-box p {
+            margin: 0;
+            line-height: 1.55;
+        }
+
+        .receipt-verification-box {
+            margin-bottom: 24px;
+            padding: 15px;
+            border: 1px solid #dcd5f6;
+            border-radius: 13px;
+            background: #f8f7ff;
+            color: #655f84;
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .receipt-verification-box strong {
+            color: #4338ca;
+        }
+
+        .receipt-footer {
+            padding: 20px 30px 24px;
+            border-top: 1px dashed #d7d1ee;
+            background: #faf9ff;
+            text-align: center;
+        }
+
+        .receipt-footer p {
+            margin: 4px 0;
+            color: #77729b;
+            font-size: 13px;
+        }
+
+        .receipt-footer strong {
+            color: #4338ca;
+        }
+
+        .receipt-page-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 11px;
+            margin-top: 20px;
+        }
+
+        .receipt-page-actions .primary-button,
+        .receipt-page-actions .secondary-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 10px 17px;
+            border-radius: 11px;
+            cursor: pointer;
+            text-decoration: none;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .receipt-page-actions .primary-button {
+            border: none;
+            background:
+                linear-gradient(
+                    135deg,
+                    #4338ca,
+                    #7c3aed
+                );
+            color: #ffffff;
+        }
+
+        .receipt-page-actions .secondary-button {
+            border: 1px solid #d6d0ef;
+            background: #ffffff;
+            color: #4338ca;
+        }
+
+        .receipt-page-actions .primary-button:hover,
+        .receipt-page-actions .secondary-button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 10px 22px
+                rgba(79, 70, 229, 0.13);
+        }
+
+        @media (max-width: 720px) {
+            body.receipt-page {
+                padding: 14px 9px;
+            }
+
+            .receipt-header {
+                flex-direction: column;
+                padding: 23px 18px;
+            }
+
+            .receipt-brand-row {
+                align-items: flex-start;
+            }
+
+            .receipt-body {
+                padding: 22px 17px 5px;
+            }
+
+            .receipt-number-box {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .receipt-number-box strong {
+                text-align: left;
+            }
+
+            .receipt-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .receipt-detail.full-detail {
+                grid-column: auto;
+            }
+
+            .receipt-footer {
+                padding: 19px 17px 22px;
+            }
+
+            .receipt-page-actions {
+                flex-direction: column;
+            }
+
+            .receipt-page-actions .primary-button,
+            .receipt-page-actions .secondary-button {
+                width: 100%;
+            }
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 14mm;
+            }
+
+            body.receipt-page {
+                padding: 0;
+                background: #ffffff;
+            }
+
+            .incident-receipt-wrapper {
+                max-width: none;
+            }
+
+            .incident-receipt-card {
+                border: 1px solid #d8d8d8;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .receipt-header {
+                background: #ffffff !important;
+                color: #222222;
+                border-bottom: 2px solid #4338ca;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .receipt-brand .small-title,
+            .receipt-subtitle {
+                color: #555555;
+            }
+
+            .receipt-paid-badge {
+                border: 1px solid #237454;
+                background: #e9f9f1;
+                color: #237454;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .receipt-page-actions {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="receipt-page">
+
+    {% set is_member_portal =
+        session.get('role') == 'member'
+        and session.get('member_id') == receipt.member_id
+    %}
+
+
+    <main class="incident-receipt-wrapper">
+
+        <section
+            class="incident-receipt-card"
+            id="incident-receipt"
+        >
+
+            <header class="receipt-header">
+
+                <div class="receipt-brand-row">
+
+                    <img
+                        src="{{
+                            url_for(
+                                'static',
+                                filename='logo.png'
+                            )
+                        }}"
+                        alt="Aureon Library Logo"
+                        class="receipt-logo"
+                    >
+
+
+                    <div class="receipt-brand">
+
+                        <p class="small-title">
+                            Aureon Library
+                        </p>
+
+                        <h1>
+                            Lost / Damaged Book Receipt
+                        </h1>
+
+                        <p class="receipt-subtitle">
+                            Rajaram Shinde Institute of
+                            Engineering and Technology
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="receipt-paid-badge">
+                    {{ receipt.payment_status or 'Paid' }}
+                </div>
+
+            </header>
+
+
+            <div class="receipt-body">
+
+                <div class="receipt-number-box">
+
+                    <span>Receipt Number</span>
+
+                    <strong>
+                        {{ receipt.receipt_no }}
+                    </strong>
+
+                </div>
+
+
+                <section class="receipt-details-section">
+
+                    <h2>Member Details</h2>
+
+                    <div class="receipt-details-grid">
+
+                        <div class="receipt-detail">
+
+                            <span>Member Name</span>
+
+                            <strong>
+                                {{ receipt.name }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Membership ID</span>
+
+                            <strong>
+                                {{ receipt.membership_id or '-' }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Enrollment Number</span>
+
+                            <strong>
+                                {{ receipt.enrollment_no or '-' }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Department</span>
+
+                            <strong>
+                                {{ receipt.department or '-' }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Study Year</span>
+
+                            <strong>
+                                {{ receipt.study_year or '-' }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Member Record ID</span>
+
+                            <strong>
+                                {{ receipt.member_id }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <section class="receipt-details-section">
+
+                    <h2>Book Incident Details</h2>
+
+                    <div class="receipt-details-grid">
+
+                        <div class="receipt-detail">
+
+                            <span>Book Title</span>
+
+                            <strong>
+                                {{ receipt.title }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Author</span>
+
+                            <strong>
+                                {{ receipt.author or '-' }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Incident Type</span>
+
+                            <strong>
+                                {{ receipt.incident_type }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Incident Record ID</span>
+
+                            <strong>
+                                {{ receipt.incident_id }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail full-detail">
+
+                            <span>Incident Description</span>
+
+                            <strong>
+                                {{
+                                    receipt.description
+                                    or 'No description provided.'
+                                }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <section class="receipt-details-section">
+
+                    <h2>Payment Details</h2>
+
+                    <div class="receipt-details-grid">
+
+                        <div class="receipt-detail">
+
+                            <span>Amount Paid</span>
+
+                            <strong class="receipt-amount">
+                                ₹{{ receipt.amount }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Payment Method</span>
+
+                            <strong class="receipt-method-badge">
+                                {{ receipt.payment_method or '-' }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Payment Status</span>
+
+                            <strong class="receipt-status-paid">
+                                {{
+                                    receipt.payment_status
+                                    or 'Paid'
+                                }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Paid Date and Time</span>
+
+                            <strong>
+                                {{ receipt.paid_at or '-' }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail">
+
+                            <span>Payment Record ID</span>
+
+                            <strong>
+                                {{ receipt.id }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="receipt-detail full-detail">
+
+                            <span>Payment Reference</span>
+
+                            <strong>
+                                {{
+                                    receipt.payment_reference
+                                    or '-'
+                                }}
+                            </strong>
+
+                        </div>
+
+
+                        {% if receipt.payment_method == 'Cash' %}
+
+                            <div class="receipt-detail full-detail">
+
+                                <span>
+                                    Cash Confirmed By
+                                </span>
+
+                                <strong>
+                                    {{
+                                        receipt.cash_confirmed_by
+                                        or 'Librarian'
+                                    }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </section>
+
+
+                <div class="receipt-confirmation-box">
+
+                    <strong>
+                        Payment Confirmed
+                    </strong>
+
+                    <p>
+                        This Lost or Damaged book charge has been
+                        recorded successfully in the Aureon Library
+                        Management System. The receipt was generated
+                        only after payment confirmation.
+                    </p>
+
+                </div>
+
+
+                <div class="receipt-verification-box">
+                    This receipt belongs to
+                    <strong>{{ receipt.membership_id }}</strong>.
+                    Receipt number
+                    <strong>{{ receipt.receipt_no }}</strong>
+                    uniquely identifies this completed incident
+                    payment.
+                </div>
+
+            </div>
+
+
+            <footer class="receipt-footer">
+
+                <p>
+                    This is a computer-generated receipt and does not
+                    require a physical signature.
+                </p>
+
+                <p>
+                    <strong>
+                        Aureon<span class="tm-symbol">™</span>
+                        Library Management System
+                    </strong>
+                </p>
+
+                <p>
+                    © 2026{% if current_year > 2026 %}
+                    –{{ current_year }}{% endif %}
+                    Vedika Satish Salekar.
+                    All rights reserved.
+                </p>
+
+            </footer>
+
+        </section>
+
+
+        <div class="receipt-page-actions">
+
+            {% if qr_token %}
+
+                <a
+                    href="{{
+                        url_for(
+                            'download_incident_receipt',
+                            qr_token=qr_token,
+                            payment_id=receipt.id
+                        )
+                    }}"
+                    class="primary-button"
+                >
+                    Download PDF Receipt
+                </a>
+
+            {% endif %}
+
+
+            <button
+                type="button"
+                class="secondary-button"
+                onclick="window.print()"
+            >
+                Print Receipt
+            </button>
+
+
+            {% if is_member_portal %}
+
+                <a
+                    href="{{
+                        url_for('member_portal')
+                    }}#payments"
+                    class="secondary-button"
+                >
+                    Back to My Payments
+                </a>
+
+
+            {% elif session.get('role') == 'librarian' %}
+
+                <a
+                    href="{{
+                        url_for(
+                            'member_profile',
+                            member_id=receipt.member_id
+                        )
+                    }}"
+                    class="secondary-button"
+                >
+                    Back to Member Profile
+                </a>
+
+
+            {% elif qr_token %}
+
+                <a
+                    href="{{
+                        url_for(
+                            'member_scan',
+                            qr_token=qr_token
+                        )
+                    }}"
+                    class="secondary-button"
+                >
+                    Back to Member Record
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

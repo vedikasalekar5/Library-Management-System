@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Librarian Login | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body class="login-body">
+
+    <main class="login-layout">
+
+        <section class="login-banner">
+
+            <img
+                src="{{ url_for('static', filename='logo.png') }}"
+                alt="Aureon Library logo"
+                class="large-logo"
+            >
+
+            <p class="small-title light-text">
+                Rajaram Shinde Institute of Technology, Pedhambe
+            </p>
+
+            <h1>
+                Welcome to,<br>
+                Aureon Library.
+            </h1>
+
+            <p class="banner-description">
+                Manage books, students, issue records and returns
+                through one simple, secure and organised platform.
+            </p>
+
+            <div class="login-security-summary">
+                <span>✓ Email OTP verified</span>
+                <span>✓ Librarian credentials required</span>
+            </div>
+
+        </section>
+
+
+        <section class="login-card">
+
+            <img
+                src="{{ url_for('static', filename='logo.png') }}"
+                alt="Aureon Library logo"
+                class="mobile-logo"
+            >
+
+            <span class="security-card-badge">
+                Stage 2 of 2
+            </span>
+
+            <p class="small-title">
+                Security Check Complete
+            </p>
+
+            <h2>
+                Librarian Login
+            </h2>
+
+            <p class="muted-text">
+                Enter the authorised Librarian username and password.
+            </p>
+
+            <div class="verified-email-chip">
+                <span aria-hidden="true">✓</span>
+                Verified: {{ verified_email }}
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form
+                method="POST"
+                action="{{ url_for('librarian_login') }}"
+                class="form-stack"
+            >
+                <label>
+                    Librarian Username
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="Enter Librarian username"
+                        autocomplete="username"
+                        required
+                        autofocus
+                    >
+                </label>
+
+                <label>
+                    Librarian Password
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Enter Librarian password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </label>
+
+                <button
+                    type="submit"
+                    class="primary-button full-width"
+                >
+                    Open Librarian Dashboard
+                </button>
+            </form>
+
+            <div class="login-security-note">
+                <span aria-hidden="true">🔒</span>
+                <p>
+                    This login page is available only after successful
+                    email OTP verification.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('reset_security_gate') }}"
+                class="security-text-link login-reset-link"
+            >
+                Verify a different email
+            </a>
+
+            <div class="publisher-credit">
+                Designed and Developed by
+                <strong>Vedika Satish Salekar</strong>
+            </div>
+
+        </section>
+
+        <footer class="site-legal-footer">
+            <p class="legal-brand">
+                Aureon<span class="tm-symbol">™</span>
+                Library Management System
+            </p>
+
+            <p>
+                © 2026{% if current_year > 2026 %}
+                –{{ current_year }}{% endif %}
+                Vedika Satish Salekar. All rights reserved.
+            </p>
+        </footer>
+
+    </main>
+
+</body>
+
+</html>

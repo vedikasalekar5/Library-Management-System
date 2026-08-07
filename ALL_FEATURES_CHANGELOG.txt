@@ -1,0 +1,42 @@
+AUREON ALL FEATURES - CHANGELOG
+================================
+
+Existing files edited:
+
+- app.py
+- .env
+- requirements.txt
+- templates/books.html
+- templates/members.html
+- templates/edit_member.html
+- templates/member_portal.html
+- static/style.css
+
+Existing empty files completed:
+
+- aureon_chatbot.py
+- whatsapp_service.py
+- send_whatsapp_reminders.py
+- digital_book_service.py
+- static/aureon_chatbot.js
+- static/digital_books.js
+- templates/book_reader.html
+- templates/student_books.html
+- templates/digital_book_checkout.html
+
+Email OTP files from the first update preserved:
+
+- email_service.py
+- templates/security_gate.html
+- templates/verify_otp.html
+- static/security_gate.js
+- templates/login.html
+
+New helper files added only because they were missing:
+
+- run_whatsapp_reminders.bat
+- FEATURE_SETUP_GUIDE.txt
+- ALL_FEATURES_CHANGELOG.txt
+- VALIDATION_REPORT.txt
+
+No duplicate app, templates or static folders were created.

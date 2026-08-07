@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Notifications | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library Logo"
+                    class="brand-logo"
+                >
+
+                <div class="brand-text">
+
+                    <h2 class="brand-name">
+                        Aureon<span class="tm-symbol">™</span>
+                    </h2>
+
+                    <p>Library Management System</p>
+
+                </div>
+
+            </div>
+
+
+            <nav class="navigation">
+
+                <a href="{{ url_for('dashboard') }}">
+                    <span class="nav-icon">⌂</span>
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('books') }}">
+                    <span class="nav-icon">▤</span>
+                    Books
+                </a>
+
+                <a href="{{ url_for('members') }}">
+                    <span class="nav-icon">◎</span>
+                    Members
+                </a>
+
+                <a href="{{ url_for('member_history') }}">
+                    <span class="nav-icon">◷</span>
+                    Member History
+                </a>
+
+                <a href="{{ url_for('issue_return') }}">
+                    <span class="nav-icon">⇄</span>
+                    Issue &amp; Return
+                </a>
+
+                <a href="{{ url_for('overdue') }}">
+                    <span class="nav-icon">!</span>
+                    Overdue Books
+                </a>
+
+                <a href="{{ url_for('incidents') }}">
+                    <span class="nav-icon">⚠</span>
+                    Lost &amp; Damaged
+                </a>
+
+                <a
+                    href="{{ url_for('librarian_notifications') }}"
+                    class="active"
+                    aria-current="page"
+                >
+                    <span class="nav-icon">◉</span>
+                    Notifications
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout-button"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content librarian-notification-main">
+
+            <!-- Page Header -->
+            <header class="page-header">
+
+                <div>
+
+                    <p class="small-title">
+                        Student Communication
+                    </p>
+
+                    <h1>Notifications</h1>
+
+                    <p class="page-description">
+                        Send messages to one member or all members and review
+                        previously sent library notifications.
+                    </p>
+
+                </div>
+
+                <div class="librarian-badge">
+                    Librarian
+                </div>
+
+            </header>
+
+
+            <!-- Flash Messages -->
+            {% with messages =
+                get_flashed_messages(with_categories=true)
+            %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- Summary Cards -->
+            <section class="librarian-notification-summary">
+
+                <article class="librarian-notification-stat">
+
+                    <span>Total Sent</span>
+
+                    <strong>
+                        {{
+                            notification_summary.total_sent
+                            | default(0, true)
+                        }}
+                    </strong>
+
+                </article>
+
+                <article class="librarian-notification-stat">
+
+                    <span>Active Messages</span>
+
+                    <strong>
+                        {{
+                            notification_summary.active_messages
+                            | default(0, true)
+                        }}
+                    </strong>
+
+                </article>
+
+                <article class="librarian-notification-stat">
+
+                    <span>Unread by Students</span>
+
+                    <strong>
+                        {{
+                            notification_summary.unread_messages
+                            | default(0, true)
+                        }}
+                    </strong>
+
+                </article>
+
+                <article class="librarian-notification-stat">
+
+                    <span>Members Reached</span>
+
+                    <strong>
+                        {{
+                            notification_summary.members_reached
+                            | default(0, true)
+                        }}
+                    </strong>
+
+                </article>
+
+            </section>
+
+
+            <!-- Send Notification -->
+            <section class="content-card librarian-notification-form-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <p class="small-title">
+                            Create Message
+                        </p>
+
+                        <h2>Send Student Notification</h2>
+
+                        <p class="card-description">
+                            Send a notification to one member or broadcast it
+                            to every active library member.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('librarian_notifications') }}"
+                    class="librarian-notification-form"
+                    id="librarianNotificationForm"
+                >
+
+                    <div class="librarian-notification-grid">
+
+                        <label for="recipientType">
+
+                            Recipient Type
+
+                            <select
+                                id="recipientType"
+                                name="recipient_type"
+                                required
+                            >
+                                <option value="member">
+                                    One Member
+                                </option>
+
+                                <option value="all">
+                                    All Members
+                                </option>
+                            </select>
+
+                        </label>
+
+
+                        <label
+                            for="memberId"
+                            id="memberSelectionLabel"
+                        >
+
+                            Select Member
+
+                            <select
+                                id="memberId"
+                                name="member_id"
+                            >
+
+                                <option value="">
+                                    Select a member
+                                </option>
+
+                                {% for member in members %}
+
+                                    <option value="{{ member.id }}">
+                                        {{ member.membership_id }}
+                                        — {{ member.name }}
+                                        {% if member.department %}
+                                            — {{ member.department }}
+                                        {% endif %}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </label>
+
+
+                        <label for="notificationCategory">
+
+                            Category
+
+                            <select
+                                id="notificationCategory"
+                                name="category"
+                                required
+                            >
+                                <option value="">
+                                    Select category
+                                </option>
+
+                                <option value="General">
+                                    General
+                                </option>
+
+                                <option value="Book Issue">
+                                    Book Issue
+                                </option>
+
+                                <option value="Book Return">
+                                    Book Return
+                                </option>
+
+                                <option value="Due Date">
+                                    Due Date
+                                </option>
+
+                                <option value="Overdue">
+                                    Overdue
+                                </option>
+
+                                <option value="Penalty">
+                                    Penalty
+                                </option>
+
+                                <option value="Lost or Damaged">
+                                    Lost or Damaged
+                                </option>
+
+                                <option value="Payment">
+                                    Payment
+                                </option>
+
+                                <option value="Library Announcement">
+                                    Library Announcement
+                                </option>
+                            </select>
+
+                        </label>
+
+
+                        <label for="notificationPriority">
+
+                            Priority
+
+                            <select
+                                id="notificationPriority"
+                                name="priority"
+                                required
+                            >
+                                <option value="Normal">
+                                    Normal
+                                </option>
+
+                                <option value="Important">
+                                    Important
+                                </option>
+
+                                <option value="Urgent">
+                                    Urgent
+                                </option>
+                            </select>
+
+                        </label>
+
+
+                        <label
+                            for="notificationTitle"
+                            class="full-field"
+                        >
+
+                            Notification Title
+
+                            <input
+                                type="text"
+                                id="notificationTitle"
+                                name="title"
+                                placeholder="Example: Book due date reminder"
+                                minlength="3"
+                                maxlength="120"
+                                required
+                            >
+
+                        </label>
+
+
+                        <label
+                            for="notificationMessage"
+                            class="full-field"
+                        >
+
+                            Message
+
+                            <textarea
+                                id="notificationMessage"
+                                name="message"
+                                placeholder="Write the message that students will see in their Digital Library Card portal."
+                                minlength="5"
+                                maxlength="1000"
+                                required
+                            ></textarea>
+
+                            <small
+                                class="librarian-notification-character-count"
+                                id="notificationCharacterCount"
+                            >
+                                0 / 1000
+                            </small>
+
+                        </label>
+
+
+                        <label for="notificationExpiry">
+
+                            Expiry Date
+
+                            <input
+                                type="date"
+                                id="notificationExpiry"
+                                name="expires_at"
+                                min="{{ today_iso }}"
+                            >
+
+                            <small>
+                                Leave empty to keep the notification active.
+                            </small>
+
+                        </label>
+
+
+                        <label class="librarian-notification-checkbox">
+
+                            <input
+                                type="checkbox"
+                                name="send_now"
+                                value="1"
+                                checked
+                            >
+
+                            <span>
+                                Show immediately in the student portal
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="librarian-notification-actions">
+
+                        <div class="notification-send-actions">
+
+    <button
+        type="submit"
+        name="send_mode"
+        value="portal"
+        class="primary-button"
+    >
+        Send to Student Portal
+    </button>
+
+
+    <button
+        type="submit"
+        name="send_mode"
+        value="portal_whatsapp"
+        class="whatsapp-send-button"
+        formtarget="_blank"
+    >
+        Send to Portal + Open WhatsApp
+    </button>
+
+</div>
+
+                        <button
+                            type="reset"
+                            class="secondary-button"
+                            id="resetNotificationForm"
+                        >
+                            Clear Form
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- Automatic Reminders Information -->
+            <section class="content-card librarian-reminder-information">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <p class="small-title">
+                            Automatic Messages
+                        </p>
+
+                        <h2>Due-Date Reminder Rules</h2>
+
+                        <p class="card-description">
+                            These notifications are generated automatically
+                            when the student opens the Digital Library Card.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="librarian-reminder-grid">
+
+                    <article>
+
+                        <span class="librarian-reminder-icon">
+                            2
+                        </span>
+
+                        <div>
+
+                            <strong>Two Days Before Due Date</strong>
+
+                            <p>
+                                Reminds the student that a currently issued
+                                book must be returned soon.
+                            </p>
+
+                        </div>
+
+                    </article>
+
+
+                    <article>
+
+                        <span class="librarian-reminder-icon">
+                            !
+                        </span>
+
+                        <div>
+
+                            <strong>On the Due Date</strong>
+
+                            <p>
+                                Informs the student that the book is due today.
+                            </p>
+
+                        </div>
+
+                    </article>
+
+
+                    <article>
+
+                        <span class="librarian-reminder-icon">
+                            ⚠
+                        </span>
+
+                        <div>
+
+                            <strong>After the Due Date</strong>
+
+                            <p>
+                                Creates an overdue warning showing the book
+                                title and overdue duration.
+                            </p>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- Sent Notifications -->
+            <section class="content-card librarian-sent-notifications">
+
+                <div class="card-header librarian-notification-list-header">
+
+                    <div>
+
+                        <p class="small-title">
+                            Message History
+                        </p>
+
+                        <h2>Sent Notifications</h2>
+
+                        <p class="card-description">
+                            Review the messages already sent to students.
+                        </p>
+
+                    </div>
+
+
+                    <form
+                        method="GET"
+                        action="{{ url_for('librarian_notifications') }}"
+                        class="librarian-notification-filter-form"
+                    >
+
+                        <input
+                            type="search"
+                            name="search"
+                            value="{{ search or '' }}"
+                            placeholder="Search title, member or category"
+                        >
+
+                        <select name="category">
+
+                            <option value="">
+                                All Categories
+                            </option>
+
+                            {% for category_name in notification_categories %}
+
+                                <option
+                                    value="{{ category_name }}"
+                                    {% if selected_category == category_name %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ category_name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <button
+                            type="submit"
+                            class="primary-button"
+                        >
+                            Filter
+                        </button>
+
+                        {% if search or selected_category %}
+
+                            <a
+                                href="{{
+                                    url_for('librarian_notifications')
+                                }}"
+                                class="secondary-button"
+                            >
+                                Clear
+                            </a>
+
+                        {% endif %}
+
+                    </form>
+
+                </div>
+
+
+                {% if sent_notifications %}
+
+                    <div class="librarian-notification-list">
+
+                        {% for notification in sent_notifications %}
+
+                            <article class="librarian-sent-notification-card">
+
+                                <div class="librarian-sent-notification-main">
+
+                                    <div class="librarian-sent-notification-badges">
+
+                                        <span
+                                            class="librarian-notification-category"
+                                        >
+                                            {{
+                                                notification.category
+                                                or "General"
+                                            }}
+                                        </span>
+
+                                        <span
+                                            class="librarian-notification-priority priority-{{
+                                                (
+                                                    notification.priority
+                                                    or 'Normal'
+                                                )
+                                                | lower
+                                            }}"
+                                        >
+                                            {{
+                                                notification.priority
+                                                or "Normal"
+                                            }}
+                                        </span>
+
+                                        {% if notification.is_expired %}
+
+                                            <span
+                                                class="librarian-notification-status expired"
+                                            >
+                                                Expired
+                                            </span>
+
+                                        {% else %}
+
+                                            <span
+                                                class="librarian-notification-status active"
+                                            >
+                                                Active
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <h3>{{ notification.title }}</h3>
+
+                                    <p>{{ notification.message }}</p>
+
+
+                                    <div class="librarian-notification-meta">
+
+                                        <span>
+                                            Recipient:
+                                            <strong>
+                                                {% if
+                                                    notification.recipient_type
+                                                    == "all"
+                                                %}
+                                                    All Members
+                                                {% else %}
+                                                    {{
+                                                        notification.membership_id
+                                                        or "-"
+                                                    }}
+                                                    —
+                                                    {{
+                                                        notification.member_name
+                                                        or "Member"
+                                                    }}
+                                                {% endif %}
+                                            </strong>
+                                        </span>
+
+                                        <span>
+                                            Sent:
+                                            <strong>
+                                                {{ notification.created_at }}
+                                            </strong>
+                                        </span>
+
+                                        <span>
+                                            Expires:
+                                            <strong>
+                                                {{
+                                                    notification.expires_at
+                                                    or "No expiry"
+                                                }}
+                                            </strong>
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="librarian-notification-read-summary">
+
+                                    <div>
+
+                                        <span>Delivered</span>
+
+                                        <strong>
+                                            {{
+                                                notification.delivered_count
+                                                | default(0, true)
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+                                    <div>
+
+                                        <span>Read</span>
+
+                                        <strong>
+                                            {{
+                                                notification.read_count
+                                                | default(0, true)
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+                                    <div>
+
+                                        <span>Unread</span>
+
+                                        <strong>
+                                            {{
+                                                notification.unread_count
+                                                | default(0, true)
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <form
+                                    method="POST"
+                                    action="{{
+                                        url_for(
+                                            'delete_librarian_notification',
+                                            notification_id=
+                                                notification.notification_id
+                                        )
+                                    }}"
+                                    class="librarian-notification-delete-form"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="delete-button"
+                                        onclick="return confirm(
+                                            'Delete this notification from the student portal?'
+                                        );"
+                                    >
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <section class="member-portal-empty-state">
+
+                        <div>◉</div>
+
+                        <h3>No Notifications Found</h3>
+
+                        <p>
+                            Sent notifications will appear here.
+                        </p>
+
+                    </section>
+
+                {% endif %}
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const recipientType =
+                    document.getElementById(
+                        "recipientType"
+                    );
+
+                const memberSelectionLabel =
+                    document.getElementById(
+                        "memberSelectionLabel"
+                    );
+
+                const memberSelect =
+                    document.getElementById(
+                        "memberId"
+                    );
+
+                const messageInput =
+                    document.getElementById(
+                        "notificationMessage"
+                    );
+
+                const characterCount =
+                    document.getElementById(
+                        "notificationCharacterCount"
+                    );
+
+                const resetButton =
+                    document.getElementById(
+                        "resetNotificationForm"
+                    );
+
+
+                function updateRecipientField() {
+
+                    const sendToAll =
+                        recipientType.value === "all";
+
+                    memberSelectionLabel.hidden =
+                        sendToAll;
+
+                    memberSelect.required =
+                        !sendToAll;
+
+                    if (sendToAll) {
+                        memberSelect.value = "";
+                    }
+                }
+
+
+                function updateCharacterCount() {
+
+                    const currentLength =
+                        messageInput.value.length;
+
+                    characterCount.textContent =
+                        currentLength + " / 1000";
+                }
+
+
+                recipientType.addEventListener(
+                    "change",
+                    updateRecipientField
+                );
+
+                messageInput.addEventListener(
+                    "input",
+                    updateCharacterCount
+                );
+
+                resetButton.addEventListener(
+                    "click",
+                    function () {
+
+                        window.setTimeout(
+                            function () {
+                                updateRecipientField();
+                                updateCharacterCount();
+                            },
+                            0
+                        );
+                    }
+                );
+
+
+                updateRecipientField();
+                updateCharacterCount();
+            }
+        );
+    </script>
+
+</body>
+
+</html>

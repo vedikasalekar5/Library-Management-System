@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+Digital Collection
+{% endblock %}
+
+{% block content %}
+
+<div class="digital-page-container">
+
+    <div class="digital-page-header">
+        <h1>Protected Digital Collection</h1>
+        <p>Paid Digital Book Access</p>
+    </div>
+
+    <div class="digital-information-card">
+        <h2>Premium Digital Library</h2>
+
+        <p>
+            Access premium e-books, study materials, reference books
+            and protected digital resources.
+        </p>
+    </div>
+
+    <div class="digital-books-grid">
+
+        {% if digital_books %}
+
+            {% for book in digital_books %}
+
+            <div class="digital-book-card">
+
+                <div class="digital-book-icon">
+                    📘
+                </div>
+
+                <h3>{{ book['title'] }}</h3>
+
+                <p class="digital-author">
+                    By {{ book['author'] }}
+                </p>
+
+                {% if book['price'] %}
+                <p class="digital-price">
+                    ₹{{ book['price'] }}
+                </p>
+                {% endif %}
+
+                <a
+                    href="{{ url_for('view_digital_book', book_id=book['id']) }}"
+                    class="digital-access-btn"
+                >
+                    View Details
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-digital-message">
+                <h3>No digital books are currently available.</h3>
+                <p>Premium digital resources will appear here.</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

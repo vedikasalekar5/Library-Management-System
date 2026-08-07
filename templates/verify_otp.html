@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Verify OTP | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body class="login-body security-gate-body">
+
+    <main class="security-gate-layout">
+
+        <section class="security-brand-panel">
+
+            <div class="security-brand-top">
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library logo"
+                    class="security-college-logo"
+                >
+
+                <div>
+                    <p class="security-college-name">
+                        Rajaram Shinde Institute of Technology, Pedhambe
+                    </p>
+                    <p class="security-brand-name">
+                        Aureon Library Management System
+                    </p>
+                </div>
+            </div>
+
+            <div class="security-hero-copy">
+                <span class="security-eyebrow">
+                    OTP Verification
+                </span>
+
+                <h1>
+                    Check the approved Librarian email.
+                </h1>
+
+                <p>
+                    Enter the one-time code sent to
+                    <strong>{{ masked_email }}</strong>.
+                    The code expires automatically and can be used only once.
+                </p>
+            </div>
+
+            <div class="security-feature-list">
+                <span>✓ Secure email delivery</span>
+                <span>✓ Protected verification session</span>
+                <span>✓ Existing Librarian login remains required</span>
+            </div>
+
+        </section>
+
+
+        <section class="security-card-wrap">
+
+            <article
+                class="security-card"
+                id="otp-verification-card"
+                data-expiry-seconds="{{ expiry_seconds }}"
+                data-resend-seconds="{{ resend_seconds }}"
+            >
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Aureon Library logo"
+                    class="security-card-logo"
+                >
+
+                <span class="security-card-badge">
+                    Stage 1 of 2
+                </span>
+
+                <h2>
+                    Enter Security OTP
+                </h2>
+
+                <p class="security-card-description">
+                    A {{ otp_length }}-digit code was sent to
+                    <strong>{{ masked_email }}</strong>.
+                </p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="security-alert-stack">
+                            {% for category, message in messages %}
+                                <div class="alert {{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('verify_otp') }}"
+                    class="security-form"
+                    id="otp-form"
+                >
+                    <label>
+                        One-Time Password
+                    </label>
+
+                    <div
+                        class="otp-input-group"
+                        style="--otp-length: {{ otp_length }}"
+                        role="group"
+                        aria-label="{{ otp_length }} digit OTP"
+                    >
+                        {% for index in range(1, otp_length + 1) %}
+                            <input
+                                type="text"
+                                name="digit{{ index }}"
+                                class="otp-digit-input"
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                autocomplete="{% if index == 1 %}one-time-code{% else %}off{% endif %}"
+                                maxlength="1"
+                                aria-label="OTP digit {{ index }}"
+                                required
+                            >
+                        {% endfor %}
+                    </div>
+
+                    <div class="otp-timer-row">
+                        <span>
+                            Code expires in
+                            <strong id="otp-expiry-timer">--:--</strong>
+                        </span>
+                        <span>
+                            Attempts are limited
+                        </span>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="primary-button full-width security-submit-button"
+                    >
+                        Verify and Continue
+                        <span aria-hidden="true">→</span>
+                    </button>
+                </form>
+
+                <div class="security-secondary-actions">
+                    <form
+                        method="POST"
+                        action="{{ url_for('resend_otp') }}"
+                    >
+                        <button
+                            type="submit"
+                            class="security-link-button"
+                            id="resend-otp-button"
+                        >
+                            Resend OTP
+                        </button>
+                    </form>
+
+                    <a
+                        href="{{ url_for('reset_security_gate') }}"
+                        class="security-text-link"
+                    >
+                        Use another email
+                    </a>
+                </div>
+
+                <div class="security-privacy-note">
+                    <span aria-hidden="true">🛡</span>
+                    <p>
+                        Never share the OTP with anyone. Aureon will not ask
+                        for it through WhatsApp, phone calls or messages.
+                    </p>
+                </div>
+
+            </article>
+
+        </section>
+
+    </main>
+
+    <script
+        src="{{ url_for('static', filename='security_gate.js') }}"
+        defer
+    ></script>
+
+</body>
+
+</html>

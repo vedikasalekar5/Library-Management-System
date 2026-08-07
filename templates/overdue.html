@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Overdue Books | Aureon</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+
+<body>
+
+    <div class="app-layout">
+
+        <!-- ================= SIDEBAR ================= -->
+
+        <aside class="sidebar">
+
+            <div class="brand">
+
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    alt="Library Logo"
+                    class="brand-logo"
+                >
+
+                <div>
+                    <h2 class="brand-name">
+                       Aureon<span class="tm-symbol">™</span>
+                    </h2>
+                    <p>Library Management System</p>
+                </div>
+
+            </div>
+
+
+            # navigation
+            <nav class="navigation">
+
+    <a
+        href="{{ url_for('dashboard') }}"
+        class="{% if request.endpoint == 'dashboard' %}active{% endif %}"
+    >
+        <span>⌂</span>
+        Dashboard
+    </a>
+
+    <a
+        href="{{ url_for('books') }}"
+        class="{% if request.endpoint == 'books' %}active{% endif %}"
+    >
+        <span>▤</span>
+        Books
+    </a>
+
+    <a
+        href="{{ url_for('members') }}"
+        class="{% if request.endpoint == 'members' %}active{% endif %}"
+    >
+        <span>◎</span>
+        Members
+    </a>
+
+    <a
+        href="{{ url_for('member_history') }}"
+        class="{% if request.endpoint == 'member_history' %}active{% endif %}"
+    >
+        <span>◷</span>
+        Member History
+    </a>
+
+    <a
+        href="{{ url_for('issue_return') }}"
+        class="{% if request.endpoint == 'issue_return' %}active{% endif %}"
+    >
+        <span>⇄</span>
+        Issue & Return
+    </a>
+
+    <a
+        href="{{ url_for('overdue') }}"
+        class="{% if request.endpoint == 'overdue' %}active{% endif %}"
+    >
+        <span>!</span>
+        Overdue Books
+    </a>
+
+    <a
+        href="{{ url_for('incidents') }}"
+        class="{% if request.endpoint == 'incidents' %}active{% endif %}"
+    >
+        <span>⚠</span>
+        Lost & Damaged
+    </a>
+
+    <a
+    href="{{ url_for('librarian_notifications') }}"
+    class="{%
+        if request.endpoint == 'librarian_notifications'
+    %}active{% endif %}"
+>
+    <span class="nav-icon">◉</span>
+    Notifications
+</a>
+
+</nav>
+
+
+      <!-- Librarian Profile -->
+            <div class="sidebar-footer">
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout-button"
+                >
+                    Log Out
+                </a>
+
+            </div>
+            
+        </aside>
+
+
+        <!-- ================= MAIN CONTENT ================= -->
+
+        <main class="main-content">
+
+           <header class="page-header dashboard-page-header">
+
+                <div>
+
+                    <p class="small-title">
+                        Late Return Records
+                    </p>
+
+                    <h1>Overdue</h1>
+
+                    <p class="page-description">
+                        Add and manage member profiles, details and borrowing access.
+                    </p>
+
+                </div>
+
+                <div class="admin-badge">
+                    Admin
+                </div>
+
+
+            </header>
+
+
+            <!-- ================= FLASH MESSAGES ================= -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- ================= OVERDUE BOOK CARD ================= -->
+
+            <section class="content-card">
+
+                <div class="card-header responsive-header">
+
+                    <div>
+
+                        <p class="small-title">
+                            Late Returns
+                        </p>
+
+                        <h2>Overdue Book List</h2>
+
+                    </div>
+
+
+                    <span class="status issued">
+                        {{ overdue_books|length }} Records
+                    </span>
+
+                </div>
+
+
+                <!-- ================= TABLE ================= -->
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Book</th>
+                                <th>Member</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Fine</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for item in overdue_books %}
+
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            {{ item.title }}
+                                        </strong>
+                                    </td>
+
+
+                                    <td>
+                                        {{ item.name }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ item.issue_date }}
+                                    </td>
+
+
+                                    <td>
+                                        <span class="status issued">
+                                            {{ item.due_date }}
+                                        </span>
+                                    </td>
+
+
+                                    <td>
+                                        <span class="status issued">
+                                            ₹10
+                                        </span>
+                                    </td>
+
+
+                                    <td>
+                                        <span class="status issued">
+                                            Overdue
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+
+                            {% else %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="empty-message"
+                                    >
+                                        No overdue books. All issued books are
+                                        within their return due dates.
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>
