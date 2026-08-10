@@ -9987,3 +9987,952 @@ body.member-portal-page {
     }
 }
 
+/* =========================================================
+   AUREON - ISSUE & RETURN PROFESSIONAL DESIGN
+   ========================================================= */
+
+.circulation-page {
+    min-width: 0;
+    padding-bottom: 40px;
+}
+
+/* PAGE HEADER */
+.circulation-intro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 30px 34px;
+    margin-bottom: 24px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #f7faff, #e7f0ff);
+    border: 1px solid #dce8f7;
+    box-shadow: 0 10px 30px rgba(30, 72, 125, 0.05);
+}
+
+.circulation-intro h1 {
+    margin: 5px 0 7px;
+    color: #17365f;
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.circulation-intro-text {
+    margin: 0;
+    color: #71839b;
+    font-size: 14px;
+}
+
+.circulation-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 18px;
+    border: 1px solid #d5e4f6;
+    border-radius: 12px;
+    background: #fff;
+    color: #2869df;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* ISSUE / RETURN GRID */
+.circulation-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+
+/* CARDS */
+.circulation-panel {
+    min-width: 0;
+    padding: 28px;
+    border-radius: 20px !important;
+    background: #fff;
+    border: 1px solid #e1e9f3 !important;
+    box-shadow: 0 10px 30px rgba(31, 73, 125, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.circulation-panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.circulation-panel:first-child::before {
+    background: #2869df;
+}
+
+.circulation-panel:nth-child(2)::before {
+    background: #2ba176;
+}
+
+
+/* CARD HEADER */
+.circulation-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+.circulation-panel-header h2 {
+    margin: 4px 0 0;
+    color: #17365f;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.circulation-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 14px;
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.issue-icon {
+    background: #e8f1ff;
+    color: #2869df;
+}
+
+.return-icon {
+    background: #e5f7ef;
+    color: #27996d;
+}
+
+
+/* FORM */
+.circulation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.circulation-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    color: #28415f;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* INPUTS */
+.circulation-field select,
+.circulation-field input {
+    width: 100%;
+    min-height: 50px;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    border: 1px solid #d8e3ef;
+    border-radius: 11px;
+    background: #fff;
+    color: #263e5c;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.circulation-field select:hover,
+.circulation-field input:hover {
+    border-color: #a9c4e5;
+}
+
+.circulation-field select:focus,
+.circulation-field input:focus {
+    border-color: #3676df;
+    box-shadow: 0 0 0 3px rgba(54, 118, 223, 0.10);
+}
+
+
+/* INFORMATION BOX */
+.circulation-help {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    padding: 14px 15px;
+    border-radius: 11px;
+    background: #f4f8fc;
+    border: 1px solid #e6edf5;
+    color: #71839a;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.circulation-help strong {
+    color: #304c6b;
+}
+
+
+/* BUTTONS */
+.circulation-submit {
+    width: 100%;
+    min-height: 49px;
+    margin-top: 2px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    transition: 0.2s ease;
+}
+
+
+/* ISSUE BUTTON */
+.circulation-panel:first-child .circulation-submit {
+    background: #2869df !important;
+    color: #fff !important;
+    box-shadow: 0 8px 18px rgba(40, 105, 223, 0.20);
+}
+
+.circulation-panel:first-child .circulation-submit:hover {
+    background: #205dc9 !important;
+    transform: translateY(-1px);
+}
+
+
+/* RETURN BUTTON */
+.return-submit {
+    background: #2ba176 !important;
+    color: #fff !important;
+    box-shadow: 0 8px 18px rgba(43, 161, 118, 0.18);
+}
+
+.return-submit:hover {
+    background: #248c66 !important;
+    transform: translateY(-1px);
+}
+
+
+/* TRANSACTION HISTORY */
+.transaction-history-card {
+    min-width: 0;
+    margin-top: 0;
+    padding: 26px !important;
+    border-radius: 20px !important;
+    border: 1px solid #e1e9f3 !important;
+    box-shadow: 0 10px 30px rgba(31, 73, 125, 0.05);
+}
+
+.transaction-history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.transaction-history-header h2 {
+    margin: 4px 0 0;
+    color: #17365f;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+
+/* REFRESH BUTTON */
+.refresh-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 9px 15px;
+    border: 1px solid #d9e7f7;
+    border-radius: 10px;
+    background: #f1f7ff;
+    color: #2869df;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+    transition: 0.2s ease;
+}
+
+.refresh-button:hover {
+    background: #e5f0ff;
+    transform: translateY(-1px);
+}
+
+
+/* TABLE */
+.table-container {
+    overflow-x: auto;
+    border: 1px solid #e3eaf2;
+    border-radius: 13px;
+}
+
+.transaction-table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+}
+
+.transaction-table thead {
+    background: #f5f8fc;
+}
+
+.transaction-table th {
+    padding: 13px 15px;
+    color: #526a89;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.transaction-table td {
+    padding: 14px 15px;
+    border-top: 1px solid #edf1f6;
+    color: #71829a;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.transaction-table tbody tr:hover {
+    background: #f9fbfe;
+}
+
+
+/* BOOK NAME */
+.book-cell strong {
+    display: block;
+    color: #294765;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* FINE */
+.fine-late,
+.fine-zero {
+    display: inline-block;
+    min-width: 48px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.fine-late {
+    background: #ffebed;
+    color: #d0444e;
+}
+
+.fine-zero {
+    background: #e6f7ef;
+    color: #27845f;
+}
+
+
+/* STATUS */
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 68px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    background: #edf2f7;
+    color: #63758b;
+}
+
+.status.issued {
+    background: #fff3dc;
+    color: #a36b09;
+}
+
+.status.returned {
+    background: #e6f7ef;
+    color: #23845f;
+}
+
+.status.overdue {
+    background: #ffe9eb;
+    color: #d23e49;
+}
+
+.status.lost,
+.status.damaged {
+    background: #ffe9e9;
+    color: #c63c3c;
+}
+
+
+/* EMPTY TABLE */
+.empty-message {
+    text-align: center !important;
+    padding: 35px !important;
+    color: #9aa8b9 !important;
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 1050px) {
+
+    .circulation-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .circulation-intro {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 24px;
+    }
+
+    .circulation-intro h1 {
+        font-size: 28px;
+    }
+
+    .circulation-badge {
+        display: none;
+    }
+
+    .circulation-panel {
+        padding: 22px;
+    }
+
+    .transaction-history-card {
+        padding: 18px !important;
+    }
+
+    .transaction-history-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
+/* =========================================================
+   AUREON BOOKS PAGE — PROFESSIONAL ERP DESIGN
+   ========================================================= */
+
+/* ---------- PAGE BACKGROUND ---------- */
+
+body {
+    background: #f4f3fb !important;
+}
+
+.main-content {
+    background:
+        radial-gradient(
+            circle at 90% 0%,
+            rgba(111, 78, 220, 0.08),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #faf9ff 0%,
+            #f5f3fc 55%,
+            #efedfa 100%
+        ) !important;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.page-header {
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #faf9ff 60%,
+            #f0edff 100%
+        ) !important;
+
+    border: 1px solid #e2def3 !important;
+    border-radius: 22px !important;
+
+    box-shadow:
+        0 8px 28px rgba(47, 40, 110, 0.07) !important;
+
+    padding: 38px !important;
+
+    margin-bottom: 30px !important;
+}
+
+.page-header h1 {
+    color: #2e2b78 !important;
+
+    font-size: 48px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: -1.2px !important;
+}
+
+.page-header p {
+    color: #747294 !important;
+
+    font-size: 16px !important;
+}
+
+.page-header .eyebrow,
+.page-header .section-label,
+.page-header small {
+    color: #6b4ce6 !important;
+
+    font-weight: 700 !important;
+    letter-spacing: 1.5px !important;
+}
+
+
+/* =========================================================
+   ADMIN BADGE
+   ========================================================= */
+
+.page-header .admin,
+.page-header .role,
+.admin-badge {
+    background: #f1efff !important;
+
+    color: #3d3986 !important;
+
+    border: 1px solid #ddd8f6 !important;
+
+    border-radius: 13px !important;
+
+    box-shadow: none !important;
+}
+
+
+/* =========================================================
+   MAIN BOOK WORKSPACE
+   ========================================================= */
+
+.books-layout,
+.book-layout,
+.books-grid {
+    gap: 26px !important;
+}
+
+
+/* =========================================================
+   ADD BOOK PANEL
+   ========================================================= */
+
+.add-book,
+.add-book-card,
+.book-form-card {
+    background: #ffffff !important;
+
+    border: 1px solid #e3e0ef !important;
+
+    border-radius: 20px !important;
+
+    box-shadow:
+        0 8px 25px rgba(47, 40, 110, 0.07) !important;
+
+    padding: 27px !important;
+}
+
+
+/* Add Book heading */
+
+.add-book h2,
+.add-book-card h2,
+.book-form-card h2 {
+    color: #302d78 !important;
+
+    font-size: 27px !important;
+    font-weight: 750 !important;
+
+    margin-bottom: 24px !important;
+}
+
+
+/* Section label */
+
+.add-book .eyebrow,
+.add-book-card .eyebrow,
+.book-form-card .eyebrow {
+    color: #7047e8 !important;
+
+    font-size: 12px !important;
+
+    font-weight: 800 !important;
+
+    letter-spacing: 1.4px !important;
+}
+
+
+/* =========================================================
+   FORM LABELS
+   ========================================================= */
+
+.add-book label,
+.add-book-card label,
+.book-form-card label {
+    color: #34316e !important;
+
+    font-size: 13px !important;
+
+    font-weight: 700 !important;
+
+    margin-bottom: 8px !important;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.add-book input,
+.add-book select,
+.add-book textarea,
+.add-book-card input,
+.add-book-card select,
+.add-book-card textarea,
+.book-form-card input,
+.book-form-card select,
+.book-form-card textarea {
+    background: #fbfaff !important;
+
+    color: #302e65 !important;
+
+    border: 1px solid #ddd9ed !important;
+
+    border-radius: 10px !important;
+
+    min-height: 48px !important;
+
+    box-shadow: none !important;
+
+    transition: all 0.2s ease !important;
+}
+
+
+/* Input focus */
+
+.add-book input:focus,
+.add-book select:focus,
+.add-book textarea:focus,
+.add-book-card input:focus,
+.add-book-card select:focus,
+.add-book-card textarea:focus,
+.book-form-card input:focus,
+.book-form-card select:focus,
+.book-form-card textarea:focus {
+    background: #ffffff !important;
+
+    border-color: #7258e8 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(114, 88, 232, 0.10) !important;
+
+    outline: none !important;
+}
+
+
+/* =========================================================
+   FETCH / PRIMARY BUTTON
+   ========================================================= */
+
+.add-book button,
+.add-book-card button,
+.book-form-card button {
+    border-radius: 10px !important;
+
+    font-weight: 700 !important;
+
+    transition: all 0.2s ease !important;
+}
+
+.add-book button[type="submit"],
+.add-book-card button[type="submit"],
+.book-form-card button[type="submit"] {
+    background: linear-gradient(
+        135deg,
+        #5948dd,
+        #7439e8
+    ) !important;
+
+    border: none !important;
+
+    box-shadow:
+        0 6px 15px rgba(91, 67, 220, 0.20) !important;
+}
+
+.add-book button:hover,
+.add-book-card button:hover,
+.book-form-card button:hover {
+    transform: translateY(-1px) !important;
+}
+
+
+/* =========================================================
+   BOOK COLLECTION PANEL
+   ========================================================= */
+
+.book-list,
+.books-list,
+.collection,
+.collection-card,
+.all-books {
+    background: #ffffff !important;
+
+    border: 1px solid #e3e0ef !important;
+
+    border-radius: 20px !important;
+
+    box-shadow:
+        0 8px 25px rgba(47, 40, 110, 0.065) !important;
+}
+
+
+/* Collection heading */
+
+.book-list h2,
+.books-list h2,
+.collection h2,
+.collection-card h2,
+.all-books h2 {
+    color: #302d78 !important;
+
+    font-size: 27px !important;
+
+    font-weight: 750 !important;
+}
+
+
+/* =========================================================
+   SEARCH BAR
+   ========================================================= */
+
+.book-list input,
+.books-list input,
+.collection input,
+.collection-card input,
+.all-books input {
+    background: #fbfaff !important;
+
+    border: 1px solid #ddd9ed !important;
+
+    border-radius: 10px !important;
+
+    color: #34316e !important;
+
+    min-height: 48px !important;
+}
+
+.book-list input:focus,
+.books-list input:focus,
+.collection input:focus,
+.collection-card input:focus,
+.all-books input:focus {
+    background: #ffffff !important;
+
+    border-color: #7258e8 !important;
+
+    outline: none !important;
+
+    box-shadow:
+        0 0 0 3px rgba(114, 88, 232, 0.10) !important;
+}
+
+
+/* Category dropdown */
+
+.book-list select,
+.books-list select,
+.collection select,
+.collection-card select,
+.all-books select {
+    background: #ffffff !important;
+
+    border: 1px solid #ddd9ed !important;
+
+    border-radius: 10px !important;
+
+    color: #34316e !important;
+
+    min-height: 48px !important;
+}
+
+
+/* =========================================================
+   SEARCH BUTTON
+   ========================================================= */
+
+.book-list button,
+.books-list button,
+.collection button,
+.collection-card button,
+.all-books button {
+    border-radius: 10px !important;
+
+    font-weight: 700 !important;
+}
+
+
+/* =========================================================
+   BOOK TABLE
+   ========================================================= */
+
+.book-list table,
+.books-list table,
+.collection table,
+.collection-card table,
+.all-books table {
+    border-collapse: separate !important;
+
+    border-spacing: 0 !important;
+
+    overflow: hidden !important;
+
+    border: 1px solid #e4e1ef !important;
+
+    border-radius: 14px !important;
+}
+
+
+/* Table header */
+
+.book-list thead,
+.books-list thead,
+.collection thead,
+.collection-card thead,
+.all-books thead {
+    background: #f0edff !important;
+}
+
+.book-list th,
+.books-list th,
+.collection th,
+.collection-card th,
+.all-books th {
+    color: #393580 !important;
+
+    font-size: 12px !important;
+
+    font-weight: 800 !important;
+
+    letter-spacing: 0.4px !important;
+
+    padding: 16px !important;
+
+    border-bottom: 1px solid #ddd8ef !important;
+}
+
+
+/* Table body */
+
+.book-list td,
+.books-list td,
+.collection td,
+.collection-card td,
+.all-books td {
+    color: #454269 !important;
+
+    padding: 20px 16px !important;
+
+    border-bottom: 1px solid #eeeef5 !important;
+
+    background: #ffffff !important;
+}
+
+
+/* Book title */
+
+.book-list td:first-child,
+.books-list td:first-child,
+.collection td:first-child,
+.collection-card td:first-child,
+.all-books td:first-child {
+    color: #302d70 !important;
+
+    font-weight: 700 !important;
+}
+
+
+/* Row hover */
+
+.book-list tbody tr:hover td,
+.books-list tbody tr:hover td,
+.collection tbody tr:hover td,
+.collection-card tbody tr:hover td,
+.all-books tbody tr:hover td {
+    background: #faf9ff !important;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1eff9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c5bdf0;
+
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9b90df;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .page-header {
+        padding: 28px !important;
+    }
+
+    .page-header h1 {
+        font-size: 38px !important;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .page-header h1 {
+        font-size: 32px !important;
+    }
+
+    .add-book,
+    .add-book-card,
+    .book-form-card,
+    .book-list,
+    .books-list,
+    .collection,
+    .collection-card,
+    .all-books {
+        border-radius: 15px !important;
+    }
+}
