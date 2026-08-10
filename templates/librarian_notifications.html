@@ -15,6 +15,961 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
+
+<style>
+/* ============================================================
+   AUREON — PROFESSIONAL NOTIFICATIONS PAGE
+   This section intentionally overrides the global style.css
+   so this page has a clean SaaS/admin-dashboard layout.
+============================================================ */
+
+:root {
+    --notif-bg: #f6f7fc;
+    --notif-surface: #ffffff;
+    --notif-text: #18245c;
+    --notif-muted: #6f789b;
+    --notif-primary: #4f46e5;
+    --notif-primary-dark: #3730a3;
+    --notif-border: #e7e9f4;
+    --notif-soft: #f4f3ff;
+    --notif-success: #0f9f6e;
+    --notif-warning: #d88900;
+}
+
+/* Page canvas */
+body {
+    background: var(--notif-bg) !important;
+}
+
+.main-content.librarian-notification-main {
+    width: calc(100% - var(--sidebar-width)) !important;
+    min-width: 0 !important;
+    margin-left: var(--sidebar-width) !important;
+    padding: 34px 42px 60px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+/* Keep every major section vertically stacked */
+.librarian-notification-main > * {
+    width: 100% !important;
+    max-width: 1380px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* ---------------- Header ---------------- */
+
+.librarian-notification-main > .page-header {
+    min-height: 175px !important;
+    padding: 34px 38px !important;
+    margin: 0 auto 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 30px !important;
+    background:
+        linear-gradient(135deg, #ffffff 0%, #fbfaff 62%, #f0ecff 100%) !important;
+    border: 1px solid #e4e0ff !important;
+    border-radius: 24px !important;
+    box-shadow: 0 14px 40px rgba(55, 48, 163, 0.08) !important;
+    box-sizing: border-box !important;
+}
+
+.librarian-notification-main .page-header > div:first-child {
+    min-width: 0 !important;
+}
+
+.librarian-notification-main .page-header .small-title {
+    margin: 0 0 10px !important;
+    color: var(--notif-primary) !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.7px !important;
+    text-transform: uppercase !important;
+}
+
+.librarian-notification-main .page-header h1 {
+    margin: 0 !important;
+    color: var(--notif-text) !important;
+    font-size: clamp(38px, 4vw, 58px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -1.8px !important;
+}
+
+.librarian-notification-main .page-header .page-description {
+    margin: 12px 0 0 !important;
+    max-width: 720px !important;
+    color: var(--notif-muted) !important;
+    font-size: 16px !important;
+    line-height: 1.55 !important;
+}
+
+.librarian-notification-main .librarian-badge {
+    flex: 0 0 auto !important;
+    min-width: 118px !important;
+    padding: 15px 24px !important;
+    border-radius: 15px !important;
+    background: #ffffff !important;
+    border: 1px solid var(--notif-border) !important;
+    color: var(--notif-text) !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    box-shadow: 0 8px 22px rgba(36, 32, 100, 0.07) !important;
+}
+
+/* ---------------- Statistics: one compact bar ---------------- */
+
+.librarian-notification-summary {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin-bottom: 24px !important;
+    overflow: hidden !important;
+    background: var(--notif-surface) !important;
+    border: 1px solid var(--notif-border) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 28px rgba(36, 32, 100, 0.055) !important;
+}
+
+.librarian-notification-stat {
+    min-height: 105px !important;
+    padding: 22px 26px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    border: 0 !important;
+    border-right: 1px solid var(--notif-border) !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+.librarian-notification-stat:last-child {
+    border-right: 0 !important;
+}
+
+.librarian-notification-stat span {
+    margin-bottom: 5px !important;
+    color: var(--notif-muted) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+.librarian-notification-stat strong {
+    color: var(--notif-text) !important;
+    font-size: 31px !important;
+    line-height: 1 !important;
+}
+
+/* ---------------- Common cards ---------------- */
+
+.librarian-notification-main .content-card {
+    margin-bottom: 24px !important;
+    padding: 30px !important;
+    background: var(--notif-surface) !important;
+    border: 1px solid var(--notif-border) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 10px 30px rgba(36, 32, 100, 0.055) !important;
+    box-sizing: border-box !important;
+}
+
+.librarian-notification-main .card-header {
+    margin: 0 0 24px !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
+.librarian-notification-main .card-header .small-title {
+    margin-bottom: 7px !important;
+    color: var(--notif-primary) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+}
+
+.librarian-notification-main .card-header h2 {
+    margin: 0 !important;
+    color: var(--notif-text) !important;
+    font-size: 25px !important;
+    line-height: 1.2 !important;
+}
+
+.librarian-notification-main .card-description {
+    margin: 7px 0 0 !important;
+    color: var(--notif-muted) !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+/* ---------------- Create notification form ---------------- */
+
+.librarian-notification-form {
+    margin: 0 !important;
+}
+
+.librarian-notification-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    column-gap: 22px !important;
+    row-gap: 20px !important;
+}
+
+.librarian-notification-grid label {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    color: var(--notif-text) !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+}
+
+.librarian-notification-grid .full-field {
+    grid-column: 1 / -1 !important;
+}
+
+.librarian-notification-grid input:not([type="checkbox"]),
+.librarian-notification-grid select,
+.librarian-notification-grid textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border: 1px solid #dfe2ef !important;
+    border-radius: 12px !important;
+    background: #fbfbfe !important;
+    color: var(--notif-text) !important;
+    font: inherit !important;
+    font-size: 14px !important;
+    outline: none !important;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease !important;
+}
+
+.librarian-notification-grid input:not([type="checkbox"]),
+.librarian-notification-grid select {
+    min-height: 48px !important;
+    padding: 0 14px !important;
+}
+
+.librarian-notification-grid textarea {
+    min-height: 125px !important;
+    padding: 13px 14px !important;
+    resize: vertical !important;
+}
+
+.librarian-notification-grid input:not([type="checkbox"]):focus,
+.librarian-notification-grid select:focus,
+.librarian-notification-grid textarea:focus {
+    background: #ffffff !important;
+    border-color: #8b83f5 !important;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, .09) !important;
+}
+
+.librarian-notification-grid label > small {
+    color: #8a91ac !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+}
+
+.librarian-notification-checkbox {
+    min-height: 48px !important;
+    padding: 12px 14px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    border: 1px solid var(--notif-border) !important;
+    border-radius: 12px !important;
+    background: #fafaff !important;
+    box-sizing: border-box !important;
+}
+
+.librarian-notification-checkbox input {
+    width: 17px !important;
+    height: 17px !important;
+    accent-color: var(--notif-primary) !important;
+}
+
+.librarian-notification-checkbox span {
+    font-size: 13px !important;
+    color: var(--notif-text) !important;
+}
+
+.librarian-notification-character-count {
+    display: block !important;
+    margin-top: -2px !important;
+    text-align: right !important;
+    color: #8b91a9 !important;
+    font-size: 11px !important;
+}
+
+/* Buttons */
+.librarian-notification-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 24px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid var(--notif-border) !important;
+}
+
+.librarian-notification-actions .primary-button,
+.librarian-notification-actions .secondary-button {
+    min-height: 46px !important;
+    padding: 0 20px !important;
+    border-radius: 11px !important;
+    font-weight: 750 !important;
+}
+
+.librarian-notification-actions .primary-button {
+    background: linear-gradient(135deg, #4f46e5, #6d35e9) !important;
+    box-shadow: 0 7px 18px rgba(79, 70, 229, .18) !important;
+}
+
+.librarian-notification-actions .secondary-button {
+    background: #ffffff !important;
+    border: 1px solid #dfe2ef !important;
+    color: var(--notif-text) !important;
+}
+
+/* ---------------- Automatic reminders ---------------- */
+
+.librarian-reminder-information {
+    padding: 27px 30px !important;
+}
+
+.librarian-reminder-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+}
+
+.librarian-reminder-grid article {
+    min-height: 105px !important;
+    padding: 18px !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 13px !important;
+    background: #fafaff !important;
+    border: 1px solid var(--notif-border) !important;
+    border-radius: 15px !important;
+    box-sizing: border-box !important;
+}
+
+.librarian-reminder-icon {
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 11px !important;
+    background: var(--notif-soft) !important;
+    color: var(--notif-primary) !important;
+    font-weight: 800 !important;
+}
+
+.librarian-reminder-grid strong {
+    display: block !important;
+    margin-bottom: 5px !important;
+    color: var(--notif-text) !important;
+    font-size: 14px !important;
+}
+
+.librarian-reminder-grid p {
+    margin: 0 !important;
+    color: var(--notif-muted) !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+}
+
+/* ---------------- Message history ---------------- */
+
+.librarian-sent-notifications {
+    padding: 28px 30px !important;
+}
+
+.librarian-notification-list-header {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+}
+
+.librarian-notification-filter-form {
+    display: grid !important;
+    grid-template-columns: minmax(210px, 1fr) 170px auto auto !important;
+    gap: 9px !important;
+    align-items: center !important;
+    min-width: min(620px, 100%) !important;
+}
+
+.librarian-notification-filter-form input,
+.librarian-notification-filter-form select {
+    height: 43px !important;
+    padding: 0 12px !important;
+    border: 1px solid #dfe2ef !important;
+    border-radius: 10px !important;
+    background: #fbfbfe !important;
+    color: var(--notif-text) !important;
+    box-sizing: border-box !important;
+}
+
+.librarian-notification-filter-form .primary-button,
+.librarian-notification-filter-form .secondary-button {
+    height: 43px !important;
+    padding: 0 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    white-space: nowrap !important;
+}
+
+.librarian-notification-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.librarian-sent-notification-card {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 190px auto !important;
+    gap: 20px !important;
+    align-items: center !important;
+    padding: 19px 20px !important;
+    background: #ffffff !important;
+    border: 1px solid var(--notif-border) !important;
+    border-radius: 15px !important;
+    box-sizing: border-box !important;
+}
+
+.librarian-sent-notification-main {
+    min-width: 0 !important;
+}
+
+.librarian-sent-notification-badges {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin-bottom: 7px !important;
+}
+
+.librarian-sent-notification-badges span {
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 24px !important;
+    padding: 0 9px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+}
+
+.librarian-notification-category {
+    background: #f0efff !important;
+    color: var(--notif-primary-dark) !important;
+}
+
+.librarian-notification-priority {
+    background: #f4f5f8 !important;
+    color: #5f6680 !important;
+}
+
+.librarian-notification-status.active {
+    background: #eaf9f2 !important;
+    color: var(--notif-success) !important;
+}
+
+.librarian-notification-status.expired {
+    background: #fff0f0 !important;
+    color: #c0392b !important;
+}
+
+.librarian-sent-notification-main h3 {
+    margin: 0 0 5px !important;
+    color: var(--notif-text) !important;
+    font-size: 16px !important;
+}
+
+.librarian-sent-notification-main > p {
+    margin: 0 0 9px !important;
+    color: var(--notif-muted) !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+.librarian-notification-meta {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 13px !important;
+    color: #858ba5 !important;
+    font-size: 10px !important;
+}
+
+.librarian-notification-meta strong {
+    color: #59617e !important;
+}
+
+.librarian-notification-read-summary {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+}
+
+.librarian-notification-read-summary > div {
+    min-width: 52px !important;
+    padding: 9px 7px !important;
+    text-align: center !important;
+    background: #f8f8fc !important;
+    border-radius: 9px !important;
+}
+
+.librarian-notification-read-summary span {
+    display: block !important;
+    color: #858ba5 !important;
+    font-size: 9px !important;
+}
+
+.librarian-notification-read-summary strong {
+    display: block !important;
+    margin-top: 2px !important;
+    color: var(--notif-text) !important;
+    font-size: 16px !important;
+}
+
+.librarian-notification-delete-form {
+    margin: 0 !important;
+}
+
+.librarian-notification-delete-form .delete-button {
+    height: 38px !important;
+    padding: 0 13px !important;
+    border: 1px solid #f0d8d8 !important;
+    border-radius: 9px !important;
+    background: #fff8f8 !important;
+    color: #c0392b !important;
+    font-weight: 700 !important;
+}
+
+/* Empty state */
+.librarian-sent-notifications .member-portal-empty-state {
+    padding: 50px 20px !important;
+    text-align: center !important;
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 1100px) {
+    .main-content.librarian-notification-main {
+        padding: 28px 24px 50px !important;
+    }
+
+    .librarian-notification-list-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .librarian-notification-filter-form {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    .librarian-sent-notification-card {
+        grid-template-columns: 1fr !important;
+    }
+
+    .librarian-notification-read-summary {
+        max-width: 330px !important;
+    }
+}
+
+@media (max-width: 800px) {
+    .main-content.librarian-notification-main {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding: 20px 16px 40px !important;
+    }
+
+    .librarian-notification-main > .page-header {
+        padding: 25px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    .librarian-notification-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .librarian-notification-stat {
+        border-bottom: 1px solid var(--notif-border) !important;
+    }
+
+    .librarian-notification-stat:nth-child(2) {
+        border-right: 0 !important;
+    }
+
+    .librarian-notification-stat:nth-child(3),
+    .librarian-notification-stat:nth-child(4) {
+        border-bottom: 0 !important;
+    }
+
+    .librarian-notification-grid,
+    .librarian-reminder-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .librarian-notification-grid .full-field {
+        grid-column: auto !important;
+    }
+
+    .librarian-notification-filter-form {
+        grid-template-columns: 1fr !important;
+    }
+
+    .librarian-notification-actions {
+        flex-wrap: wrap !important;
+    }
+}
+
+@media (max-width: 520px) {
+    .librarian-notification-main .content-card {
+        padding: 20px !important;
+        border-radius: 17px !important;
+    }
+
+    .librarian-notification-summary {
+        grid-template-columns: 1fr !important;
+    }
+
+    .librarian-notification-stat,
+    .librarian-notification-stat:nth-child(2),
+    .librarian-notification-stat:nth-child(3),
+    .librarian-notification-stat:nth-child(4) {
+        border-right: 0 !important;
+        border-bottom: 1px solid var(--notif-border) !important;
+    }
+
+    .librarian-notification-stat:last-child {
+        border-bottom: 0 !important;
+    }
+}
+</style>
+
+
+<style>
+/* ============================================================
+   AUREON NOTIFICATIONS — NO-CARD PROFESSIONAL LAYOUT
+   Flat enterprise/SaaS layout: sections are separated by
+   whitespace, rules and typography instead of large cards.
+============================================================ */
+
+/* Overall page */
+body {
+    background: #f7f8fc !important;
+}
+
+.main-content.librarian-notification-main {
+    padding: 30px 46px 70px !important;
+}
+
+/* ---------- Header: remove big card ---------- */
+.librarian-notification-main > .page-header {
+    min-height: 0 !important;
+    padding: 10px 0 28px !important;
+    margin-bottom: 28px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e5ef !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.librarian-notification-main .page-header h1 {
+    font-size: clamp(38px, 4vw, 54px) !important;
+    letter-spacing: -1.5px !important;
+}
+
+.librarian-notification-main .page-header .page-description {
+    margin-top: 9px !important;
+}
+
+/* Admin badge: simple, not a card */
+.librarian-notification-main .librarian-badge {
+    min-width: auto !important;
+    padding: 9px 15px !important;
+    border-radius: 9px !important;
+    background: #eef0ff !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #4338a8 !important;
+}
+
+/* ---------- Statistics: flat metrics row ---------- */
+.librarian-notification-summary {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0 !important;
+    margin: 0 0 38px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+.librarian-notification-stat {
+    min-height: 0 !important;
+    padding: 0 28px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-right: 1px solid #dfe2ec !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.librarian-notification-stat:first-child {
+    padding-left: 0 !important;
+}
+
+.librarian-notification-stat:last-child {
+    padding-right: 0 !important;
+    border-right: 0 !important;
+}
+
+.librarian-notification-stat span {
+    margin-bottom: 6px !important;
+    color: #7b829d !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: .8px !important;
+}
+
+.librarian-notification-stat strong {
+    font-size: 28px !important;
+    color: #202b67 !important;
+}
+
+/* ---------- All content sections: no outer cards ---------- */
+.librarian-notification-main .content-card {
+    padding: 0 !important;
+    margin: 0 0 46px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Section headings */
+.librarian-notification-main .card-header {
+    padding: 0 0 17px !important;
+    margin: 0 0 24px !important;
+    border-bottom: 1px solid #e2e5ef !important;
+}
+
+.librarian-notification-main .card-header h2 {
+    font-size: 24px !important;
+    color: #202b67 !important;
+}
+
+.librarian-notification-main .card-description {
+    max-width: 800px !important;
+}
+
+/* ---------- Notification form: clean workspace ---------- */
+.librarian-notification-grid {
+    padding: 0 !important;
+    column-gap: 28px !important;
+    row-gap: 20px !important;
+}
+
+.librarian-notification-grid input:not([type="checkbox"]),
+.librarian-notification-grid select,
+.librarian-notification-grid textarea {
+    background: #ffffff !important;
+    border: 1px solid #d9ddea !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+.librarian-notification-grid input:not([type="checkbox"]),
+.librarian-notification-grid select {
+    min-height: 46px !important;
+}
+
+.librarian-notification-grid textarea {
+    min-height: 118px !important;
+}
+
+.librarian-notification-checkbox {
+    background: transparent !important;
+    border: 1px solid #d9ddea !important;
+    border-radius: 8px !important;
+}
+
+/* Form actions separated by a simple rule */
+.librarian-notification-actions {
+    margin-top: 24px !important;
+    padding-top: 18px !important;
+    border-top: 1px solid #e2e5ef !important;
+}
+
+.librarian-notification-actions .primary-button {
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+.librarian-notification-actions .secondary-button {
+    border-radius: 8px !important;
+}
+
+/* ---------- Automatic reminders: no individual cards ---------- */
+.librarian-reminder-information {
+    padding: 0 !important;
+}
+
+.librarian-reminder-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0 !important;
+    border-top: 1px solid #e2e5ef !important;
+    border-bottom: 1px solid #e2e5ef !important;
+}
+
+.librarian-reminder-grid article {
+    min-height: 92px !important;
+    padding: 18px 24px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-right: 1px solid #e2e5ef !important;
+    border-radius: 0 !important;
+}
+
+.librarian-reminder-grid article:first-child {
+    padding-left: 0 !important;
+}
+
+.librarian-reminder-grid article:last-child {
+    padding-right: 0 !important;
+    border-right: 0 !important;
+}
+
+.librarian-reminder-icon {
+    width: 34px !important;
+    height: 34px !important;
+    flex-basis: 34px !important;
+    border-radius: 8px !important;
+    background: #eeedff !important;
+}
+
+/* ---------- Message history: table/list, no cards ---------- */
+.librarian-sent-notifications {
+    padding: 0 !important;
+}
+
+.librarian-notification-list-header {
+    padding-bottom: 18px !important;
+    border-bottom: 1px solid #e2e5ef !important;
+}
+
+.librarian-notification-filter-form input,
+.librarian-notification-filter-form select {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+}
+
+.librarian-sent-notification-card {
+    grid-template-columns: minmax(0, 1fr) 180px auto !important;
+    gap: 22px !important;
+    padding: 19px 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e5ef !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.librarian-sent-notification-card:hover {
+    background: #fbfbfe !important;
+}
+
+.librarian-notification-read-summary > div {
+    background: transparent !important;
+    border: 1px solid #e4e6ef !important;
+    border-radius: 7px !important;
+}
+
+.librarian-notification-delete-form .delete-button {
+    border-radius: 7px !important;
+    box-shadow: none !important;
+}
+
+/* Remove any generic decorative top borders that look like cards */
+.librarian-notification-main .content-card::before,
+.librarian-notification-main .content-card::after {
+    display: none !important;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 800px) {
+    .main-content.librarian-notification-main {
+        padding: 22px 20px 50px !important;
+    }
+
+    .librarian-notification-summary {
+        grid-template-columns: repeat(2, 1fr) !important;
+        row-gap: 20px !important;
+    }
+
+    .librarian-notification-stat,
+    .librarian-notification-stat:first-child,
+    .librarian-notification-stat:last-child {
+        padding: 0 18px !important;
+    }
+
+    .librarian-notification-stat:nth-child(2) {
+        border-right: 0 !important;
+    }
+
+    .librarian-reminder-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .librarian-reminder-grid article,
+    .librarian-reminder-grid article:first-child,
+    .librarian-reminder-grid article:last-child {
+        padding: 16px 0 !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid #e2e5ef !important;
+    }
+
+    .librarian-reminder-grid article:last-child {
+        border-bottom: 0 !important;
+    }
+}
+
+@media (max-width: 560px) {
+    .librarian-notification-summary {
+        grid-template-columns: 1fr !important;
+    }
+
+    .librarian-notification-stat,
+    .librarian-notification-stat:first-child,
+    .librarian-notification-stat:last-child {
+        padding: 13px 0 !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid #e2e5ef !important;
+    }
+
+    .librarian-notification-stat:last-child {
+        border-bottom: 0 !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -129,9 +1084,7 @@
 
                 </div>
 
-                <div class="librarian-badge">
-                    Librarian
-                </div>
+                <div class="librarian-badge">Admin</div>
 
             </header>
 
@@ -462,29 +1415,12 @@
 
                     <div class="librarian-notification-actions">
 
-                        <div class="notification-send-actions">
-
-    <button
-        type="submit"
-        name="send_mode"
-        value="portal"
-        class="primary-button"
-    >
-        Send to Student Portal
-    </button>
-
-
-    <button
-        type="submit"
-        name="send_mode"
-        value="portal_whatsapp"
-        class="whatsapp-send-button"
-        formtarget="_blank"
-    >
-        Send to Portal + Open WhatsApp
-    </button>
-
-</div>
+                        <button
+                            type="submit"
+                            class="primary-button"
+                        >
+                            Send Notification
+                        </button>
 
                         <button
                             type="reset"

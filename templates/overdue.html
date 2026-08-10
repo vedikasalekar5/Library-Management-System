@@ -1,301 +1,1298 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Overdue Books | Aureon</title>
+    <title>Overdue Books | Aureon Library</title>
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
-</head>
 
+    <style>
+        /* =========================================================
+           AUREON — OVERDUE BOOKS PROFESSIONAL PAGE
+           Unique ov-* classes prevent conflicts with style.css
+           ========================================================= */
+
+        .main-content.ov-page {
+            min-width: 0;
+            padding: 28px 30px 45px !important;
+            background: #f5f8fc !important;
+        }
+
+        /* ---------- TOP HEADER ---------- */
+
+        .ov-topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .ov-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 7px;
+            color: #8393a7;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .ov-breadcrumb a {
+            color: #2869df;
+            text-decoration: none;
+        }
+
+        .ov-page-title {
+            margin: 0;
+            color: #152f53;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.5px;
+        }
+
+        .ov-admin {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 14px;
+            border: 1px solid #dce6f2;
+            border-radius: 13px;
+            background: #fff;
+            box-shadow: 0 5px 18px rgba(31,65,105,.05);
+        }
+
+        .ov-admin-avatar {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #e8f1ff;
+            color: #2869df;
+            font-weight: 800;
+        }
+
+        .ov-admin small,
+        .ov-admin strong {
+            display: block;
+        }
+
+        .ov-admin small {
+            color: #8a9aab;
+            font-size: 9px;
+        }
+
+        .ov-admin strong {
+            margin-top: 2px;
+            color: #193a61;
+            font-size: 12px;
+        }
+
+        /* ---------- HERO ---------- */
+
+        .ov-hero {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 145px;
+            margin-bottom: 20px;
+            padding: 28px 34px;
+            border: 1px solid #d5e3f5;
+            border-radius: 19px;
+            background:
+                radial-gradient(circle at 85% 50%, rgba(74,132,232,.13), transparent 28%),
+                linear-gradient(110deg, #ffffff 0%, #edf5ff 100%);
+            box-shadow: 0 10px 28px rgba(31,69,112,.06);
+        }
+
+        .ov-hero::after {
+            content: "◷";
+            position: absolute;
+            right: 75px;
+            top: 15px;
+            color: rgba(40,105,223,.10);
+            font-size: 130px;
+            line-height: 1;
+            font-weight: 900;
+        }
+
+        .ov-hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .ov-kicker {
+            margin: 0 0 7px;
+            color: #2869df;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+        }
+
+        .ov-hero h2 {
+            margin: 0;
+            color: #15355d;
+            font-size: 38px;
+            line-height: 1.05;
+            font-weight: 850;
+        }
+
+        .ov-hero p {
+            margin: 8px 0 0;
+            color: #71849b;
+            font-size: 13px;
+        }
+
+        .ov-hero-icon {
+            position: relative;
+            z-index: 2;
+            width: 72px;
+            height: 72px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #cfe0f6;
+            border-radius: 20px;
+            background: rgba(255,255,255,.75);
+            color: #2869df;
+            font-size: 34px;
+            box-shadow: 0 10px 25px rgba(40,105,223,.08);
+        }
+
+        /* ---------- STATS ---------- */
+
+        .ov-stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .ov-stat {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-width: 0;
+            padding: 19px;
+            border: 1px solid #e0e8f1;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 22px rgba(31,69,112,.05);
+        }
+
+        .ov-stat-icon {
+            width: 45px;
+            height: 45px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 45px;
+            border-radius: 13px;
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .ov-stat-icon.blue { background:#e8f1ff; color:#2869df; }
+        .ov-stat-icon.orange { background:#fff3dc; color:#d78b0b; }
+        .ov-stat-icon.green { background:#e6f7ef; color:#29966b; }
+        .ov-stat-icon.purple { background:#eeeaff; color:#704bd1; }
+
+        .ov-stat-label {
+            margin: 0;
+            color: #6f8198;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .ov-stat-value {
+            margin: 3px 0 0;
+            color: #183a61;
+            font-size: 24px;
+            line-height: 1;
+            font-weight: 850;
+        }
+
+        .ov-stat-sub {
+            margin: 5px 0 0;
+            color: #96a4b4;
+            font-size: 9px;
+        }
+
+        .ov-stat-value.blue-text { color:#2869df; }
+        .ov-stat-value.orange-text { color:#df8d08; }
+        .ov-stat-value.green-text { color:#29966b; }
+        .ov-stat-value.purple-text { color:#704bd1; }
+
+        /* ---------- TABLE CARD ---------- */
+
+        .ov-table-card {
+            overflow: hidden;
+            border: 1px solid #dfe7f0;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgba(31,69,112,.055);
+        }
+
+        .ov-table-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 20px 22px;
+            border-bottom: 1px solid #e9eef4;
+        }
+
+        .ov-table-title {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .ov-table-title-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: #eaf2ff;
+            color: #2869df;
+            font-size: 18px;
+        }
+
+        .ov-table-title h3 {
+            margin: 0;
+            color: #18385e;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .ov-table-title p {
+            margin: 3px 0 0;
+            color: #8a99aa;
+            font-size: 10px;
+        }
+
+        .ov-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ov-filter-button,
+        .ov-export-button {
+            min-height: 38px;
+            padding: 9px 13px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .ov-filter-button {
+            border: 1px solid #d5e2f0;
+            background: #fff;
+            color: #31577f;
+        }
+
+        .ov-export-button {
+            border: 1px solid #2869df;
+            background: #2869df;
+            color: #fff;
+            box-shadow: 0 6px 15px rgba(40,105,223,.16);
+        }
+
+        .ov-filter-area {
+            display: none;
+            padding: 13px 22px;
+            border-bottom: 1px solid #e8eef5;
+            background: #f8fafd;
+        }
+
+        .ov-filter-area.show {
+            display: block;
+        }
+
+        .ov-search {
+            width: min(420px, 100%);
+            min-height: 39px;
+            box-sizing: border-box;
+            padding: 0 12px;
+            border: 1px solid #d6e1ec;
+            border-radius: 9px;
+            outline: none;
+            color: #294766;
+            background: #fff;
+        }
+
+        .ov-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .ov-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .ov-table thead {
+            background: #f2f6fc;
+        }
+
+        .ov-table th {
+            padding: 13px 14px;
+            color: #526b89;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .55px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .ov-table td {
+            padding: 15px 14px;
+            border-top: 1px solid #edf1f5;
+            color: #667c96;
+            font-size: 11.5px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .ov-table tbody tr {
+            transition: background .15s ease;
+        }
+
+        .ov-table tbody tr:hover {
+            background: #f9fbfe;
+        }
+
+        .ov-index {
+            color: #8b9bad !important;
+            font-weight: 800;
+        }
+
+        .ov-book-title,
+        .ov-member-name {
+            display: block;
+            color: #213f62;
+            font-weight: 800;
+            white-space: normal;
+            max-width: 270px;
+        }
+
+        .ov-book-code,
+        .ov-member-code {
+            display: block;
+            margin-top: 3px;
+            color: #6b8fc2;
+            font-size: 9px;
+        }
+
+        .ov-due,
+        .ov-days {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 9px;
+            border-radius: 18px;
+            background: #fff0f2;
+            color: #d54a54;
+            font-size: 9px;
+            font-weight: 850;
+        }
+
+        .ov-fine {
+            color: #d33e49 !important;
+            font-weight: 850 !important;
+        }
+
+        .ov-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 10px;
+            border-radius: 18px;
+            background: #fff0f2;
+            color: #d33e49;
+            font-size: 9px;
+            font-weight: 850;
+        }
+
+        .ov-status-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #d33e49;
+        }
+
+        .ov-empty {
+            padding: 45px 20px !important;
+            text-align: center !important;
+            color: #93a1b0 !important;
+        }
+
+        .ov-table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 14px 20px;
+            border-top: 1px solid #edf1f5;
+        }
+
+        .ov-record-count {
+            color: #7b8da3;
+            font-size: 10px;
+        }
+
+        /* ---------- PENDING CASH ---------- */
+
+        .ov-pending {
+            margin-top: 20px;
+            padding: 22px;
+            border: 1px solid #e5e8ef;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 8px 22px rgba(31,69,112,.045);
+        }
+
+        .ov-pending-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .ov-pending-head h3 {
+            margin: 0;
+            color: #18385e;
+            font-size: 17px;
+        }
+
+        .ov-pending-head p {
+            margin: 4px 0 0;
+            color: #8b99aa;
+            font-size: 10px;
+        }
+
+        .ov-pending-badge {
+            padding: 6px 10px;
+            border-radius: 18px;
+            background: #fff3dc;
+            color: #a36b09;
+            font-size: 9px;
+            font-weight: 850;
+        }
+
+        .ov-pending-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 13px 0;
+            border-top: 1px solid #edf1f5;
+        }
+
+        .ov-pending-book {
+            color: #294866;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .ov-pending-member {
+            margin-top: 3px;
+            color: #8190a2;
+            font-size: 10px;
+        }
+
+        .ov-confirm {
+            min-height: 36px;
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 9px;
+            background: #29966b;
+            color: #fff;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        /* ---------- PRINT ---------- */
+
+        @media print {
+            .sidebar,
+            .ov-topbar,
+            .ov-actions,
+            .ov-filter-area,
+            .ov-pending,
+            .ov-table-footer {
+                display: none !important;
+            }
+
+            .main-content.ov-page {
+                padding: 0 !important;
+                background: #fff !important;
+            }
+
+            .ov-table-card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+
+        @media (max-width: 1150px) {
+            .ov-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .main-content.ov-page {
+                padding: 20px !important;
+            }
+
+            .ov-topbar {
+                align-items: flex-start;
+            }
+
+            .ov-admin {
+                display: none;
+            }
+
+            .ov-hero {
+                padding: 25px;
+            }
+
+            .ov-hero-icon {
+                display: none;
+            }
+
+            .ov-table-head {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .ov-actions {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .ov-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .ov-hero h2 {
+                font-size: 31px;
+            }
+
+            .ov-page-title {
+                font-size: 27px;
+            }
+
+            .ov-table-head {
+                padding: 17px;
+            }
+
+            .ov-pending-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+
+        /* =========================================================
+           OVERDUE PAGE — FINAL LAYOUT OVERRIDES
+           Prevents global style.css rules from squeezing the page.
+        ========================================================= */
+        .main-content.ov-page {
+            display: block !important;
+            width: calc(100% - var(--sidebar-width)) !important;
+            min-width: 0 !important;
+            min-height: 100vh !important;
+            margin-left: var(--sidebar-width) !important;
+            box-sizing: border-box !important;
+            padding: 28px 30px 45px !important;
+            overflow-x: hidden !important;
+        }
+
+        .main-content.ov-page > * {
+            width: 100% !important;
+            max-width: 1280px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            box-sizing: border-box !important;
+        }
+
+        .main-content.ov-page .ov-topbar {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+
+        .main-content.ov-page .ov-hero {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+
+        .main-content.ov-page .ov-stats {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+
+        .main-content.ov-page .ov-table-card,
+        .main-content.ov-page .ov-pending {
+            display: block !important;
+        }
+
+        .main-content.ov-page .ov-table-wrap {
+            display: block !important;
+            width: 100% !important;
+            overflow-x: auto !important;
+        }
+
+        .main-content.ov-page .ov-table {
+            display: table !important;
+            width: 100% !important;
+        }
+
+        .main-content.ov-page .ov-table thead {
+            display: table-header-group !important;
+        }
+
+        .main-content.ov-page .ov-table tbody {
+            display: table-row-group !important;
+        }
+
+        .main-content.ov-page .ov-table tr {
+            display: table-row !important;
+        }
+
+        .main-content.ov-page .ov-table th,
+        .main-content.ov-page .ov-table td {
+            display: table-cell !important;
+        }
+
+        .main-content.ov-page .ov-table-footer {
+            display: flex !important;
+        }
+
+        .ov-admin {
+            min-width: 105px !important;
+        }
+
+        .ov-admin small {
+            display: none !important;
+        }
+
+        .ov-admin strong {
+            margin: 0 !important;
+        }
+
+        @media (max-width: 1100px) {
+            .main-content.ov-page .ov-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .main-content.ov-page {
+                width: 100% !important;
+                margin-left: 0 !important;
+                padding: 20px !important;
+            }
+
+            .main-content.ov-page .ov-topbar,
+            .main-content.ov-page .ov-hero {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+            }
+
+            .main-content.ov-page .ov-admin {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .main-content.ov-page .ov-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+    </style>
+</head>
 
 <body>
 
-    <div class="app-layout">
+<div class="app-layout">
 
-        <!-- ================= SIDEBAR ================= -->
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
 
-        <aside class="sidebar">
+        <div class="brand">
+            <img
+                src="{{ url_for('static', filename='logo.png') }}"
+                alt="Aureon Library Logo"
+                class="brand-logo"
+            >
 
-            <div class="brand">
+            <div>
+                <h2 class="brand-name">
+                    Aureon<span class="tm-symbol">™</span>
+                </h2>
+                <p>Library Management System</p>
+            </div>
+        </div>
 
-                <img
-                    src="{{ url_for('static', filename='logo.png') }}"
-                    alt="Library Logo"
-                    class="brand-logo"
-                >
+        <nav class="navigation">
+
+            <a href="{{ url_for('dashboard') }}"
+               class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('books') }}"
+               class="{% if request.endpoint == 'books' %}active{% endif %}">
+                <span>▤</span>
+                Books
+            </a>
+
+            <a href="{{ url_for('members') }}"
+               class="{% if request.endpoint == 'members' %}active{% endif %}">
+                <span>◎</span>
+                Members
+            </a>
+
+            <a href="{{ url_for('member_history') }}"
+               class="{% if request.endpoint == 'member_history' %}active{% endif %}">
+                <span>◷</span>
+                Member History
+            </a>
+
+            <a href="{{ url_for('issue_return') }}"
+               class="{% if request.endpoint == 'issue_return' %}active{% endif %}">
+                <span>⇄</span>
+                Issue & Return
+            </a>
+
+            <a href="{{ url_for('overdue') }}"
+               class="{% if request.endpoint == 'overdue' %}active{% endif %}">
+                <span>!</span>
+                Overdue Books
+            </a>
+
+            <a href="{{ url_for('incidents') }}"
+               class="{% if request.endpoint == 'incidents' %}active{% endif %}">
+                <span>⚠</span>
+                Lost & Damaged
+            </a>
+
+            <a href="{{ url_for('librarian_notifications') }}"
+               class="{% if request.endpoint == 'librarian_notifications' %}active{% endif %}">
+                <span>◉</span>
+                Notifications
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">A</div>
 
                 <div>
-                    <h2 class="brand-name">
-                       Aureon<span class="tm-symbol">™</span>
-                    </h2>
-                    <p>Library Management System</p>
+                    <strong>Admin</strong>
+                    <span>Administrator</span>
                 </div>
+            </div>
+
+            <a href="{{ url_for('logout') }}" class="logout-button">
+                Log Out
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+    <main class="main-content ov-page">
+
+        <!-- PAGE TITLE -->
+        <div class="ov-topbar">
+
+            <div>
+                <div class="ov-breadcrumb">
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <span>›</span>
+                    <span>Overdue Books</span>
+                </div>
+
+                <h1 class="ov-page-title">
+                    Overdue Books
+                </h1>
+            </div>
+
+            <div class="ov-admin">
+                <div class="ov-admin-avatar">A</div>
+
+                <div>
+                    <strong>Admin</strong>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- HERO -->
+        <section class="ov-hero">
+
+            <div class="ov-hero-content">
+
+                <p class="ov-kicker">
+                    LATE RETURN RECORDS
+                </p>
+
+                <h2>
+                    Overdue
+                </h2>
+
+                <p>
+                    These books have passed their return deadline.
+                    Review pending returns and applicable fines.
+                </p>
 
             </div>
 
-
-            # navigation
-            <nav class="navigation">
-
-    <a
-        href="{{ url_for('dashboard') }}"
-        class="{% if request.endpoint == 'dashboard' %}active{% endif %}"
-    >
-        <span>⌂</span>
-        Dashboard
-    </a>
-
-    <a
-        href="{{ url_for('books') }}"
-        class="{% if request.endpoint == 'books' %}active{% endif %}"
-    >
-        <span>▤</span>
-        Books
-    </a>
-
-    <a
-        href="{{ url_for('members') }}"
-        class="{% if request.endpoint == 'members' %}active{% endif %}"
-    >
-        <span>◎</span>
-        Members
-    </a>
-
-    <a
-        href="{{ url_for('member_history') }}"
-        class="{% if request.endpoint == 'member_history' %}active{% endif %}"
-    >
-        <span>◷</span>
-        Member History
-    </a>
-
-    <a
-        href="{{ url_for('issue_return') }}"
-        class="{% if request.endpoint == 'issue_return' %}active{% endif %}"
-    >
-        <span>⇄</span>
-        Issue & Return
-    </a>
-
-    <a
-        href="{{ url_for('overdue') }}"
-        class="{% if request.endpoint == 'overdue' %}active{% endif %}"
-    >
-        <span>!</span>
-        Overdue Books
-    </a>
-
-    <a
-        href="{{ url_for('incidents') }}"
-        class="{% if request.endpoint == 'incidents' %}active{% endif %}"
-    >
-        <span>⚠</span>
-        Lost & Damaged
-    </a>
-
-    <a
-    href="{{ url_for('librarian_notifications') }}"
-    class="{%
-        if request.endpoint == 'librarian_notifications'
-    %}active{% endif %}"
->
-    <span class="nav-icon">◉</span>
-    Notifications
-</a>
-
-</nav>
-
-
-      <!-- Librarian Profile -->
-            <div class="sidebar-footer">
-
-                <a
-                    href="{{ url_for('logout') }}"
-                    class="logout-button"
-                >
-                    Log Out
-                </a>
-
+            <div class="ov-hero-icon">
+                ⏰
             </div>
-            
-        </aside>
+
+        </section>
 
 
-        <!-- ================= MAIN CONTENT ================= -->
+        <!-- ================= STATISTICS ================= -->
 
-        <main class="main-content">
+        {% set overdue_count = overdue_books|length %}
 
-           <header class="page-header dashboard-page-header">
+        {% set unique_members = overdue_books
+            |map(attribute='member_id')
+            |unique
+            |list
+            |length
+        %}
+
+        {% set total_fine = namespace(value=0) %}
+        {% set total_days = namespace(value=0) %}
+
+        {% for item in overdue_books %}
+            {% set total_fine.value = total_fine.value +
+                (item.current_fine * item.overdue_days) %}
+            {% set total_days.value = total_days.value +
+                item.overdue_days %}
+        {% endfor %}
+
+        {% if overdue_count > 0 %}
+            {% set average_days = (total_days.value / overdue_count)|round(1) %}
+        {% else %}
+            {% set average_days = 0 %}
+        {% endif %}
+
+
+        <section class="ov-stats">
+
+            <article class="ov-stat">
+                <div class="ov-stat-icon blue">▤</div>
 
                 <div>
-
-                    <p class="small-title">
-                        Late Return Records
+                    <p class="ov-stat-label">
+                        Total Overdue Books
                     </p>
 
-                    <h1>Overdue</h1>
-
-                    <p class="page-description">
-                        Add and manage member profiles, details and borrowing access.
+                    <p class="ov-stat-value blue-text">
+                        {{ overdue_count }}
                     </p>
 
+                    <p class="ov-stat-sub">
+                        Books not returned on time
+                    </p>
                 </div>
+            </article>
 
-                <div class="admin-badge">
-                    Admin
+
+            <article class="ov-stat">
+                <div class="ov-stat-icon orange">◎</div>
+
+                <div>
+                    <p class="ov-stat-label">
+                        Overdue Members
+                    </p>
+
+                    <p class="ov-stat-value orange-text">
+                        {{ unique_members }}
+                    </p>
+
+                    <p class="ov-stat-sub">
+                        Members with overdue books
+                    </p>
                 </div>
+            </article>
 
 
-            </header>
+            <article class="ov-stat">
+                <div class="ov-stat-icon green">₹</div>
+
+                <div>
+                    <p class="ov-stat-label">
+                        Estimated Fine
+                    </p>
+
+                    <p class="ov-stat-value green-text">
+                        ₹{{ total_fine.value }}
+                    </p>
+
+                    <p class="ov-stat-sub">
+                        Based on current overdue days
+                    </p>
+                </div>
+            </article>
 
 
-            <!-- ================= FLASH MESSAGES ================= -->
+            <article class="ov-stat">
+                <div class="ov-stat-icon purple">◷</div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
+                <div>
+                    <p class="ov-stat-label">
+                        Avg. Overdue Days
+                    </p>
 
-                {% if messages %}
+                    <p class="ov-stat-value purple-text">
+                        {{ average_days }}
+                    </p>
 
-                    {% for category, message in messages %}
+                    <p class="ov-stat-sub">
+                        Average delay per book
+                    </p>
+                </div>
+            </article>
 
-                        <div class="alert {{ category }}">
-                            {{ message }}
-                        </div>
-
-                    {% endfor %}
-
-                {% endif %}
-
-            {% endwith %}
+        </section>
 
 
-            <!-- ================= OVERDUE BOOK CARD ================= -->
+        <!-- ================= OVERDUE TABLE ================= -->
 
-            <section class="content-card">
+        <section class="ov-table-card">
 
-                <div class="card-header responsive-header">
+            <div class="ov-table-head">
 
-                    <div>
+                <div class="ov-table-title">
 
-                        <p class="small-title">
-                            Late Returns
-                        </p>
-
-                        <h2>Overdue Book List</h2>
-
+                    <div class="ov-table-title-icon">
+                        ▣
                     </div>
 
+                    <div>
+                        <h3>
+                            Overdue Book List
+                        </h3>
 
-                    <span class="status issued">
-                        {{ overdue_books|length }} Records
-                    </span>
-
-                </div>
-
-
-                <!-- ================= TABLE ================= -->
-
-                <div class="table-container">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-                                <th>Book</th>
-                                <th>Member</th>
-                                <th>Issue Date</th>
-                                <th>Due Date</th>
-                                <th>Fine</th>
-                                <th>Status</th>
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {% for item in overdue_books %}
-
-                                <tr>
-
-                                    <td>
-                                        <strong>
-                                            {{ item.title }}
-                                        </strong>
-                                    </td>
-
-
-                                    <td>
-                                        {{ item.name }}
-                                    </td>
-
-
-                                    <td>
-                                        {{ item.issue_date }}
-                                    </td>
-
-
-                                    <td>
-                                        <span class="status issued">
-                                            {{ item.due_date }}
-                                        </span>
-                                    </td>
-
-
-                                    <td>
-                                        <span class="status issued">
-                                            ₹10
-                                        </span>
-                                    </td>
-
-
-                                    <td>
-                                        <span class="status issued">
-                                            Overdue
-                                        </span>
-                                    </td>
-
-                                </tr>
-
-
-                            {% else %}
-
-                                <tr>
-
-                                    <td
-                                        colspan="6"
-                                        class="empty-message"
-                                    >
-                                        No overdue books. All issued books are
-                                        within their return due dates.
-                                    </td>
-
-                                </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
+                        <p>
+                            Review books that require immediate attention
+                        </p>
+                    </div>
 
                 </div>
 
-            </section>
 
-        </main>
+                <div class="ov-actions">
 
-    </div>
+                    <button
+                        type="button"
+                        class="ov-filter-button"
+                        onclick="toggleOverdueFilter()"
+                    >
+                        ⚲ &nbsp; Filter
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ov-export-button"
+                        onclick="window.print()"
+                    >
+                        ↓ &nbsp; Export PDF
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- CLIENT-SIDE FILTER -->
+            <div class="ov-filter-area" id="ovFilterArea">
+
+                <input
+                    type="search"
+                    id="ovSearch"
+                    class="ov-search"
+                    placeholder="Search by book or member..."
+                    oninput="filterOverdueRows()"
+                >
+
+            </div>
+
+
+            <div class="ov-table-wrap">
+
+                <table class="ov-table">
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>BOOK DETAILS</th>
+                            <th>MEMBER</th>
+                            <th>ISSUE DATE</th>
+                            <th>DUE DATE</th>
+                            <th>DAYS OVERDUE</th>
+                            <th>FINE</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody id="ovTableBody">
+
+                        {% for item in overdue_books %}
+
+                        {% set row_fine =
+                            item.current_fine * item.overdue_days
+                        %}
+
+                        <tr class="ov-row">
+
+                            <td class="ov-index">
+                                {{ loop.index }}
+                            </td>
+
+
+                            <td>
+                                <span class="ov-book-title">
+                                    {{ item.title }}
+                                </span>
+
+                                <span class="ov-book-code">
+                                    Book ID #{{ item.transaction_id }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <span class="ov-member-name">
+                                    {{ item.name }}
+                                </span>
+
+                                <span class="ov-member-code">
+                                    {{ item.membership_id }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                {{ item.issue_date }}
+                            </td>
+
+
+                            <td>
+                                <span class="ov-due">
+                                    {{ item.due_date }}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                <span class="ov-days">
+                                    {{ item.overdue_days }}
+                                    {% if item.overdue_days == 1 %}
+                                        Day
+                                    {% else %}
+                                        Days
+                                    {% endif %}
+                                </span>
+                            </td>
+
+
+                            <td class="ov-fine">
+                                ₹{{ row_fine }}
+                            </td>
+
+
+                            <td>
+                                <span class="ov-status">
+                                    <span class="ov-status-dot"></span>
+                                    Overdue
+                                </span>
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="8" class="ov-empty">
+
+                                <div style="font-size:32px;margin-bottom:8px;">
+                                    ✓
+                                </div>
+
+                                <strong style="display:block;color:#315474;">
+                                    No overdue books
+                                </strong>
+
+                                <span>
+                                    All issued books are currently within their due dates.
+                                </span>
+
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="ov-table-footer">
+
+                <span class="ov-record-count">
+                    Showing {{ overdue_count }} overdue
+                    {% if overdue_count == 1 %}record{% else %}records{% endif %}
+                </span>
+
+                <span class="ov-record-count">
+                    Last updated automatically
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PENDING CASH CONFIRMATIONS ================= -->
+
+        {% if pending_cash_requests %}
+
+        <section class="ov-pending">
+
+            <div class="ov-pending-head">
+
+                <div>
+                    <h3>
+                        Pending Cash Confirmations
+                    </h3>
+
+                    <p>
+                        Cash fine payments waiting for librarian confirmation.
+                    </p>
+                </div>
+
+                <span class="ov-pending-badge">
+                    {{ pending_cash_requests|length }} Pending
+                </span>
+
+            </div>
+
+
+            {% for request in pending_cash_requests %}
+
+            <div class="ov-pending-row">
+
+                <div>
+                    <div class="ov-pending-book">
+                        {{ request.title }}
+                    </div>
+
+                    <div class="ov-pending-member">
+                        {{ request.member_name }}
+                        · {{ request.membership_id }}
+                        · ₹{{ request.amount }}
+                    </div>
+                </div>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'confirm_incident_cash',
+                        payment_id=request.request_id
+                    ) }}"
+                >
+
+                    <button
+                        type="submit"
+                        class="ov-confirm"
+                        onclick="return confirm(
+                            'Confirm ₹{{ request.amount }} cash received?'
+                        );"
+                    >
+                        Confirm Cash Received
+                    </button>
+
+                </form>
+
+            </div>
+
+            {% endfor %}
+
+        </section>
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+
+<script>
+    function toggleOverdueFilter() {
+        const area = document.getElementById("ovFilterArea");
+        area.classList.toggle("show");
+
+        if (area.classList.contains("show")) {
+            const input = document.getElementById("ovSearch");
+            setTimeout(() => input.focus(), 50);
+        }
+    }
+
+    function filterOverdueRows() {
+        const search =
+            document.getElementById("ovSearch").value.toLowerCase().trim();
+
+        const rows =
+            document.querySelectorAll(".ov-row");
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+
+            row.style.display =
+                text.includes(search) ? "" : "none";
+        });
+    }
+</script>
 
 </body>
-
 </html>
