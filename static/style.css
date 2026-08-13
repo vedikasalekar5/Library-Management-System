@@ -8867,56 +8867,89 @@ body.member-portal-page {
 }
 
 /* =========================================================
-   AUREON LIBRARIAN EMAIL OTP SECURITY GATE
-========================================================= */
+/* =========================================================
+   AUREON SECURITY / LIBRARIAN OTP GATE
+   CLEAN SINGLE SOURCE OF TRUTH
+   - Stage 1: Email verification
+   - Stage 2: Librarian login
+   - No blur / opacity conflicts
+   ========================================================= */
 
-/* AUREON LIBRARIAN EMAIL OTP SECURITY GATE */
 .security-gate-body {
     min-height: 100vh;
+    margin: 0;
+    background: #f5f7ff;
+    color: #292451;
 }
 
 .security-gate-layout {
+    position: relative;
+    isolation: isolate;
     display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(390px, 0.92fr);
+    width: 100%;
     min-height: 100vh;
-    grid-template-columns:
-        minmax(0, 1.08fr)
-        minmax(390px, 0.92fr);
+    overflow: hidden;
+    background: #f5f7ff;
 }
 
-.security-brand-panel {
+/* ---------------- LEFT BRAND PANEL ---------------- */
+.security-brand-panel,
+.security-gate-layout .security-left,
+.security-gate-layout .security-panel-left,
+.security-gate-layout .security-gate-left,
+.security-gate-layout .verification-left,
+.security-gate-layout .login-banner {
     position: relative;
+    isolation: isolate;
     display: flex;
-    min-height: 100vh;
-    padding: clamp(34px, 6vw, 88px);
     flex-direction: column;
     justify-content: space-between;
+    min-height: 100vh;
+    padding: clamp(42px, 6vw, 78px);
     overflow: hidden;
+    background:
+        radial-gradient(
+            circle at 82% 18%,
+            rgba(139, 92, 246, 0.30),
+            transparent 28%
+        ),
+        linear-gradient(
+            145deg,
+            #17145c 0%,
+            #2922a0 48%,
+            #5145e8 100%
+        );
     color: #ffffff;
+    opacity: 1;
+    filter: none;
+    visibility: visible;
 }
 
 .security-brand-panel::before,
 .security-brand-panel::after {
-    position: absolute;
     content: "";
-    border-radius: 999px;
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
     pointer-events: none;
 }
 
 .security-brand-panel::before {
-    top: -130px;
-    right: -90px;
-    width: 360px;
-    height: 360px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.05);
+    top: -180px;
+    right: -150px;
+    width: 430px;
+    height: 430px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .security-brand-panel::after {
-    bottom: -190px;
-    left: -130px;
-    width: 430px;
-    height: 430px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    bottom: -230px;
+    left: -180px;
+    width: 480px;
+    height: 480px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
     background: rgba(255, 255, 255, 0.04);
 }
 
@@ -8924,7 +8957,10 @@ body.member-portal-page {
 .security-hero-copy,
 .security-feature-list {
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    opacity: 1;
+    filter: none;
+    visibility: visible;
 }
 
 .security-brand-top {
@@ -8937,15 +8973,17 @@ body.member-portal-page {
 .security-card-logo {
     display: block;
     object-fit: contain;
+    flex: 0 0 auto;
     background: #ffffff;
-    box-shadow: 0 16px 38px rgba(22, 16, 77, 0.22);
 }
 
 .security-college-logo {
-    width: 72px;
-    height: 72px;
+    width: 74px;
+    height: 74px;
     padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.50);
     border-radius: 20px;
+    box-shadow: 0 16px 38px rgba(20, 14, 70, 0.28);
 }
 
 .security-college-name,
@@ -8954,63 +8992,73 @@ body.member-portal-page {
 }
 
 .security-college-name {
-    max-width: 520px;
+    max-width: 620px;
     color: #ffffff;
-    font-size: 13px;
-    font-weight: 850;
-    letter-spacing: 0.02em;
+    font-size: 14px;
+    font-weight: 800;
     line-height: 1.45;
+    letter-spacing: 0.02em;
 }
 
 .security-brand-name {
     margin-top: 4px;
-    color: #ddd6fe;
+    color: rgba(255, 255, 255, 0.78);
     font-size: 12px;
+    line-height: 1.4;
 }
 
 .security-hero-copy {
     max-width: 760px;
-    margin: clamp(50px, 9vh, 120px) 0;
+    margin: clamp(55px, 9vh, 120px) 0;
 }
 
 .security-eyebrow {
     display: inline-flex;
     align-items: center;
     min-height: 34px;
-    padding: 7px 13px;
-    border: 1px solid rgba(255, 255, 255, 0.23);
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.10);
-    color: #ede9fe;
+    color: #ffffff;
     font-size: 11px;
     font-weight: 900;
-    letter-spacing: 0.11em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
-.security-hero-copy h1 {
-    max-width: 760px;
-    margin: 20px 0 20px;
+.security-hero-copy h1,
+.security-gate-layout .login-banner h1 {
+    max-width: 780px;
+    margin: 20px 0 22px;
     color: #ffffff;
-    font-size: clamp(42px, 5.8vw, 76px);
-    line-height: 1.02;
+    font-size: clamp(42px, 5.7vw, 76px);
+    font-weight: 800;
+    line-height: 1.03;
     letter-spacing: -0.045em;
+    opacity: 1;
+    filter: none;
+    visibility: visible;
 }
 
-.security-hero-copy p {
-    max-width: 650px;
+.security-hero-copy p,
+.security-gate-layout .login-banner p,
+.security-gate-layout .login-banner .banner-description {
+    max-width: 680px;
     margin: 0;
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(255, 255, 255, 0.82);
     font-size: 16px;
     line-height: 1.75;
+    opacity: 1;
+    filter: none;
+    visibility: visible;
 }
 
 .security-hero-copy strong {
     color: #ffffff;
 }
 
-.security-feature-list,
-.login-security-summary {
+.security-feature-list {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -9020,56 +9068,73 @@ body.member-portal-page {
 .login-security-summary span {
     display: inline-flex;
     align-items: center;
-    min-height: 34px;
-    padding: 7px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    min-height: 36px;
+    padding: 8px 13px;
+    border: 1px solid rgba(255, 255, 255, 0.20);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.09);
-    color: #f5f3ff;
+    color: #ffffff;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+/* ---------------- RIGHT SIDE ---------------- */
+.security-card-wrap,
+.security-gate-layout .security-right,
+.security-gate-layout .security-panel-right,
+.security-gate-layout .security-gate-right,
+.security-gate-layout .verification-right,
+.security-gate-layout .login-card,
+.security-gate-layout .login-container {
+    min-width: 0;
 }
 
 .security-card-wrap {
     display: grid;
     min-height: 100vh;
-    padding: 34px;
+    padding: clamp(24px, 4vw, 48px);
     place-items: center;
     background:
         radial-gradient(
             circle at top right,
-            rgba(124, 58, 237, 0.10),
-            transparent 34%
+            rgba(124, 58, 237, 0.12),
+            transparent 38%
         ),
-        rgba(248, 247, 255, 0.96);
+        linear-gradient(135deg, #faf9ff 0%, #f2efff 55%, #eef3ff 100%);
 }
 
 .security-card {
-    width: min(475px, 100%);
-    padding: clamp(26px, 4vw, 40px);
-    border: 1px solid rgba(255, 255, 255, 0.82);
-    border-radius: 26px;
-    background: rgba(255, 255, 255, 0.97);
-    box-shadow: 0 28px 75px rgba(38, 29, 110, 0.18);
+    width: min(560px, 100%);
+    padding: clamp(30px, 4vw, 46px);
+    border: 1px solid rgba(99, 102, 241, 0.16);
+    border-radius: 28px;
+    background: #ffffff;
+    box-shadow: 0 28px 75px rgba(38, 29, 110, 0.16);
+    color: #292451;
+    opacity: 1;
+    filter: none;
+    visibility: visible;
 }
 
 .security-card-logo {
-    width: 60px;
-    height: 60px;
+    width: 62px;
+    height: 62px;
     margin-bottom: 18px;
     padding: 5px;
     border: 1px solid var(--border);
     border-radius: 17px;
+    box-shadow: 0 10px 24px rgba(49, 46, 129, 0.12);
 }
 
 .security-card-badge {
     display: inline-flex;
     align-items: center;
-    min-height: 28px;
-    padding: 5px 10px;
+    min-height: 29px;
+    padding: 6px 11px;
     border-radius: 999px;
     background: #ede9fe;
-    color: var(--primary-dark);
+    color: #312e81;
     font-size: 10px;
     font-weight: 900;
     letter-spacing: 0.08em;
@@ -9078,7 +9143,9 @@ body.member-portal-page {
 
 .security-card h2 {
     margin: 14px 0 8px;
+    color: var(--primary-dark);
     font-size: clamp(27px, 4vw, 35px);
+    line-height: 1.15;
     letter-spacing: -0.025em;
 }
 
@@ -9108,15 +9175,13 @@ body.member-portal-page {
 
 .security-input-shell {
     display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
     align-items: center;
-    grid-template-columns: 42px 1fr;
+    overflow: hidden;
     border: 1px solid var(--border);
     border-radius: 13px;
     background: #ffffff;
-    overflow: hidden;
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .security-input-shell:focus-within {
@@ -9140,6 +9205,7 @@ body.member-portal-page {
     outline: 0;
     background: transparent;
     color: var(--text);
+    box-shadow: none;
 }
 
 .security-field-help {
@@ -9181,8 +9247,8 @@ body.member-portal-page {
 
 .otp-input-group {
     display: grid;
-    gap: 9px;
     grid-template-columns: repeat(var(--otp-length, 6), minmax(0, 1fr));
+    gap: 9px;
 }
 
 .otp-digit-input {
@@ -9198,23 +9264,22 @@ body.member-portal-page {
     font-size: 22px;
     font-weight: 900;
     text-align: center;
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        transform 0.2s ease;
 }
 
 .otp-digit-input:focus {
-    transform: translateY(-1px);
     border-color: #7c3aed;
     box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.11);
 }
 
-.otp-timer-row {
+.otp-timer-row,
+.security-secondary-actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+}
+
+.otp-timer-row {
     color: var(--muted);
     font-size: 11px;
 }
@@ -9228,15 +9293,12 @@ body.member-portal-page {
 }
 
 .security-secondary-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
     margin-top: 18px;
 }
 
 .security-link-button,
-.security-text-link {
+.security-text-link,
+.login-reset-link {
     border: 0;
     background: transparent;
     color: var(--primary);
@@ -9254,7 +9316,8 @@ body.member-portal-page {
 }
 
 .security-text-link:hover,
-.security-link-button:not(:disabled):hover {
+.security-link-button:not(:disabled):hover,
+.login-reset-link:hover {
     text-decoration: underline;
 }
 
@@ -9276,80 +9339,130 @@ body.member-portal-page {
     margin-top: 26px;
 }
 
+/* Stage 2 / normal librarian login when it reuses the security layout. */
+.security-gate-layout .login-card,
+.security-gate-layout .login-container {
+    align-self: center;
+    justify-self: center;
+    width: min(475px, calc(100% - 10px));
+    padding: clamp(28px, 4vw, 40px);
+    border: 1px solid rgba(99, 102, 241, 0.16);
+    border-radius: 26px;
+    background: #ffffff;
+    box-shadow: 0 28px 75px rgba(38, 29, 110, 0.16);
+    color: var(--text);
+}
+
+.security-gate-layout .login-card h1,
+.security-gate-layout .login-card h2,
+.security-gate-layout .login-container h1,
+.security-gate-layout .login-container h2 {
+    color: var(--primary-dark);
+}
+
+.security-gate-layout .login-banner .large-logo {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 24px;
+    object-fit: contain;
+    border-radius: 22px;
+    background: #ffffff;
+}
+
 .login-reset-link {
     display: block;
     margin-top: 16px;
     text-align: center;
 }
 
-@media (max-width: 920px) {
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width: 1000px) {
     .security-gate-layout {
         grid-template-columns: 1fr;
+        overflow: visible;
     }
 
-    .security-brand-panel {
+    .security-brand-panel,
+    .security-gate-layout .security-left,
+    .security-gate-layout .security-panel-left,
+    .security-gate-layout .security-gate-left,
+    .security-gate-layout .verification-left,
+    .security-gate-layout .login-banner {
         min-height: auto;
-        padding: 30px 24px 58px;
+        padding: 46px 30px 70px;
     }
 
     .security-hero-copy {
-        margin: 52px 0 38px;
-    }
-
-    .security-hero-copy h1 {
-        font-size: clamp(38px, 9vw, 58px);
+        margin: 58px 0 42px;
     }
 
     .security-card-wrap {
         min-height: auto;
-        margin-top: -28px;
-        padding: 0 18px 38px;
-        background: transparent;
-    }
-
-    .security-card {
-        position: relative;
-        z-index: 2;
+        padding: 30px 20px 44px;
     }
 }
 
-@media (max-width: 560px) {
-    .security-brand-panel {
-        padding: 24px 18px 52px;
+@media (max-width: 600px) {
+    .security-brand-panel,
+    .security-gate-layout .security-left,
+    .security-gate-layout .security-panel-left,
+    .security-gate-layout .security-gate-left,
+    .security-gate-layout .verification-left,
+    .security-gate-layout .login-banner {
+        padding: 30px 20px 52px;
     }
 
     .security-brand-top {
         align-items: flex-start;
+        gap: 12px;
     }
 
     .security-college-logo {
-        width: 58px;
-        height: 58px;
+        width: 60px;
+        height: 60px;
         border-radius: 16px;
     }
 
     .security-college-name {
+        font-size: 12px;
+    }
+
+    .security-brand-name {
         font-size: 11px;
     }
 
     .security-hero-copy {
-        margin: 42px 0 30px;
+        margin: 44px 0 32px;
     }
 
-    .security-hero-copy p {
+    .security-hero-copy h1,
+    .security-gate-layout .login-banner h1 {
+        font-size: 42px;
+        letter-spacing: -1.5px;
+    }
+
+    .security-hero-copy p,
+    .security-gate-layout .login-banner p,
+    .security-gate-layout .login-banner .banner-description {
         font-size: 14px;
     }
 
     .security-feature-list {
         display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .security-feature-list span {
+        width: fit-content;
     }
 
     .security-card-wrap {
-        padding-right: 12px;
-        padding-left: 12px;
+        padding: 18px 12px 32px;
     }
 
-    .security-card {
+    .security-card,
+    .security-gate-layout .login-card,
+    .security-gate-layout .login-container {
         padding: 26px 20px;
         border-radius: 21px;
     }
@@ -9371,13 +9484,11 @@ body.member-portal-page {
     }
 }
 
-/* =========================================================
    AUREON ALL-FEATURES ADDITIONS
-========================================================= */
 
-.whatsapp-consent-field {
-    grid-column: 1 / -1;
-}
+   .whatsapp-consent-control {
+       grid-column: 1 / -1;
+   }
 
 .whatsapp-consent-control {
     display: flex;
@@ -10934,5 +11045,251 @@ body {
     .collection-card,
     .all-books {
         border-radius: 15px !important;
+    }
+}
+
+/* =========================================================
+   AUREON SECURITY / LIBRARIAN OTP GATE
+   FINAL ISOLATED LAYOUT FIX
+   ========================================================= */
+
+/*
+   IMPORTANT:
+   Security pages do not use the normal application sidebar.
+   :has() lets this work even when the template does not add
+   a special class to <body>.
+*/
+
+body:has(.security-gate-layout) {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    background: #f5f7ff !important;
+}
+
+/* Never show the normal Aureon sidebar on the security page. */
+body:has(.security-gate-layout) .sidebar,
+body:has(.security-gate-layout) .main-sidebar,
+body:has(.security-gate-layout) .navigation {
+    display: none !important;
+}
+
+/* Remove normal application content spacing if a shared layout is used. */
+body:has(.security-gate-layout) .app-layout,
+body:has(.security-gate-layout) .main-content {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Desktop: security information LEFT, OTP/login RIGHT. */
+body:has(.security-gate-layout) .security-gate-layout {
+    position: relative !important;
+    isolation: isolate !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.08fr) minmax(390px, 0.92fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #f5f7ff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+}
+
+/* LEFT BLUE/PURPLE PANEL */
+body:has(.security-gate-layout) .security-brand-panel {
+    position: relative !important;
+    isolation: isolate !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 100vh !important;
+    padding: clamp(42px, 6vw, 78px) !important;
+    overflow: hidden !important;
+    background:
+        radial-gradient(
+            circle at 82% 18%,
+            rgba(139, 92, 246, 0.30),
+            transparent 28%
+        ),
+        linear-gradient(
+            145deg,
+            #17145c 0%,
+            #2922a0 48%,
+            #5145e8 100%
+        ) !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+}
+
+body:has(.security-gate-layout) .security-brand-panel * {
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+}
+
+body:has(.security-gate-layout) .security-college-name {
+    color: #ffffff !important;
+}
+
+body:has(.security-gate-layout) .security-brand-name {
+    color: rgba(255, 255, 255, 0.78) !important;
+}
+
+body:has(.security-gate-layout) .security-hero-copy h1 {
+    color: #ffffff !important;
+}
+
+body:has(.security-gate-layout) .security-hero-copy p {
+    color: rgba(255, 255, 255, 0.84) !important;
+}
+
+body:has(.security-gate-layout) .security-eyebrow,
+body:has(.security-gate-layout) .security-feature-list span {
+    color: #ffffff !important;
+}
+
+/* RIGHT OTP / LOGIN AREA */
+body:has(.security-gate-layout) .security-card-wrap {
+    display: grid !important;
+    place-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 100vh !important;
+    padding: clamp(24px, 4vw, 48px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(124, 58, 237, 0.12),
+            transparent 38%
+        ),
+        linear-gradient(
+            135deg,
+            #faf9ff 0%,
+            #f2efff 55%,
+            #eef3ff 100%
+        ) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+}
+
+body:has(.security-gate-layout) .security-card {
+    width: min(560px, 100%) !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
+    padding: clamp(30px, 4vw, 46px) !important;
+    border: 1px solid rgba(99, 102, 241, 0.16) !important;
+    border-radius: 28px !important;
+    background: #ffffff !important;
+    box-shadow: 0 28px 75px rgba(38, 29, 110, 0.16) !important;
+    color: #292451 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+}
+
+body:has(.security-gate-layout) .security-card h2,
+body:has(.security-gate-layout) .security-card h3,
+body:has(.security-gate-layout) .security-card label {
+    opacity: 1 !important;
+}
+
+body:has(.security-gate-layout) .security-card h2 {
+    color: #312e81 !important;
+}
+
+body:has(.security-gate-layout) .security-card-description,
+body:has(.security-gate-layout) .security-field-help {
+    color: #77729b !important;
+}
+
+/* Stage 2 librarian login card. */
+body:has(.security-gate-layout) .security-gate-layout .login-card,
+body:has(.security-gate-layout) .security-gate-layout .login-container {
+    align-self: center !important;
+    justify-self: center !important;
+    width: min(475px, calc(100% - 10px)) !important;
+    max-width: 475px !important;
+    margin: 0 auto !important;
+    padding: clamp(28px, 4vw, 40px) !important;
+    border: 1px solid rgba(99, 102, 241, 0.16) !important;
+    border-radius: 26px !important;
+    background: #ffffff !important;
+    box-shadow: 0 28px 75px rgba(38, 29, 110, 0.16) !important;
+    color: #292451 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+}
+
+body:has(.security-gate-layout) .security-gate-layout .login-card h1,
+body:has(.security-gate-layout) .security-gate-layout .login-card h2,
+body:has(.security-gate-layout) .security-gate-layout .login-container h1,
+body:has(.security-gate-layout) .security-gate-layout .login-container h2 {
+    color: #312e81 !important;
+}
+
+/* Desktop only: never allow the security page to collapse into one column. */
+@media (min-width: 761px) {
+    body:has(.security-gate-layout) .security-gate-layout {
+        grid-template-columns: minmax(0, 1.08fr) minmax(390px, 0.92fr) !important;
+        min-height: 100vh !important;
+    }
+
+    body:has(.security-gate-layout) .security-brand-panel,
+    body:has(.security-gate-layout) .security-card-wrap {
+        min-height: 100vh !important;
+    }
+}
+
+/* Tablet/mobile: stack the two sections only when the screen is genuinely narrow. */
+@media (max-width: 760px) {
+    body:has(.security-gate-layout) .security-gate-layout {
+        grid-template-columns: 1fr !important;
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    body:has(.security-gate-layout) .security-brand-panel {
+        min-height: auto !important;
+        padding: 38px 26px 58px !important;
+    }
+
+    body:has(.security-gate-layout) .security-card-wrap {
+        min-height: auto !important;
+        padding: 28px 18px 42px !important;
+    }
+}
+
+@media (max-width: 500px) {
+    body:has(.security-gate-layout) .security-brand-panel {
+        padding: 28px 20px 46px !important;
+    }
+
+    body:has(.security-gate-layout) .security-card-wrap {
+        padding: 20px 12px 34px !important;
+    }
+
+    body:has(.security-gate-layout) .security-card,
+    body:has(.security-gate-layout) .security-gate-layout .login-card,
+    body:has(.security-gate-layout) .security-gate-layout .login-container {
+        padding: 26px 20px !important;
+        border-radius: 22px !important;
     }
 }
