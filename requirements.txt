@@ -6,3 +6,4 @@ qrcode[pil]
 reportlab
 razorpay
 gunicorn
+psycopg2-binary

@@ -3,19 +3,25 @@ import sqlite3
 import csv
 import secrets
 import time
-import requests
-
-try:
-    from dotenv import load_dotenv
-except ImportError:
-    def load_dotenv():
-        """Allow the app to run when python-dotenv is unavailable."""
-        return False
+from pathlib import Path
 from datetime import date, datetime, timedelta
 from functools import wraps
 from io import BytesIO, StringIO
 from textwrap import wrap
 from urllib.parse import quote
+
+import requests
+import qrcode
+import psycopg2
+from psycopg2.extras import RealDictCursor, DictCursor
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv(*args, **kwargs):
+        """Allow the app to run when python-dotenv is unavailable."""
+        return False
+
 from backup_database import create_backup_if_due
 from email_service import send_librarian_otp
 from aureon_chatbot import answer_student_question
@@ -27,8 +33,6 @@ from digital_book_service import (
     save_private_pdf,
 )
 from whatsapp_service import send_and_log_whatsapp
-
-import qrcode
 
 try:
     import razorpay
@@ -47,15 +51,51 @@ from flask import (
     session,
     url_for,
 )
+
 from reportlab.lib.pagesizes import A4, A5
 from reportlab.lib.colors import HexColor, white
 from reportlab.pdfgen import canvas
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import (
+    check_password_hash,
+    generate_password_hash,
+)
 
-load_dotenv()
 
+# ============================================================
+# APPLICATION PATHS AND ENVIRONMENT
+# ============================================================
+
+BASE_DIR = Path(__file__).resolve().parent
+
+# Load variables from the local .env file
+load_dotenv(BASE_DIR / ".env")
+
+# PostgreSQL database connection
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is not configured. "
+        "Set DATABASE_URL in .env for local use or Render Environment Variables."
+    )
+
+_DATABASE_URL_PLACEHOLDERS = {
+    "YOUR_RENDER_EXTERNAL_DATABASE_URL",
+    "YOUR_RENDER_INTERNAL_DATABASE_URL",
+    "YOUR_DATABASE_URL",
+}
+if DATABASE_URL in _DATABASE_URL_PLACEHOLDERS or DATABASE_URL.startswith("YOUR_"):
+    raise RuntimeError(
+        "DATABASE_URL still contains a placeholder. Replace it with your real PostgreSQL URL."
+    )
+
+
+# ============================================================
+# FLASK APPLICATION
+# ============================================================
 
 app = Flask(__name__)
+
 app.secret_key = os.environ.get(
     "SECRET_KEY",
     "simple-library-secret-key",
@@ -75,8 +115,19 @@ def inject_current_year():
         "current_year": date.today().year
     }
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DATABASE = os.path.join(BASE_DIR, "library.db")
+# -------------------------------------------------
+# DIGITAL LIBRARY
+# -------------------------------------------------
+
+DIGITAL_BOOKS_DIR = os.path.join(
+    BASE_DIR,
+    "protected_books"
+)
+
+os.makedirs(
+    DIGITAL_BOOKS_DIR,
+    exist_ok=True
+)
 
 LIBRARIAN_USERNAME = os.environ.get(
     "LIBRARIAN_USERNAME",
@@ -224,17 +275,117 @@ def get_razorpay_client():
 # DATABASE
 # -------------------------------------------------
 
+class _PostgresCursor:
+    """Compatibility wrapper for the existing SQLite-style query code."""
+
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    @staticmethod
+    def _translate(query):
+        query = query.replace("?", "%s")
+        query = query.replace("datetime('now', 'localtime')", "CURRENT_TIMESTAMP")
+        query = query.replace('datetime("now", "localtime")', "CURRENT_TIMESTAMP")
+        query = query.replace("date('now', 'localtime')", "CURRENT_DATE")
+        query = query.replace('date("now", "localtime")', "CURRENT_DATE")
+        if "INSERT OR IGNORE INTO" in query.upper():
+            query = query.replace("INSERT OR IGNORE INTO", "INSERT INTO")
+            query = query.replace("insert or ignore into", "insert into")
+            query = query.rstrip().rstrip(";") + " ON CONFLICT DO NOTHING"
+        return query
+
+    def execute(self, query, params=None):
+        self._cursor.execute(self._translate(query), params)
+        return self
+
+    def executemany(self, query, params_list):
+        self._cursor.executemany(self._translate(query), params_list)
+        return self
+
+    def fetchone(self):
+        return self._cursor.fetchone()
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
+
+    @property
+    def lastrowid(self):
+        self._cursor.execute("SELECT LASTVAL()")
+        row = self._cursor.fetchone()
+        return row[0] if row else None
+
+
+class _PostgresConnection:
+    """Compatibility layer that lets Aureon keep its SQLite-style DB calls on PostgreSQL."""
+
+    def __init__(self, dsn):
+        self._connection = psycopg2.connect(dsn)
+
+    @staticmethod
+    def _translate_script(script):
+        script = script.replace("?", "%s")
+        script = script.replace("datetime('now', 'localtime')", "CURRENT_TIMESTAMP")
+        script = script.replace('datetime("now", "localtime")', "CURRENT_TIMESTAMP")
+        script = script.replace("date('now', 'localtime')", "CURRENT_DATE")
+        script = script.replace('date("now", "localtime")', "CURRENT_DATE")
+        script = script.replace(
+            "INTEGER PRIMARY KEY AUTOINCREMENT",
+            "INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY",
+        )
+        return script
+
+    def execute(self, query, params=None):
+        cursor = self._connection.cursor(cursor_factory=DictCursor)
+        return _PostgresCursor(cursor).execute(query, params)
+
+    def executemany(self, query, params_list):
+        cursor = self._connection.cursor(cursor_factory=DictCursor)
+        return _PostgresCursor(cursor).executemany(query, params_list)
+
+    def executescript(self, script):
+        """Execute the existing schema script using PostgreSQL syntax."""
+        script = self._translate_script(script)
+        cursor = self._connection.cursor(cursor_factory=DictCursor)
+        for statement in script.split(";"):
+            statement = statement.strip()
+            if not statement:
+                continue
+            if statement.upper().startswith("INSERT OR IGNORE INTO"):
+                statement = statement.replace("INSERT OR IGNORE INTO", "INSERT INTO", 1)
+                statement += " ON CONFLICT DO NOTHING"
+            cursor.execute(statement)
+        cursor.close()
+
+    def commit(self):
+        self._connection.commit()
+
+    def rollback(self):
+        self._connection.rollback()
+
+    def close(self):
+        self._connection.close()
+
+
 def get_db_connection():
-    connection = sqlite3.connect(DATABASE)
-    connection.row_factory = sqlite3.Row
-    return connection
+    return _PostgresConnection(DATABASE_URL)
 
 
 def _column_names(connection, table_name):
+    """Return PostgreSQL column names for a table."""
     rows = connection.execute(
-        f"PRAGMA table_info({table_name})"
+        """
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = ?
+        """,
+        (table_name,),
     ).fetchall()
-    return {row[1] for row in rows}
+    return {row[0] for row in rows}
 
 
 def _add_column_if_missing(
@@ -244,13 +395,9 @@ def _add_column_if_missing(
     column_definition,
 ):
     columns = _column_names(connection, table_name)
-
     if column_name not in columns:
         connection.execute(
-            f"""
-            ALTER TABLE {table_name}
-            ADD COLUMN {column_name} {column_definition}
-            """
+            f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
         )
 
 
@@ -400,6 +547,66 @@ def create_database():
             paid_at TEXT,
             FOREIGN KEY (incident_id)
                 REFERENCES book_incidents(id)
+        );
+
+
+        CREATE TABLE IF NOT EXISTS digital_books (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            title TEXT NOT NULL,
+
+            author TEXT NOT NULL,
+
+            category TEXT,
+
+            description TEXT,
+
+            cover_url TEXT,
+
+            file_name TEXT NOT NULL,
+
+            read_price INTEGER NOT NULL DEFAULT 10,
+
+            download_price INTEGER NOT NULL DEFAULT 100,
+
+            is_active INTEGER NOT NULL DEFAULT 1,
+
+            created_at TEXT NOT NULL
+        );
+
+
+        CREATE TABLE IF NOT EXISTS digital_purchases (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            member_id INTEGER NOT NULL,
+
+            digital_book_id INTEGER NOT NULL,
+
+            purchase_type TEXT NOT NULL,
+
+            amount INTEGER NOT NULL,
+
+            payment_status TEXT NOT NULL DEFAULT 'Pending',
+
+            gateway_order_id TEXT UNIQUE,
+
+            gateway_payment_id TEXT UNIQUE,
+
+            gateway_signature TEXT,
+
+            purchased_at TEXT,
+
+            FOREIGN KEY (member_id)
+                REFERENCES members(id),
+
+            FOREIGN KEY (digital_book_id)
+                REFERENCES digital_books(id),
+
+            UNIQUE (
+                member_id,
+                digital_book_id,
+                purchase_type
+            )
         );
         """
     )
@@ -833,7 +1040,7 @@ def create_database():
             ON members(membership_id)
             """
         )
-    except sqlite3.IntegrityError:
+    except psycopg2.IntegrityError:
         pass
 
     # Generate a secure QR token for every existing member.
@@ -867,7 +1074,7 @@ def create_database():
             ON members(qr_token)
             """
         )
-    except sqlite3.IntegrityError:
+    except psycopg2.IntegrityError:
         # Extremely unlikely, but regenerate duplicate tokens safely.
         duplicate_rows = connection.execute(
             """
@@ -1145,7 +1352,7 @@ def _create_member_notification(
                 unique_key,
             ),
         )
-    except sqlite3.Error as error:
+    except psycopg2.Error as error:
         print("Notification creation error:", error)
 
 
@@ -2778,18 +2985,21 @@ def books():
     ).strip()
 
     query = """
-        SELECT
-            books.*,
-            digital_books.id AS digital_book_id,
-            digital_books.pdf_filename,
-            digital_books.read_price,
-            digital_books.download_price,
-            digital_books.is_active AS digital_is_active
-        FROM books
-        LEFT JOIN digital_books
-          ON digital_books.book_id = books.id
-        WHERE 1 = 1
-    """
+    SELECT
+        books.*,
+        digital_books.id AS digital_book_id,
+        digital_books.file_name AS pdf_filename,
+        digital_books.read_price,
+        digital_books.download_price,
+        digital_books.is_active AS digital_is_active
+    FROM books
+    LEFT JOIN digital_books
+      ON LOWER(TRIM(digital_books.title))
+         = LOWER(TRIM(books.title))
+     AND LOWER(TRIM(digital_books.author))
+         = LOWER(TRIM(books.author))
+    WHERE 1 = 1
+"""
     values = []
 
     if search:
@@ -3473,7 +3683,7 @@ def issue_return():
                 )
 
                 if result.rowcount != 1:
-                    raise sqlite3.IntegrityError(
+                    raise psycopg2.IntegrityError(
                         "Book is unavailable."
                     )
 
@@ -3485,7 +3695,7 @@ def issue_return():
                     "issued",
                 )
 
-            except sqlite3.Error:
+            except psycopg2.Error:
                 connection.rollback()
                 connection.close()
 
@@ -3591,7 +3801,7 @@ def issue_return():
                     "returned",
                 )
 
-            except sqlite3.Error:
+            except psycopg2.Error:
                 connection.rollback()
                 connection.close()
 
@@ -3715,14 +3925,21 @@ def overdue():
             members.phone,
             transactions.issue_date,
             transactions.due_date,
-            CAST(julianday(date('now', 'localtime')) -
-                 julianday(date(transactions.due_date)) AS INTEGER) AS overdue_days,
+
+            -- PostgreSQL: calculate number of overdue days
+            (CURRENT_DATE - transactions.due_date::date) AS overdue_days,
+
             ? AS current_fine
+
         FROM transactions
-        JOIN books ON books.id = transactions.book_id
-        JOIN members ON members.id = transactions.member_id
+        JOIN books
+            ON books.id = transactions.book_id
+        JOIN members
+            ON members.id = transactions.member_id
+
         WHERE transactions.status = 'Issued'
-          AND date(transactions.due_date) < date('now', 'localtime')
+          AND transactions.due_date::date < CURRENT_DATE
+
         ORDER BY transactions.due_date
         """,
         (FINE_AMOUNT,),
@@ -3744,14 +3961,24 @@ def overdue():
             books.author,
             transactions.due_date,
             transactions.return_date,
-            CAST(julianday(date(transactions.return_date)) -
-                 julianday(date(transactions.due_date)) AS INTEGER) AS overdue_days
+
+            -- PostgreSQL: calculate overdue days
+            (
+                transactions.return_date::date
+                - transactions.due_date::date
+            ) AS overdue_days
+
         FROM fine_payment_requests
-        JOIN transactions ON transactions.id = fine_payment_requests.transaction_id
-        JOIN members ON members.id = fine_payment_requests.member_id
-        JOIN books ON books.id = transactions.book_id
+        JOIN transactions
+            ON transactions.id = fine_payment_requests.transaction_id
+        JOIN members
+            ON members.id = fine_payment_requests.member_id
+        JOIN books
+            ON books.id = transactions.book_id
+
         WHERE fine_payment_requests.payment_method = 'Cash'
           AND fine_payment_requests.payment_status = 'Awaiting Cash Confirmation'
+
         ORDER BY fine_payment_requests.id DESC
         """
     ).fetchall()
@@ -3763,7 +3990,6 @@ def overdue():
         overdue_books=overdue_books,
         pending_cash_requests=pending_cash_requests,
     )
-
 
 # -------------------------------------------------
 # MEMBER HISTORY / PROFILE
@@ -4415,7 +4641,7 @@ def report_book_incident(
 
         connection.commit()
 
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         flash(
@@ -4621,7 +4847,7 @@ def review_incident(incident_id):
                 "Rejected",
             )
 
-        except sqlite3.Error:
+        except psycopg2.Error:
             connection.rollback()
             connection.close()
             flash(
@@ -4704,7 +4930,7 @@ def review_incident(incident_id):
         )
 
         if result.rowcount != 1:
-            raise sqlite3.IntegrityError(
+            raise psycopg2.IntegrityError(
                 "The report was already reviewed."
             )
 
@@ -4732,7 +4958,7 @@ def review_incident(incident_id):
             "Approved",
         )
 
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         flash(
@@ -4935,7 +5161,7 @@ def request_incident_cash(
 
         connection.commit()
 
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         flash(
@@ -5043,7 +5269,7 @@ def confirm_incident_cash(payment_id):
             "Paid",
         )
 
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         flash(
@@ -5169,7 +5395,7 @@ def create_incident_order(qr_token, incident_id):
                 (incident["charge"], requested_method, order["id"], payment_record_id),
             )
         connection.commit()
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         return jsonify({
@@ -5423,7 +5649,7 @@ def verify_incident_payment(
 
         connection.commit()
 
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         return jsonify({
@@ -6666,7 +6892,7 @@ def pay_member_fine(
 
         connection.commit()
 
-    except sqlite3.IntegrityError:
+    except psycopg2.IntegrityError:
         connection.rollback()
         connection.close()
         flash(
@@ -6778,7 +7004,7 @@ def pay_qr_fine(
 
         connection.commit()
 
-    except sqlite3.IntegrityError:
+    except psycopg2.IntegrityError:
         connection.rollback()
         connection.close()
         return redirect(
@@ -7188,30 +7414,30 @@ def member_card_setup(qr_token):
         )
 
         connection.execute(
-            """
-            UPDATE members
-            SET card_password_hash = ?,
-                card_password_created_at =
-                    COALESCE(
-                        card_password_created_at,
-                        datetime('now', 'localtime')
-                    ),
-                card_password_updated_at =
-                    datetime('now', 'localtime'),
-                card_failed_attempts = 0,
-                card_locked_until = NULL,
-                card_reset_required = 0,
-                card_session_version =
-                    COALESCE(card_session_version, 1) + 1,
-                card_last_login =
-                    datetime('now', 'localtime')
-            WHERE id = ?
-            """,
-            (
-                password_hash,
-                member["id"],
+    """
+    UPDATE members
+    SET card_password_hash = ?,
+        card_password_created_at =
+            COALESCE(
+                card_password_created_at,
+                CURRENT_TIMESTAMP::text
             ),
-        )
+        card_password_updated_at =
+            CURRENT_TIMESTAMP::text,
+        card_failed_attempts = 0,
+        card_locked_until = NULL,
+        card_reset_required = 0,
+        card_session_version =
+            COALESCE(card_session_version, 1) + 1,
+        card_last_login =
+            CURRENT_TIMESTAMP::text
+    WHERE id = ?
+    """,
+    (
+        password_hash,
+        member["id"],
+    ),
+)
 
         updated_member = connection.execute(
             """
@@ -7815,11 +8041,11 @@ def _get_member_portal_information(connection, member):
         "next_due_book": next_due_book,
     }
 
-
 @app.route("/member-portal")
 @member_card_required
 def member_portal():
     connection = get_db_connection()
+
     member = connection.execute(
         """
         SELECT *
@@ -7848,34 +8074,36 @@ def member_portal():
             digital_books.id AS digital_book_id,
             digital_books.read_price,
             digital_books.download_price,
-            books.title,
-            books.author,
-            books.category,
-            books.description,
-            books.cover_url
+            digital_books.title,
+            digital_books.author,
+            digital_books.category,
+            digital_books.description,
+            digital_books.cover_url
         FROM digital_books
-        JOIN books
-          ON books.id = digital_books.book_id
         WHERE digital_books.is_active = 1
-        ORDER BY books.title
+        ORDER BY digital_books.title
         """
     ).fetchall()
 
     digital_books = []
+
     for row in digital_rows:
         item = dict(row)
+
         item["can_read"] = member_has_digital_access(
             connection,
             member["id"],
             row["digital_book_id"],
             "read",
         )
+
         item["can_download"] = member_has_digital_access(
             connection,
             member["id"],
             row["digital_book_id"],
             "download",
         )
+
         digital_books.append(item)
 
     connection.close()
@@ -8073,7 +8301,7 @@ def submit_member_incident():
 
         connection.commit()
 
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         flash(
@@ -8909,7 +9137,7 @@ def request_fine_cash(transaction_id):
 
         connection.commit()
 
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         flash(
@@ -9052,7 +9280,7 @@ def confirm_fine_cash(request_id):
             f"fine-payment:{payment_request['transaction_id']}:paid",
         )
 
-    except sqlite3.Error:
+    except psycopg2.Error:
         connection.rollback()
         connection.close()
         flash(
@@ -10096,7 +10324,7 @@ def save_digital_book(book_id):
         ):
             delete_private_pdf(old_filename)
 
-    except (ValueError, OSError, sqlite3.Error) as error:
+    except (ValueError, OSError, psycopg2.Error) as error:
         connection.rollback()
 
         if new_filename:
@@ -10397,26 +10625,24 @@ def verify_digital_book_payment():
 
     connection = get_db_connection()
     payment = connection.execute(
-        """
-        SELECT
-            digital_book_payments.*,
-            digital_books.is_active,
-            books.title
-        FROM digital_book_payments
-        JOIN digital_books
-          ON digital_books.id = digital_book_payments.digital_book_id
-        JOIN books
-          ON books.id = digital_books.book_id
-        WHERE digital_book_payments.id = ?
-          AND digital_book_payments.member_id = ?
-          AND digital_book_payments.gateway_order_id = ?
-        """,
-        (
-            payment_record_id,
-            session["member_id"],
-            order_id,
-        ),
-    ).fetchone()
+      """
+SELECT
+    digital_book_payments.*,
+    digital_books.is_active,
+    digital_books.title
+FROM digital_book_payments
+JOIN digital_books
+    ON digital_books.id = digital_book_payments.digital_book_id
+WHERE digital_book_payments.id = ?
+  AND digital_book_payments.member_id = ?
+  AND digital_book_payments.gateway_order_id = ?
+""",
+(
+    payment_record_id,
+    session["member_id"],
+    order_id,
+),
+).fetchone()
 
     if payment is None:
         connection.close()
