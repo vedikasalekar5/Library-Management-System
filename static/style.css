@@ -918,8 +918,9 @@ tbody tr:last-child td {
             #312e81 0%,
             #4f46e5 45%,
             #7c3aed 100%
-        );
+        ) !important; /* <--- Add !important right here */
 }
+
 
 .login-layout {
     display: grid;
