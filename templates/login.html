@@ -43,7 +43,7 @@
             </p>
 
             <div class="login-security-summary">
-                <span>✓ Email OTP verified</span>
+                <span>✓ Secure Admin Access</span>
                 <span>✓ Librarian credentials required</span>
             </div>
 
@@ -58,12 +58,8 @@
                 class="mobile-logo"
             >
 
-            <span class="security-card-badge">
-                Stage 2 of 2
-            </span>
-
             <p class="small-title">
-                Security Check Complete
+                Portal Access
             </p>
 
             <h2>
@@ -73,11 +69,6 @@
             <p class="muted-text">
                 Enter the authorised Librarian username and password.
             </p>
-
-            <div class="verified-email-chip">
-                <span aria-hidden="true">✓</span>
-                Verified: {{ verified_email }}
-            </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -91,7 +82,7 @@
 
             <form
                 method="POST"
-                action="{{ url_for('librarian_login') }}"
+                action="{{ url_for('login') }}"
                 class="form-stack"
             >
                 <label>
@@ -125,22 +116,7 @@
                 </button>
             </form>
 
-            <div class="login-security-note">
-                <span aria-hidden="true">🔒</span>
-                <p>
-                    This login page is available only after successful
-                    email OTP verification.
-                </p>
-            </div>
-
-            <a
-                href="{{ url_for('reset_security_gate') }}"
-                class="security-text-link login-reset-link"
-            >
-                Verify a different email
-            </a>
-
-            <div class="publisher-credit">
+            <div class="publisher-credit" style="margin-top: 2rem;">
                 Designed and Developed by
                 <strong>Vedika Satish Salekar</strong>
             </div>
